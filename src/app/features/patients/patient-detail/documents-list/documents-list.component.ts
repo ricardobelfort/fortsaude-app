@@ -25,7 +25,7 @@ interface DocumentRecord {
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
           (click)="triggerFileInput()"
         >
-          <app-icon name="upload-cloud" [size]="18"></app-icon>
+          <app-icon name="upload-cloud"></app-icon>
           Upload de Documento
         </button>
         <input
@@ -71,7 +71,7 @@ interface DocumentRecord {
                   disabled
                   (click)="downloadDocument(doc)"
                 >
-                  <app-icon name="download-cloud" [size]="18"></app-icon>
+                  <app-icon name="download-cloud"></app-icon>
                   Baixar
                 </button>
                 <button
@@ -79,7 +79,7 @@ interface DocumentRecord {
                   class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
                   (click)="deleteDocument(doc.id)"
                 >
-                  <app-icon name="trash-2" [size]="18"></app-icon>
+                  <app-icon name="trash-2"></app-icon>
                   Excluir
                 </button>
               </div>

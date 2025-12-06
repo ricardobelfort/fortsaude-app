@@ -78,7 +78,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                 class="fs-button-primary"
                 [disabled]="!form.valid || isLoading()"
               >
-                <app-icon name="save" [size]="18"></app-icon>
+                <app-icon name="save"></app-icon>
                 {{ isLoading() ? 'Salvando...' : 'Salvar' }}
               </button>
             </div>

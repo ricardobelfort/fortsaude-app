@@ -42,4 +42,8 @@ export class CurrentUserService {
   getUserId(): string | null {
     return this.authService.currentUser()?.id ?? null;
   }
+
+  getEmail(): string | null {
+    return this.authService.currentUser()?.email ?? null;
+  }
 }

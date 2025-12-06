@@ -39,37 +39,40 @@ interface Professional {
           <h1 class="text-3xl font-bold text-gray-900">Agenda de Atendimentos</h1>
           <button
             type="button"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            class="fs-button-primary"
             (click)="openNewAppointmentDialog()"
           >
-            <app-icon name="calendar" [size]="18"></app-icon>
+            <app-icon name="calendar"></app-icon>
             Novo Atendimento
           </button>
         </div>
 
         <!-- Calendar View Toggle -->
         <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div class="flex gap-3">
+          <div class="flex gap-2">
             <button
               type="button"
-              class="px-3 py-2 rounded-md border text-sm"
-              [class.bg-slate-100]="viewMode() === 'week'"
+              class="fs-button-secondary"
+              [class.bg-indigo-50]="viewMode() === 'week'"
+              [class.border-indigo-300]="viewMode() === 'week'"
               disabled
             >
               Semana
             </button>
             <button
               type="button"
-              class="px-3 py-2 rounded-md border text-sm"
-              [class.bg-slate-100]="viewMode() === 'month'"
+              class="fs-button-secondary"
+              [class.bg-indigo-50]="viewMode() === 'month'"
+              [class.border-indigo-300]="viewMode() === 'month'"
               disabled
             >
               Mês
             </button>
             <button
               type="button"
-              class="px-3 py-2 rounded-md border text-sm"
-              [class.bg-slate-100]="viewMode() === 'agenda'"
+              class="fs-button-secondary"
+              [class.bg-indigo-50]="viewMode() === 'agenda'"
+              [class.border-indigo-300]="viewMode() === 'agenda'"
               disabled
             >
               Agenda
@@ -125,7 +128,7 @@ interface Professional {
                         (click)="editAppointment(apt)"
                         class="inline-flex items-center gap-1 px-3 py-2 text-blue-600 hover:text-blue-800"
                       >
-                        <app-icon name="edit-3" [size]="18"></app-icon>
+                        <app-icon name="edit-3"></app-icon>
                         Editar
                       </button>
                       <button
@@ -133,7 +136,7 @@ interface Professional {
                         (click)="deleteAppointment(apt.id)"
                         class="inline-flex items-center gap-1 px-3 py-2 text-red-600 hover:text-red-800"
                       >
-                        <app-icon name="trash-2" [size]="18"></app-icon>
+                        <app-icon name="trash-2"></app-icon>
                         Excluir
                       </button>
                     </div>
@@ -164,7 +167,7 @@ interface Professional {
               class="text-gray-500 hover:text-gray-700"
               (click)="showDialog = false"
             >
-              <app-icon name="x" [size]="18"></app-icon>
+              <app-icon name="x"></app-icon>
             </button>
           </div>
 
@@ -229,7 +232,7 @@ interface Professional {
 
             <div class="flex justify-end gap-3">
               <button type="button" class="fs-button-secondary" (click)="showDialog = false">
-                <app-icon name="x-circle" [size]="18"></app-icon>
+                <app-icon name="x-circle"></app-icon>
                 Cancelar
               </button>
               <button
@@ -237,7 +240,7 @@ interface Professional {
                 class="fs-button-primary"
                 [disabled]="!form.valid || isLoading()"
               >
-                <app-icon name="check-circle" [size]="18"></app-icon>
+                <app-icon name="check-circle"></app-icon>
                 {{ isLoading() ? 'Salvando...' : 'Salvar' }}
               </button>
             </div>

@@ -19,7 +19,7 @@ export class JwtInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getToken();
 
-    if (token) {
+    if (token && !this.isAuthEndpoint(request.url)) {
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,
@@ -37,4 +37,12 @@ export class JwtInterceptor implements HttpInterceptor {
       })
     );
   }
+
+  /**
+   * Check if the request is to an auth endpoint (avoid adding token to login request)
+   */
+  private isAuthEndpoint(url: string): boolean {
+    return url.includes('/auth/login') || url.includes('/auth/refresh');
+  }
 }
+

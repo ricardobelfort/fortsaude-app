@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { finalize } from 'rxjs';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -152,30 +153,25 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
 
-  isLoading = signal(false);
+  readonly isLoading = signal(false);
+  readonly loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
-  loginForm: FormGroup;
-
-  constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
-
-  get email() {
-    return this.loginForm.get('email')!;
-  }
-
-  get password() {
-    return this.loginForm.get('password')!;
-  }
+  readonly email = this.loginForm.get('email')!;
+  readonly password = this.loginForm.get('password')!;
 
   onLogin(): void {
     if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
     const { email, password } = this.loginForm.value;
+
+    if (!email || !password) {
+      this.isLoading.set(false);
+      return;
+    }
 
     this.authService
       .login(email, password)
@@ -192,21 +188,14 @@ export class LoginComponent {
             detail: 'Autenticação realizada com sucesso',
             life: 2000,
           });
-          this.router.navigate(['/app/dashboard']);
+          // Pequeno delay para mostrar o toast antes de navegar
+          setTimeout(() => {
+            this.router.navigate(['/app/dashboard']);
+          }, 500);
         },
         error: (error: unknown) => {
           console.error('Login error:', error);
-          let errorMessage = 'E-mail ou senha incorretos';
-          if (error instanceof Error && 'error' in error) {
-            const errObj = error as Record<string, unknown>;
-            const errProp = errObj['error'];
-            if (typeof errProp === 'object' && errProp !== null && 'message' in errProp) {
-              const msgProp = (errProp as Record<string, unknown>)['message'];
-              if (typeof msgProp === 'string') {
-                errorMessage = msgProp;
-              }
-            }
-          }
+          const errorMessage = this.extractErrorMessage(error);
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
@@ -215,5 +204,25 @@ export class LoginComponent {
           });
         },
       });
+  }
+
+  private extractErrorMessage(error: unknown): string {
+    const defaultMessage = 'E-mail ou senha incorretos';
+
+    if (!(error instanceof Error)) {
+      return defaultMessage;
+    }
+
+    const errObj = error as unknown as Record<string, unknown>;
+    const errProp = errObj['error'];
+
+    if (typeof errProp === 'object' && errProp !== null && 'message' in errProp) {
+      const msgProp = (errProp as Record<string, unknown>)['message'];
+      if (typeof msgProp === 'string') {
+        return msgProp;
+      }
+    }
+
+    return defaultMessage;
   }
 }

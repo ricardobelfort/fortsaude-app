@@ -1,7 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
 import { User } from '../models';
+import { environment } from '../../../environments/environment';
 
 interface LoginRequest {
   email: string;
@@ -9,8 +10,8 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: string;
-  user: User;
+  accessToken: string;
+  refreshToken?: string;
 }
 
 @Injectable({
@@ -18,66 +19,116 @@ interface LoginResponse {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = environment.apiUrl;
 
-  currentUser = signal<User | null>(null);
-  token = signal<string | null>(null);
+  // Signals
+  private readonly tokenSignal = signal<string | null>(null);
+  private readonly userSignal = signal<User | null>(null);
+  private readonly isInitializedSignal = signal(false);
+
+  // Computed values
+  readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly currentUser = computed(() => this.userSignal());
+  readonly isInitialized = computed(() => this.isInitializedSignal());
 
   constructor() {
-    this.loadFromStorage();
+    this.initializeAuthState();
+    this.setupPersistedState();
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    const body: LoginRequest = { email, password };
-    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body).pipe(
-      tap((response) => {
-        this.token.set(response.token);
-        this.currentUser.set(response.user);
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-      })
-    );
-  }
-
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/me`).pipe(
-      tap((user) => {
-        this.currentUser.set(user);
-        localStorage.setItem('user', JSON.stringify(user));
-      })
-    );
-  }
-
-  logout(): void {
-    this.currentUser.set(null);
-    this.token.set(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.token();
-  }
-
-  getToken(): string | null {
-    return this.token();
-  }
-
-  private loadFromStorage(): void {
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-
+  /**
+   * Initialize auth state from localStorage
+   */
+  private initializeAuthState(): void {
+    const token = this.getStoredToken();
     if (token) {
-      this.token.set(token);
-    }
-
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr) as User;
-        this.currentUser.set(user);
-      } catch {
-        localStorage.removeItem('user');
+      this.tokenSignal.set(token);
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr) as User;
+          this.userSignal.set(user);
+        } catch {
+          localStorage.removeItem('user');
+        }
       }
     }
+    this.isInitializedSignal.set(true);
+  }
+
+  /**
+   * Setup side effect to persist token and user to localStorage
+   */
+  private setupPersistedState(): void {
+    effect(() => {
+      const token = this.tokenSignal();
+      if (token) {
+        localStorage.setItem('token', token);
+      } else {
+        localStorage.removeItem('token');
+      }
+    });
+
+    effect(() => {
+      const user = this.userSignal();
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('user');
+      }
+    });
+  }
+
+  /**
+   * Login with email and password
+   */
+  login(email: string, password: string): Observable<LoginResponse> {
+    const body: LoginRequest = { email, password };
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, body).pipe(
+      tap((response) => {
+        this.tokenSignal.set(response.accessToken);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
+      })
+    );
+  }
+
+  /**
+   * Get current user details from API
+   */
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/users/me`).pipe(
+      tap((user) => {
+        this.userSignal.set(user);
+      })
+    );
+  }
+
+  /**
+   * Logout and clear auth state
+   */
+  logout(): void {
+    this.tokenSignal.set(null);
+    this.userSignal.set(null);
+    localStorage.removeItem('refreshToken');
+  }
+
+  /**
+   * Get the current token
+   */
+  getToken(): string | null {
+    return this.tokenSignal();
+  }
+
+  /**
+   * Get stored token from localStorage
+   */
+  private getStoredToken(): string | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    return localStorage.getItem('token');
   }
 }
+

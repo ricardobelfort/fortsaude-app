@@ -1,11 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, Router } from '@angular/router';
-import { MenubarModule } from 'primeng/menubar';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CurrentUserService } from '../../../core/services/current-user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/role.model';
@@ -17,101 +12,104 @@ import { UserRole } from '../../../core/models/role.model';
     CommonModule,
     RouterOutlet,
     RouterLink,
-    MenubarModule,
-    ButtonModule,
-    AvatarModule,
-    MenuModule,
-    BreadcrumbModule,
+    RouterLinkActive,
   ],
   template: `
-    <div class="flex h-screen">
+    <div class="flex h-screen bg-slate-50 text-slate-900">
       <!-- Sidebar -->
-      <div class="w-64 bg-gray-900 text-white flex flex-col">
-        <div class="p-6 border-b border-gray-800">
+      <aside class="w-64 bg-[var(--fs-sidebar)] text-white flex flex-col shadow-xl">
+        <div class="p-6 border-b border-[var(--fs-border)]">
           <h1 class="text-2xl font-bold">FortSaúde</h1>
-          <p class="text-gray-400 text-sm">Clínica Multidisciplinar</p>
+          <p class="text-[var(--fs-text-muted)] text-sm">Clínica Multidisciplinar</p>
         </div>
 
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
           <a
             routerLink="/app/dashboard"
-            class="block px-4 py-2 rounded hover:bg-gray-800 transition"
+            routerLinkActive="sidebar-active"
+            class="sidebar-link"
+            [routerLinkActiveOptions]="{ exact: true }"
           >
-            <i class="pi pi-home mr-2"></i>Dashboard
+            <span class="mr-2">🏠</span>Dashboard
           </a>
 
-          <a
-            routerLink="/app/patients"
-            class="block px-4 py-2 rounded hover:bg-gray-800 transition"
-          >
-            <i class="pi pi-users mr-2"></i>Pacientes
+          <a routerLink="/app/patients" routerLinkActive="sidebar-active" class="sidebar-link">
+            <span class="mr-2">👥</span>Pacientes
           </a>
 
           <a
             routerLink="/app/professionals"
-            class="block px-4 py-2 rounded hover:bg-gray-800 transition"
+            routerLinkActive="sidebar-active"
+            class="sidebar-link"
           >
-            <i class="pi pi-briefcase mr-2"></i>Profissionais
+            <span class="mr-2">💼</span>Profissionais
           </a>
 
           <a
             routerLink="/app/appointments"
-            class="block px-4 py-2 rounded hover:bg-gray-800 transition"
+            routerLinkActive="sidebar-active"
+            class="sidebar-link"
           >
-            <i class="pi pi-calendar mr-2"></i>Agenda
+            <span class="mr-2">🗓️</span>Agenda
           </a>
 
-          <div *ngIf="canAccessAdmin()" class="border-t border-gray-800 mt-4 pt-4">
+          <div *ngIf="canAccessAdmin()" class="border-t border-[var(--fs-border)] mt-4 pt-4">
             <a
               routerLink="/app/admin/users"
-              class="block px-4 py-2 rounded hover:bg-gray-800 transition text-yellow-400"
+              routerLinkActive="sidebar-active"
+              class="sidebar-link text-amber-300"
             >
-              <i class="pi pi-shield mr-2"></i>Admin
+              <span class="mr-2">🛡️</span>Admin
             </a>
           </div>
         </nav>
 
-        <div class="p-4 border-t border-gray-800">
+        <div class="p-4 border-t border-[var(--fs-border)]">
           <div class="flex items-center gap-3">
-            <p-avatar [label]="getUserInitial()" shape="circle"></p-avatar>
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
+              {{ getUserInitial() }}
+            </div>
             <div class="text-sm flex-1">
               <p class="font-medium">{{ fullName }}</p>
-              <p class="text-gray-400">{{ getRole }}</p>
+              <p class="text-[var(--fs-text-muted)]">{{ getRole }}</p>
             </div>
           </div>
-          <p-button
-            label="Sair"
-            icon="pi pi-sign-out"
-            class="w-full mt-3"
-            severity="secondary"
-            size="small"
-            (onClick)="logout()"
-          ></p-button>
+          <button
+            type="button"
+            class="w-full mt-3 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold py-2 rounded-lg"
+            (click)="logout()"
+          >
+            Sair
+          </button>
         </div>
-      </div>
+      </aside>
 
       <!-- Main Content -->
       <div class="flex-1 flex flex-col">
         <!-- Topbar -->
-        <div class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center">
+        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-sm">
           <div>
-            <p class="text-gray-600 text-sm">Bem-vindo</p>
-            <h2 class="text-2xl font-bold text-gray-800">{{ pageTitle() }}</h2>
+            <p class="text-slate-500 text-sm">Bem-vindo</p>
+            <h2 class="text-2xl font-bold text-slate-900">{{ pageTitle() }}</h2>
           </div>
           <div class="flex items-center gap-4">
-            <p-avatar
-              icon="pi pi-user"
-              shape="circle"
-              styleClass="bg-blue-500 text-white"
-            ></p-avatar>
-            <p-button icon="pi pi-bell" [rounded]="true" [text]="true"></p-button>
+            <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
+              {{ getUserInitial() }}
+            </div>
+            <button
+              type="button"
+              class="rounded-full w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-100"
+              title="Notificações"
+            >
+              🔔
+            </button>
           </div>
-        </div>
+        </header>
 
         <!-- Content Area -->
-        <div class="flex-1 overflow-y-auto p-8 bg-gray-50">
+        <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
           <router-outlet></router-outlet>
-        </div>
+        </main>
       </div>
     </div>
   `,

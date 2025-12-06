@@ -1,7 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
-@import 'primeicons/primeicons.css';
+
+@layer components {
+  .fs-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .fs-input,
+  .fs-select,
+  .fs-textarea {
+    @apply w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
+  }
+
+  .fs-button-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-60;
+  }
+
+  .fs-button-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50;
+  }
+}
 
 /* FullCalendar CSS será importado no componente */
 
@@ -10,4 +29,115 @@ body {
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
     'Helvetica Neue', sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root {
+  --fs-sidebar: #0b1224;
+  --fs-sidebar-hover: #111a2f;
+  --fs-surface-dark: #0f172a;
+  --fs-surface-muted: #151c2f;
+  --fs-border: #1e293b;
+  --fs-primary: #2563eb;
+  --fs-primary-strong: #4f46e5;
+  --fs-purple: #7c3aed;
+  --fs-green: #16a34a;
+  --fs-orange: #f97316;
+  --fs-cyan: #22d3ee;
+  --fs-text-muted: #94a3b8;
+}
+
+.hero-gradient {
+  background: linear-gradient(90deg, #2563eb 0%, #4f46e5 50%, #22d3ee 100%);
+}
+
+.card-dark {
+  background: var(--fs-surface-dark);
+  color: #e2e8f0;
+  border: 1px solid var(--fs-border);
+  border-radius: 14px;
+}
+
+.card-dark-muted {
+  background: var(--fs-surface-muted);
+  color: #e2e8f0;
+  border: 1px solid var(--fs-border);
+  border-radius: 14px;
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.status-scheduled {
+  background: rgba(37, 99, 235, 0.15);
+  color: #2563eb;
+}
+
+.status-confirmed {
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+}
+
+.status-completed {
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+}
+
+.status-no-show {
+  background: rgba(234, 179, 8, 0.15);
+  color: #ca8a04;
+}
+
+.status-cancelled {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.fs-dark-table .p-datatable {
+  background: transparent;
+}
+
+.fs-dark-table .p-datatable-thead > tr > th {
+  background: transparent;
+  color: #cbd5e1;
+  border: 0;
+  font-weight: 600;
+}
+
+.fs-dark-table .p-datatable-tbody > tr > td {
+  background: transparent;
+  color: #e2e8f0;
+  border: 0;
+}
+
+.fs-dark-table .p-datatable-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-link {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #e2e8f0;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--fs-sidebar-hover);
+  color: #fff;
+}
+
+.sidebar-active {
+  background: var(--fs-sidebar-hover);
+  color: #fff !important;
+  border-left: 3px solid var(--fs-primary);
+  padding-left: 11px;
 }

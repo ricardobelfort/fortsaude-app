@@ -1,15 +1,10 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AppointmentsService, PatientsService, ProfessionalsService } from '../../core/services';
 import { AppointmentStatus } from '../../core/models';
+import { AlertService } from '../../shared/ui/alert.service';
+import { IconComponent } from '../../shared/ui/icon.component';
 
 interface AppointmentRecord {
   id: string;
@@ -35,60 +30,64 @@ interface Professional {
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    DialogModule,
-    CardModule,
-    ToastModule,
-    ConfirmDialogModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent],
   template: `
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
-
     <div class="p-6">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-3xl font-bold text-gray-900">Agenda de Atendimentos</h1>
           <button
-            pButton
             type="button"
-            icon="pi pi-plus"
-            label="Novo Atendimento"
-            severity="success"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
             (click)="openNewAppointmentDialog()"
-          ></button>
+          >
+            <app-icon name="calendar" [size]="18"></app-icon>
+            Novo Atendimento
+          </button>
         </div>
 
         <!-- Calendar View Toggle -->
         <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
           <div class="flex gap-3">
             <button
-              pButton
-              [outlined]="viewMode() !== 'week'"
-              label="Semana"
-              [disabled]="true"
-              class="text-sm"
-            ></button>
+              type="button"
+              class="px-3 py-2 rounded-md border text-sm"
+              [class.bg-slate-100]="viewMode() === 'week'"
+              disabled
+            >
+              Semana
+            </button>
             <button
-              pButton
-              [outlined]="viewMode() !== 'month'"
-              label="Mês"
-              [disabled]="true"
-              class="text-sm"
-            ></button>
+              type="button"
+              class="px-3 py-2 rounded-md border text-sm"
+              [class.bg-slate-100]="viewMode() === 'month'"
+              disabled
+            >
+              Mês
+            </button>
             <button
-              pButton
-              [outlined]="viewMode() !== 'agenda'"
-              label="Agenda"
-              [disabled]="true"
-              class="text-sm"
-            ></button>
+              type="button"
+              class="px-3 py-2 rounded-md border text-sm"
+              [class.bg-slate-100]="viewMode() === 'agenda'"
+              disabled
+            >
+              Agenda
+            </button>
           </div>
         </div>
+
+        @if (feedback(); as fb) {
+          <div
+            class="mb-4 px-4 py-3 rounded-lg text-sm"
+            [class.bg-green-100]="fb.type === 'success'"
+            [class.text-green-800]="fb.type === 'success'"
+            [class.bg-red-100]="fb.type === 'error'"
+            [class.text-red-800]="fb.type === 'error'"
+          >
+            {{ fb.message }}
+          </div>
+        }
 
         <!-- Appointments List (Temporary until FullCalendar integration) -->
         <div class="bg-white rounded-lg shadow-sm p-6">
@@ -122,21 +121,21 @@ interface Professional {
                     </div>
                     <div class="flex gap-2">
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-pencil"
-                        severity="info"
-                        [text]="true"
                         (click)="editAppointment(apt)"
-                      ></button>
+                        class="inline-flex items-center gap-1 px-3 py-2 text-blue-600 hover:text-blue-800"
+                      >
+                        <app-icon name="edit-3" [size]="18"></app-icon>
+                        Editar
+                      </button>
                       <button
-                        pButton
                         type="button"
-                        icon="pi pi-trash"
-                        severity="danger"
-                        [text]="true"
                         (click)="deleteAppointment(apt.id)"
-                      ></button>
+                        class="inline-flex items-center gap-1 px-3 py-2 text-red-600 hover:text-red-800"
+                      >
+                        <app-icon name="trash-2" [size]="18"></app-icon>
+                        Excluir
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -144,7 +143,7 @@ interface Professional {
             </div>
           } @else {
             <div class="text-center py-12 text-gray-500">
-              <p class="icon pi pi-calendar" style="font-size: 3rem; margin-bottom: 1rem;"></p>
+              <p class="text-5xl mb-4">📅</p>
               <p>Nenhum atendimento agendado</p>
             </div>
           }
@@ -153,97 +152,103 @@ interface Professional {
     </div>
 
     <!-- New/Edit Appointment Dialog -->
-    <p-dialog
-      [(visible)]="showDialog"
-      [header]="editingId ? 'Editar Atendimento' : 'Novo Atendimento'"
-      [modal]="true"
-      [style]="{ width: '50vw' }"
-      [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
-    >
-      <form [formGroup]="form" (ngSubmit)="saveAppointment()" class="space-y-6">
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Paciente </label>
-          <select formControlName="patientId" class="w-full border border-gray-300 rounded-lg p-2">
-            <option value="">Selecione um paciente</option>
-            @for (patient of patients(); track patient.id) {
-              <option [value]="patient.id">{{ patient.fullName }}</option>
-            }
-          </select>
-        </div>
+    @if (showDialog) {
+      <div class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mt-10 mb-10 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900">
+              {{ editingId ? 'Editar Atendimento' : 'Novo Atendimento' }}
+            </h3>
+            <button
+              type="button"
+              class="text-gray-500 hover:text-gray-700"
+              (click)="showDialog = false"
+            >
+              <app-icon name="x" [size]="18"></app-icon>
+            </button>
+          </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Profissional </label>
-          <select
-            formControlName="professionalId"
-            class="w-full border border-gray-300 rounded-lg p-2"
-          >
-            <option value="">Selecione um profissional</option>
-            @for (prof of professionals(); track prof.id) {
-              <option [value]="prof.id">{{ prof.firstName }} {{ prof.lastName }}</option>
-            }
-          </select>
-        </div>
+          <form [formGroup]="form" (ngSubmit)="saveAppointment()" class="space-y-6">
+            <div>
+              <label class="fs-label"> Paciente </label>
+              <select formControlName="patientId" class="fs-select">
+                <option value="">Selecione um paciente</option>
+                @for (patient of patients(); track patient.id) {
+                  <option [value]="patient.id">{{ patient.fullName }}</option>
+                }
+              </select>
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Data e Hora </label>
-          <input
-            type="datetime-local"
-            formControlName="startTime"
-            class="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
+            <div>
+              <label class="fs-label"> Profissional </label>
+              <select formControlName="professionalId" class="fs-select">
+                <option value="">Selecione um profissional</option>
+                @for (prof of professionals(); track prof.id) {
+                  <option [value]="prof.id">{{ prof.firstName }} {{ prof.lastName }}</option>
+                }
+              </select>
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Duração (minutos) </label>
-          <input
-            type="number"
-            formControlName="duration"
-            min="15"
-            max="480"
-            step="15"
-            class="w-full border border-gray-300 rounded-lg p-2"
-          />
-        </div>
+            <div>
+              <label class="fs-label"> Data e Hora </label>
+              <input type="datetime-local" formControlName="startTime" class="fs-input" />
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Status </label>
-          <select formControlName="status" class="w-full border border-gray-300 rounded-lg p-2">
-            <option value="SCHEDULED">Agendado</option>
-            <option value="CONFIRMED">Confirmado</option>
-            <option value="COMPLETED">Concluído</option>
-            <option value="NO_SHOW">Não Compareceu</option>
-            <option value="CANCELLED">Cancelado</option>
-          </select>
-        </div>
+            <div>
+              <label class="fs-label"> Duração (minutos) </label>
+              <input
+                type="number"
+                formControlName="duration"
+                min="15"
+                max="480"
+                step="15"
+                class="fs-input"
+              />
+            </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2"> Notas </label>
-          <textarea
-            formControlName="notes"
-            rows="3"
-            placeholder="Observações sobre o atendimento"
-            class="w-full border border-gray-300 rounded-lg p-2"
-          ></textarea>
-        </div>
+            <div>
+              <label class="fs-label"> Status </label>
+              <select formControlName="status" class="fs-select">
+                <option value="SCHEDULED">Agendado</option>
+                <option value="CONFIRMED">Confirmado</option>
+                <option value="COMPLETED">Concluído</option>
+                <option value="NO_SHOW">Não Compareceu</option>
+                <option value="CANCELLED">Cancelado</option>
+              </select>
+            </div>
 
-        <div class="flex justify-end gap-3">
-          <button
-            pButton
-            type="button"
-            label="Cancelar"
-            severity="secondary"
-            (click)="showDialog = false"
-          ></button>
-          <button
-            pButton
-            type="submit"
-            label="Salvar"
-            [loading]="isLoading()"
-            [disabled]="!form.valid || isLoading()"
-          ></button>
+            <div>
+              <label class="fs-label"> Notas </label>
+              <textarea
+                formControlName="notes"
+                rows="3"
+                placeholder="Observações sobre o atendimento"
+                class="fs-textarea"
+              ></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3">
+              <button
+                type="button"
+                class="fs-button-secondary"
+                (click)="showDialog = false"
+              >
+                <app-icon name="x-circle" [size]="18"></app-icon>
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="fs-button-primary"
+                [disabled]="!form.valid || isLoading()"
+              >
+                <app-icon name="check-circle" [size]="18"></app-icon>
+                {{ isLoading() ? 'Salvando...' : 'Salvar' }}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </p-dialog>
+      </div>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -252,14 +257,14 @@ export class AppointmentsComponent {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly patientsService = inject(PatientsService);
   private readonly professionalsService = inject(ProfessionalsService);
-  private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly alertService = inject(AlertService);
 
   appointments = signal<AppointmentRecord[]>([]);
   patients = signal<Patient[]>([]);
   professionals = signal<Professional[]>([]);
 
   isLoading = signal(false);
+  feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
   showDialog = false;
   editingId: string | null = null;
   viewMode = signal<'week' | 'month' | 'agenda'>('agenda');
@@ -359,51 +364,43 @@ export class AppointmentsComponent {
 
     request.subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: this.editingId
-            ? 'Atendimento atualizado com sucesso'
-            : 'Atendimento agendado com sucesso',
+        const message = this.editingId
+          ? 'Atendimento atualizado com sucesso'
+          : 'Atendimento agendado com sucesso';
+        this.alertService.success(message);
+        this.feedback.set({
+          type: 'success',
+          message,
         });
         this.showDialog = false;
         this.isLoading.set(false);
         this.loadAppointments();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao salvar atendimento',
-        });
+        this.alertService.error('Erro ao salvar atendimento');
+        this.feedback.set({ type: 'error', message: 'Erro ao salvar atendimento' });
         this.isLoading.set(false);
       },
     });
   }
 
-  deleteAppointment(id: string): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja cancelar este atendimento?',
-      header: 'Confirmar',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.appointmentsService.delete(id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Atendimento cancelado com sucesso',
-            });
-            this.loadAppointments();
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: 'Erro ao cancelar atendimento',
-            });
-          },
-        });
+  async deleteAppointment(id: string): Promise<void> {
+    const confirmed = await this.alertService.confirm({
+      text: 'Tem certeza que deseja cancelar este atendimento?',
+      confirmButtonText: 'Sim, cancelar',
+    });
+
+    if (!confirmed) return;
+
+    this.appointmentsService.delete(id).subscribe({
+      next: () => {
+        this.alertService.success('Atendimento cancelado com sucesso');
+        this.feedback.set({ type: 'success', message: 'Atendimento cancelado com sucesso' });
+        this.loadAppointments();
+      },
+      error: () => {
+        this.alertService.error('Erro ao cancelar atendimento');
+        this.feedback.set({ type: 'error', message: 'Erro ao cancelar atendimento' });
       },
     });
   }

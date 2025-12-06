@@ -1,109 +1,94 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
-import { TimelineModule } from 'primeng/timeline';
-import { AvatarModule } from 'primeng/avatar';
 import { CurrentUserService } from '../../core/services/current-user.service';
+
+interface UpcomingAppointment {
+  id: string;
+  patientName: string;
+  professionalName: string;
+  startTime: string | Date;
+  status: string;
+}
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    CardModule,
-    ButtonModule,
-    TableModule,
-    ChartModule,
-    TimelineModule,
-    AvatarModule,
-  ],
+  imports: [CommonModule],
   template: `
-    <div class="space-y-6">
+    <div class="space-y-8">
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
+      <div class="hero-gradient rounded-xl p-8 text-white shadow-lg">
         <h1 class="text-3xl font-bold mb-2">Bem-vindo, {{ fullName }}</h1>
-        <p class="text-blue-100">Sistema de Gestão Clínica FortSaúde</p>
+        <p class="text-sky-100">Sistema de Gestão Clínica FortSaúde</p>
       </div>
 
       <!-- KPI Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <p-card class="shadow-md">
-          <ng-template pTemplate="header">
-            <div class="bg-blue-50 p-6"></div>
-          </ng-template>
-          <div class="text-center">
-            <p class="text-4xl font-bold text-blue-600 mb-2">{{ patientCount() }}</p>
-            <p class="text-gray-600">Pacientes Ativos</p>
+        <div class="card-dark shadow-lg overflow-hidden">
+          <div class="h-2 bg-blue-100"></div>
+          <div class="p-5 text-center">
+            <p class="text-4xl font-bold text-blue-400 mb-1">{{ patientCount() }}</p>
+            <p class="text-[var(--fs-text-muted)]">Pacientes Ativos</p>
           </div>
-        </p-card>
+        </div>
 
-        <p-card class="shadow-md">
-          <ng-template pTemplate="header">
-            <div class="bg-green-50 p-6"></div>
-          </ng-template>
-          <div class="text-center">
-            <p class="text-4xl font-bold text-green-600 mb-2">{{ appointmentsToday() }}</p>
-            <p class="text-gray-600">Atendimentos Hoje</p>
+        <div class="card-dark shadow-lg overflow-hidden">
+          <div class="h-2 bg-green-100"></div>
+          <div class="p-5 text-center">
+            <p class="text-4xl font-bold text-green-400 mb-1">{{ appointmentsToday() }}</p>
+            <p class="text-[var(--fs-text-muted)]">Atendimentos Hoje</p>
           </div>
-        </p-card>
+        </div>
 
-        <p-card class="shadow-md">
-          <ng-template pTemplate="header">
-            <div class="bg-purple-50 p-6"></div>
-          </ng-template>
-          <div class="text-center">
-            <p class="text-4xl font-bold text-purple-600 mb-2">{{ professionalsCount() }}</p>
-            <p class="text-gray-600">Profissionais</p>
+        <div class="card-dark shadow-lg overflow-hidden">
+          <div class="h-2 bg-purple-100"></div>
+          <div class="p-5 text-center">
+            <p class="text-4xl font-bold text-purple-400 mb-1">{{ professionalsCount() }}</p>
+            <p class="text-[var(--fs-text-muted)]">Profissionais</p>
           </div>
-        </p-card>
+        </div>
 
-        <p-card class="shadow-md">
-          <ng-template pTemplate="header">
-            <div class="bg-orange-50 p-6"></div>
-          </ng-template>
-          <div class="text-center">
-            <p class="text-4xl font-bold text-orange-600 mb-2">{{ appointmentsWeek() }}</p>
-            <p class="text-gray-600">Atendimentos Semana</p>
+        <div class="card-dark shadow-lg overflow-hidden">
+          <div class="h-2 bg-orange-100"></div>
+          <div class="p-5 text-center">
+            <p class="text-4xl font-bold text-orange-400 mb-1">{{ appointmentsWeek() }}</p>
+            <p class="text-[var(--fs-text-muted)]">Atendimentos Semana</p>
           </div>
-        </p-card>
+        </div>
       </div>
 
       <!-- Próximos Atendimentos -->
-      <p-card class="shadow-md">
-        <ng-template pTemplate="header">
-          <h2 class="text-xl font-bold text-gray-800 p-6">Próximos Atendimentos</h2>
-        </ng-template>
-        <p-table [value]="nextAppointments()" [tableStyle]="{ 'min-width': '50rem' }">
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Paciente</th>
-              <th>Profissional</th>
-              <th>Data/Hora</th>
-              <th>Status</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-appointment>
-            <tr>
-              <td>{{ appointment.patientName }}</td>
-              <td>{{ appointment.professionalName }}</td>
-              <td>{{ appointment.startTime | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>
-                <span
-                  [class]="
-                    'px-3 py-1 rounded-full text-sm font-medium ' +
-                    getStatusClass(appointment.status)
-                  "
-                >
-                  {{ appointment.status }}
-                </span>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-card>
+      <div class="card-dark shadow-xl">
+        <div class="px-6 pt-6 pb-2">
+          <h2 class="text-xl font-bold text-slate-100">Próximos Atendimentos</h2>
+        </div>
+        <div class="px-2 pb-4 overflow-x-auto">
+          <table class="min-w-[50rem] w-full text-left fs-dark-table">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-sm font-semibold text-slate-200">Paciente</th>
+                <th class="px-4 py-3 text-sm font-semibold text-slate-200">Profissional</th>
+                <th class="px-4 py-3 text-sm font-semibold text-slate-200">Data/Hora</th>
+                <th class="px-4 py-3 text-sm font-semibold text-slate-200">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (appointment of nextAppointments(); track appointment.id) {
+                <tr class="border-b border-[var(--fs-border)] last:border-0">
+                  <td class="px-4 py-3">{{ appointment.patientName }}</td>
+                  <td class="px-4 py-3">{{ appointment.professionalName }}</td>
+                  <td class="px-4 py-3">{{ appointment.startTime | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="px-4 py-3">
+                    <span class="stat-pill" [ngClass]="getStatusClass(appointment.status)">
+                      {{ appointment.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -117,7 +102,7 @@ export class DashboardComponent implements OnInit {
   appointmentsToday = signal(0);
   professionalsCount = signal(0);
   appointmentsWeek = signal(0);
-  nextAppointments = signal<unknown[]>([]);
+  nextAppointments = signal<UpcomingAppointment[]>([]);
 
   ngOnInit(): void {
     // TODO: Carregar dados da API
@@ -145,12 +130,12 @@ export class DashboardComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const statusClasses: Record<string, string> = {
-      SCHEDULED: 'bg-blue-100 text-blue-800',
-      CONFIRMED: 'bg-green-100 text-green-800',
-      COMPLETED: 'bg-gray-100 text-gray-800',
-      NO_SHOW: 'bg-yellow-100 text-yellow-800',
-      CANCELLED: 'bg-red-100 text-red-800',
+      SCHEDULED: 'status-scheduled',
+      CONFIRMED: 'status-confirmed',
+      COMPLETED: 'status-completed',
+      NO_SHOW: 'status-no-show',
+      CANCELLED: 'status-cancelled',
     };
-    return statusClasses[status] || 'bg-gray-100 text-gray-800';
+    return statusClasses[status] || 'status-completed';
   }
 }

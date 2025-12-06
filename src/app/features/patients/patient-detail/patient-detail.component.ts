@@ -1,9 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { SkeletonModule } from 'primeng/skeleton';
 import { PatientsService } from '../../../core/services';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
@@ -27,9 +24,6 @@ interface PatientInfo {
   imports: [
     CommonModule,
     RouterLink,
-    CardModule,
-    ButtonModule,
-    SkeletonModule,
     MedicalRecordFormComponent,
     EvolutionsListComponent,
     DocumentsListComponent,
@@ -44,7 +38,7 @@ interface PatientInfo {
               @if (patient(); as p) {
                 {{ p.fullName }}
               } @else {
-                <p-skeleton width="300px" height="36px"></p-skeleton>
+                <div class="w-[300px] h-9 bg-gray-200 animate-pulse rounded"></div>
               }
             </h1>
             @if (patient(); as p) {
@@ -53,13 +47,12 @@ interface PatientInfo {
               </p>
             }
           </div>
-          <button
-            pButton
-            icon="pi pi-arrow-left"
-            label="Voltar"
-            severity="secondary"
+          <a
             [routerLink]="['/app/patients']"
-          ></button>
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            Voltar
+          </a>
         </div>
 
         <!-- Tabs Navigation -->
@@ -67,50 +60,42 @@ interface PatientInfo {
           <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <!-- Tab Buttons -->
             <div class="border-b border-gray-200 flex">
-              <p-button
-                label="Resumo"
-                icon="pi pi-user"
-                [text]="true"
-                [outlined]="activeTab() !== 'resumo'"
-                severity="info"
-                (onClick)="setActiveTab('resumo')"
-                styleClass="flex-1 rounded-none border-b-2"
+              <button
+                type="button"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
                 [class.border-b-indigo-600]="activeTab() === 'resumo'"
                 [class.border-b-transparent]="activeTab() !== 'resumo'"
-              ></p-button>
-              <p-button
-                label="Prontuário"
-                icon="pi pi-file-edit"
-                [text]="true"
-                [outlined]="activeTab() !== 'prontuario'"
-                severity="info"
-                (onClick)="setActiveTab('prontuario')"
-                styleClass="flex-1 rounded-none border-b-2"
+                (click)="setActiveTab('resumo')"
+              >
+                Resumo
+              </button>
+              <button
+                type="button"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
                 [class.border-b-indigo-600]="activeTab() === 'prontuario'"
                 [class.border-b-transparent]="activeTab() !== 'prontuario'"
-              ></p-button>
-              <p-button
-                label="Evoluções"
-                icon="pi pi-list"
-                [text]="true"
-                [outlined]="activeTab() !== 'evolucoes'"
-                severity="info"
-                (onClick)="setActiveTab('evolucoes')"
-                styleClass="flex-1 rounded-none border-b-2"
+                (click)="setActiveTab('prontuario')"
+              >
+                Prontuário
+              </button>
+              <button
+                type="button"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
                 [class.border-b-indigo-600]="activeTab() === 'evolucoes'"
                 [class.border-b-transparent]="activeTab() !== 'evolucoes'"
-              ></p-button>
-              <p-button
-                label="Documentos"
-                icon="pi pi-file"
-                [text]="true"
-                [outlined]="activeTab() !== 'documentos'"
-                severity="info"
-                (onClick)="setActiveTab('documentos')"
-                styleClass="flex-1 rounded-none border-b-2"
+                (click)="setActiveTab('evolucoes')"
+              >
+                Evoluções
+              </button>
+              <button
+                type="button"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
                 [class.border-b-indigo-600]="activeTab() === 'documentos'"
                 [class.border-b-transparent]="activeTab() !== 'documentos'"
-              ></p-button>
+                (click)="setActiveTab('documentos')"
+              >
+                Documentos
+              </button>
             </div>
 
             <!-- Tab Content -->
@@ -163,7 +148,7 @@ interface PatientInfo {
           </div>
         } @else {
           <div class="bg-white rounded-lg p-6">
-            <p-skeleton height="400px"></p-skeleton>
+            <div class="h-[400px] bg-gray-200 animate-pulse rounded"></div>
           </div>
         }
       </div>

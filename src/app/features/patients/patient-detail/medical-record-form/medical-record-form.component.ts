@@ -1,10 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { MedicalRecordsService } from '../../../../core/services';
+import { AlertService } from '../../../../shared/ui/alert.service';
 
 interface MedicalRecordData {
   mainIssue?: string;
@@ -15,52 +13,59 @@ interface MedicalRecordData {
 @Component({
   selector: 'app-medical-record-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <p-toast></p-toast>
     <form [formGroup]="form" (ngSubmit)="saveMedicalRecord()" class="space-y-6">
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2"> Queixa Principal </label>
+        <label class="fs-label"> Queixa Principal </label>
         <textarea
-          pInputTextarea
           formControlName="mainIssue"
           rows="3"
           placeholder="Descreva a queixa principal do paciente"
-          class="w-full"
+          class="fs-textarea"
         ></textarea>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2"> Anamnese </label>
+        <label class="fs-label"> Anamnese </label>
         <textarea
-          pInputTextarea
           formControlName="anamnesis"
           rows="5"
           placeholder="Histórico clínico do paciente"
-          class="w-full"
+          class="fs-textarea"
         ></textarea>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2"> Observações Gerais </label>
+        <label class="fs-label"> Observações Gerais </label>
         <textarea
-          pInputTextarea
           formControlName="generalNotes"
           rows="4"
           placeholder="Notas adicionais"
-          class="w-full"
+          class="fs-textarea"
         ></textarea>
       </div>
 
+      @if (feedback(); as fb) {
+        <div
+          class="px-4 py-3 rounded-lg text-sm"
+          [class.bg-green-100]="fb.type === 'success'"
+          [class.text-green-800]="fb.type === 'success'"
+          [class.bg-red-100]="fb.type === 'error'"
+          [class.text-red-800]="fb.type === 'error'"
+        >
+          {{ fb.message }}
+        </div>
+      }
+
       <div class="flex gap-4">
         <button
-          pButton
           type="submit"
-          label="Salvar"
-          icon="pi pi-check"
-          [loading]="isLoading()"
+          class="fs-button-primary"
           [disabled]="!form.valid || isLoading()"
-        ></button>
+        >
+          {{ isLoading() ? 'Salvando...' : 'Salvar' }}
+        </button>
       </div>
     </form>
   `,
@@ -71,7 +76,7 @@ export class MedicalRecordFormComponent {
 
   private readonly fb = inject(FormBuilder);
   private readonly medicalRecordsService = inject(MedicalRecordsService);
-  private readonly messageService = inject(MessageService);
+  private readonly alertService = inject(AlertService);
 
   form = this.fb.group({
     mainIssue: ['', Validators.required],
@@ -80,6 +85,7 @@ export class MedicalRecordFormComponent {
   });
 
   isLoading = signal(false);
+  feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
 
   ngOnInit() {
     this.loadMedicalRecord();
@@ -126,19 +132,13 @@ export class MedicalRecordFormComponent {
     // For now, we'll treat this as a create operation
     this.medicalRecordsService.create(this.patientId(), dto).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Prontuário salvo com sucesso',
-        });
+        this.alertService.success('Prontuário salvo com sucesso');
+        this.feedback.set({ type: 'success', message: 'Prontuário salvo com sucesso' });
         this.isLoading.set(false);
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao salvar prontuário',
-        });
+        this.alertService.error('Erro ao salvar prontuário');
+        this.feedback.set({ type: 'error', message: 'Erro ao salvar prontuário' });
         this.isLoading.set(false);
       },
     });

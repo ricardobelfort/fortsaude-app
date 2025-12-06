@@ -1,17 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { AlertService } from '../../../shared/ui/alert.service';
+import { IconComponent } from '../../../shared/ui/icon.component';
 
 @Component({
   selector: 'app-clinic-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent],
   template: `
-    <p-toast></p-toast>
-
     <div class="p-6">
       <div class="max-w-7xl mx-auto">
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Configurações da Clínica</h1>
@@ -20,57 +17,57 @@ import { ToastModule } from 'primeng/toast';
           <form [formGroup]="form" (ngSubmit)="saveSettings()" class="space-y-6">
             <div class="grid grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="fs-label">
                   Nome da Clínica
                 </label>
                 <input
                   type="text"
                   formControlName="clinicName"
-                  class="w-full border border-gray-300 rounded-lg p-3"
+                  class="fs-input"
                   [disabled]="true"
                   placeholder="Nome da clínica"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2"> CNPJ </label>
+                <label class="fs-label"> CNPJ </label>
                 <input
                   type="text"
                   formControlName="cnpj"
-                  class="w-full border border-gray-300 rounded-lg p-3"
+                  class="fs-input"
                   [disabled]="true"
                   placeholder="XX.XXX.XXX/0001-XX"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2"> Telefone </label>
+                <label class="fs-label"> Telefone </label>
                 <input
                   type="tel"
                   formControlName="phone"
-                  class="w-full border border-gray-300 rounded-lg p-3"
+                  class="fs-input"
                   [disabled]="true"
                   placeholder="(XX) XXXXX-XXXX"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2"> Email </label>
+                <label class="fs-label"> Email </label>
                 <input
                   type="email"
                   formControlName="email"
-                  class="w-full border border-gray-300 rounded-lg p-3"
+                  class="fs-input"
                   [disabled]="true"
                   placeholder="contato@clinica.com"
                 />
               </div>
 
               <div class="col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-2"> Endereço </label>
+                <label class="fs-label"> Endereço </label>
                 <textarea
                   formControlName="address"
                   rows="3"
-                  class="w-full border border-gray-300 rounded-lg p-3"
+                  class="fs-textarea"
                   [disabled]="true"
                   placeholder="Endereço completo da clínica"
                 ></textarea>
@@ -79,12 +76,13 @@ import { ToastModule } from 'primeng/toast';
 
             <div class="flex justify-end gap-3">
               <button
-                pButton
                 type="submit"
-                label="Salvar"
-                [loading]="isLoading()"
+                class="fs-button-primary"
                 [disabled]="!form.valid || isLoading()"
-              ></button>
+              >
+                <app-icon name="save" [size]="18"></app-icon>
+                {{ isLoading() ? 'Salvando...' : 'Salvar' }}
+              </button>
             </div>
           </form>
         </div>
@@ -95,7 +93,7 @@ import { ToastModule } from 'primeng/toast';
 })
 export class ClinicSettingsComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly messageService = inject(MessageService);
+  private readonly alertService = inject(AlertService);
 
   isLoading = signal(false);
 
@@ -113,11 +111,7 @@ export class ClinicSettingsComponent {
     this.isLoading.set(true);
     // TODO: Implement save logic
     setTimeout(() => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Sucesso',
-        detail: 'Configurações salvas com sucesso',
-      });
+      this.alertService.success('Configurações salvas com sucesso');
       this.isLoading.set(false);
     }, 1000);
   }

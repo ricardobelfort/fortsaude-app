@@ -1,19 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { PrimeNG } from 'primeng/config';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App implements OnInit {
+export class App {
   protected readonly title = signal('fortsaude-app');
-  private primeng = inject(PrimeNG);
-
-  ngOnInit(): void {
-    this.primeng.ripple.set(true);
-  }
 }

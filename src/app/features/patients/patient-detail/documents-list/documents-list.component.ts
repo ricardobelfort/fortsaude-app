@@ -1,11 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DocumentsService } from '../../../../core/services';
+import { AlertService } from '../../../../shared/ui/alert.service';
+import { IconComponent } from '../../../../shared/ui/icon.component';
 
 interface DocumentRecord {
   id: string;
@@ -19,21 +16,18 @@ interface DocumentRecord {
 @Component({
   selector: 'app-documents-list',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ToastModule, ConfirmDialogModule],
+  imports: [CommonModule, IconComponent],
   template: `
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
-
     <div class="space-y-6">
       <div class="flex justify-end">
         <button
-          pButton
           type="button"
-          icon="pi pi-upload"
-          label="Upload de Documento"
-          severity="success"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
           (click)="triggerFileInput()"
-        ></button>
+        >
+          <app-icon name="upload-cloud" [size]="18"></app-icon>
+          Upload de Documento
+        </button>
         <input
           #fileInput
           type="file"
@@ -42,6 +36,18 @@ interface DocumentRecord {
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
         />
       </div>
+
+      @if (feedback(); as fb) {
+        <div
+          class="px-4 py-3 rounded-lg text-sm"
+          [class.bg-green-100]="fb.type === 'success'"
+          [class.text-green-800]="fb.type === 'success'"
+          [class.bg-red-100]="fb.type === 'error'"
+          [class.text-red-800]="fb.type === 'error'"
+        >
+          {{ fb.message }}
+        </div>
+      }
 
       @if (documents().length > 0) {
         <div class="space-y-3">
@@ -60,29 +66,29 @@ interface DocumentRecord {
               </div>
               <div class="flex gap-2">
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-download"
-                  severity="info"
-                  [text]="true"
-                  [disabled]="true"
+                  class="inline-flex items-center gap-2 px-3 py-2 text-blue-600 hover:text-blue-800 disabled:opacity-60"
+                  disabled
                   (click)="downloadDocument(doc)"
-                ></button>
+                >
+                  <app-icon name="download-cloud" [size]="18"></app-icon>
+                  Baixar
+                </button>
                 <button
-                  pButton
                   type="button"
-                  icon="pi pi-trash"
-                  severity="danger"
-                  [text]="true"
+                  class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
                   (click)="deleteDocument(doc.id)"
-                ></button>
+                >
+                  <app-icon name="trash-2" [size]="18"></app-icon>
+                  Excluir
+                </button>
               </div>
             </div>
           }
         </div>
       } @else {
         <div class="text-center py-12 text-gray-500">
-          <p class="icon pi pi-file mb-4" style="font-size: 3rem;"></p>
+          <p class="text-5xl mb-4">📄</p>
           <p>Nenhum documento enviado</p>
         </div>
       }
@@ -94,11 +100,11 @@ export class DocumentsListComponent {
   readonly patientId = input.required<string>();
 
   private readonly documentsService = inject(DocumentsService);
-  private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly alertService = inject(AlertService);
 
   documents = signal<DocumentRecord[]>([]);
   isLoading = signal(false);
+  feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
 
   ngOnInit() {
     this.loadDocuments();
@@ -107,7 +113,6 @@ export class DocumentsListComponent {
   private loadDocuments(): void {
     this.documentsService.getByPatientId(this.patientId()).subscribe({
       next: (docs) => {
-        // Map API response to component interface
         const mapped = (docs as unknown as Array<unknown>).map((doc: unknown) => {
           const d = doc as Record<string, unknown>;
           return {
@@ -117,7 +122,7 @@ export class DocumentsListComponent {
             documentType: String(d['documentType'] || 'OTHER'),
             createdAt: (d['createdAt'] as string | Date) || new Date(),
             url: d['url'] ? String(d['url']) : undefined,
-          };
+          } as DocumentRecord;
         });
         this.documents.set(mapped);
       },
@@ -141,49 +146,37 @@ export class DocumentsListComponent {
     const docType = this.getDocumentType(file.name);
     this.documentsService.upload(this.patientId(), file, docType).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Documento enviado com sucesso',
-        });
+        this.alertService.success('Documento enviado com sucesso');
+        this.feedback.set({ type: 'success', message: 'Documento enviado com sucesso' });
         this.isLoading.set(false);
         input.value = '';
         this.loadDocuments();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao enviar documento',
-        });
+        this.alertService.error('Erro ao enviar documento');
+        this.feedback.set({ type: 'error', message: 'Erro ao enviar documento' });
         this.isLoading.set(false);
       },
     });
   }
 
-  deleteDocument(id: string): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja deletar este documento?',
-      header: 'Confirmar',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.documentsService.delete(this.patientId(), id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Documento deletado com sucesso',
-            });
-            this.loadDocuments();
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: 'Erro ao deletar documento',
-            });
-          },
-        });
+  async deleteDocument(id: string): Promise<void> {
+    const confirmed = await this.alertService.confirm({
+      text: 'Tem certeza que deseja deletar este documento?',
+      confirmButtonText: 'Sim, deletar',
+    });
+
+    if (!confirmed) return;
+
+    this.documentsService.delete(this.patientId(), id).subscribe({
+      next: () => {
+        this.alertService.success('Documento deletado com sucesso');
+        this.feedback.set({ type: 'success', message: 'Documento deletado com sucesso' });
+        this.loadDocuments();
+      },
+      error: () => {
+        this.alertService.error('Erro ao deletar documento');
+        this.feedback.set({ type: 'error', message: 'Erro ao deletar documento' });
       },
     });
   }

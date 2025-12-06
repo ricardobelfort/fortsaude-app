@@ -2,9 +2,6 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastModule } from 'primeng/toast';
-import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { finalize } from 'rxjs';
 import { signal } from '@angular/core';
@@ -12,10 +9,8 @@ import { signal } from '@angular/core';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ToastModule, ButtonModule],
-  providers: [MessageService],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <p-toast></p-toast>
     <div
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
@@ -44,7 +39,7 @@ import { signal } from '@angular/core';
                   id="email"
                   type="email"
                   formControlName="email"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
+                  class="fs-input"
                   placeholder="seu@email.com"
                 />
                 @if (email.invalid && email.touched) {
@@ -65,18 +60,18 @@ import { signal } from '@angular/core';
                   <label for="password" class="block text-sm font-medium text-gray-700"
                     >Senha</label
                   >
-                  <p-button
-                    label="Esqueceu a senha?"
-                    [text]="true"
-                    severity="info"
-                    [disabled]="true"
-                    styleClass="text-sm"
-                  ></p-button>
+                  <button
+                    type="button"
+                    class="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-60"
+                    disabled
+                  >
+                    Esqueceu a senha?
+                  </button>
                 </div>
                 <input
                   id="password"
                   formControlName="password"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
+                  class="fs-input"
                   placeholder="Sua senha"
                   type="password"
                 />
@@ -93,26 +88,39 @@ import { signal } from '@angular/core';
               </div>
 
               <!-- Submit Button -->
-              <p-button
+              <button
                 type="submit"
-                label="Entrar"
-                icon="pi pi-sign-in"
-                [loading]="isLoading()"
+                class="fs-button-primary w-full"
                 [disabled]="loginForm.invalid || isLoading()"
-                class="w-full"
-              ></p-button>
+              >
+                <span *ngIf="isLoading(); else loginLabel">Entrando...</span>
+                <ng-template #loginLabel>Entrar</ng-template>
+              </button>
             </form>
+
+            @if (feedback(); as fb) {
+              <div
+                class="mt-4 p-3 rounded-lg text-sm"
+                [class.bg-green-100]="fb.type === 'success'"
+                [class.text-green-800]="fb.type === 'success'"
+                [class.bg-red-100]="fb.type === 'error'"
+                [class.text-red-800]="fb.type === 'error'"
+              >
+                {{ fb.message }}
+              </div>
+            }
 
             <!-- Sign Up -->
             <div class="mt-8 pt-8 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
                 Não tem conta?
-                <p-button
-                  label="Criar conta"
-                  [text]="true"
-                  severity="info"
-                  [disabled]="true"
-                ></p-button>
+                <button
+                  type="button"
+                  class="text-blue-600 hover:text-blue-700 disabled:opacity-60"
+                  disabled
+                >
+                  Criar conta
+                </button>
               </p>
             </div>
           </div>
@@ -134,9 +142,9 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
 
   readonly isLoading = signal(false);
+  readonly feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
   readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
@@ -176,26 +184,13 @@ export class LoginComponent {
       )
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Autenticação realizada com sucesso',
-            life: 2000,
-          });
-          // Pequeno delay para mostrar o toast antes de navegar
-          setTimeout(() => {
-            this.router.navigate(['/app/dashboard']);
-          }, 500);
+          this.feedback.set({ type: 'success', message: 'Autenticação realizada com sucesso' });
+          setTimeout(() => this.router.navigate(['/app/dashboard']), 500);
         },
         error: (error: unknown) => {
           console.error('Login error:', error);
           const errorMessage = this.extractErrorMessage(error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: errorMessage,
-            life: 3000,
-          });
+          this.feedback.set({ type: 'error', message: errorMessage });
         },
       });
   }

@@ -228,11 +228,7 @@ interface Professional {
             </div>
 
             <div class="flex justify-end gap-3">
-              <button
-                type="button"
-                class="fs-button-secondary"
-                (click)="showDialog = false"
-              >
+              <button type="button" class="fs-button-secondary" (click)="showDialog = false">
                 <app-icon name="x-circle" [size]="18"></app-icon>
                 Cancelar
               </button>

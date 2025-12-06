@@ -8,12 +8,7 @@ type FeatherIconName = keyof typeof feather.icons;
   selector: 'app-icon',
   standalone: true,
   template: `
-    <span
-      class="inline-flex"
-      [class]="className"
-      [innerHTML]="svg"
-      aria-hidden="true"
-    ></span>
+    <span class="inline-flex" [class]="className" [innerHTML]="svg" aria-hidden="true"></span>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

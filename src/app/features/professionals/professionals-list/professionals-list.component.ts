@@ -71,7 +71,9 @@ import { AlertService } from '../../../shared/ui/alert.service';
                     {{ professional.firstName }} {{ professional.lastName }}
                   </td>
                   <td class="px-4 py-3">
-                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    <span
+                      class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                    >
                       {{ getCategoryLabel(professional.category) }}
                     </span>
                   </td>
@@ -122,7 +124,9 @@ import { AlertService } from '../../../shared/ui/alert.service';
     <!-- Dialog Placeholder -->
     @if (displayDialog()) {
       <div class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mt-16 mb-10 p-6 text-center space-y-4">
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mt-16 mb-10 p-6 text-center space-y-4"
+        >
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold text-gray-900">
               {{ editingProfessional ? 'Editar Profissional' : 'Novo Profissional' }}

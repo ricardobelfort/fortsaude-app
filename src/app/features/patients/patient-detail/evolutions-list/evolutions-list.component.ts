@@ -89,11 +89,7 @@ export interface EvolutionRecord {
               ></textarea>
             </div>
             <div class="flex justify-end gap-3">
-              <button
-                type="button"
-                class="fs-button-secondary"
-                (click)="showDialog = false"
-              >
+              <button type="button" class="fs-button-secondary" (click)="showDialog = false">
                 Cancelar
               </button>
               <button

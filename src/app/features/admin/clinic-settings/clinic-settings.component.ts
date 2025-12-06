@@ -17,9 +17,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           <form [formGroup]="form" (ngSubmit)="saveSettings()" class="space-y-6">
             <div class="grid grid-cols-2 gap-6">
               <div>
-                <label class="fs-label">
-                  Nome da Clínica
-                </label>
+                <label class="fs-label"> Nome da Clínica </label>
                 <input
                   type="text"
                   formControlName="clinicName"

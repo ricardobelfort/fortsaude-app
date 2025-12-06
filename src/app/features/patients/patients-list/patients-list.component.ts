@@ -34,26 +34,14 @@ import { IconComponent } from '../../../shared/ui/icon.component';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="fs-label">Buscar por nome ou e-mail</label>
-            <input
-              [(ngModel)]="searchText"
-              placeholder="Nome, email..."
-              class="fs-input"
-            />
+            <input [(ngModel)]="searchText" placeholder="Nome, email..." class="fs-input" />
           </div>
           <div class="flex items-end gap-2">
-            <button
-              type="button"
-              class="fs-button-primary"
-              (click)="loadPatients()"
-            >
+            <button type="button" class="fs-button-primary" (click)="loadPatients()">
               <app-icon name="search" [size]="18"></app-icon>
               Buscar
             </button>
-            <button
-              type="button"
-              class="fs-button-secondary"
-              (click)="clearFilters()"
-            >
+            <button type="button" class="fs-button-secondary" (click)="clearFilters()">
               <app-icon name="rotate-ccw" [size]="18"></app-icon>
               Limpar
             </button>
@@ -172,28 +160,16 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             </div>
             <div>
               <label class="fs-label">Observações</label>
-              <textarea
-                [(ngModel)]="formData.observations"
-                class="fs-textarea"
-                rows="3"
-              ></textarea>
+              <textarea [(ngModel)]="formData.observations" class="fs-textarea" rows="3"></textarea>
             </div>
           </div>
 
           <div class="flex justify-end gap-3 mt-6">
-            <button
-              type="button"
-                class="fs-button-secondary"
-              (click)="displayDialog.set(false)"
-            >
+            <button type="button" class="fs-button-secondary" (click)="displayDialog.set(false)">
               <app-icon name="x-circle" [size]="18"></app-icon>
               Cancelar
             </button>
-            <button
-              type="button"
-                class="fs-button-primary"
-              (click)="savePatient()"
-            >
+            <button type="button" class="fs-button-primary" (click)="savePatient()">
               <app-icon name="check-circle" [size]="18"></app-icon>
               Salvar
             </button>

@@ -8,12 +8,7 @@ import { UserRole } from '../../../core/models/role.model';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-  ],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <div class="flex h-screen bg-slate-50 text-slate-900">
       <!-- Sidebar -->
@@ -37,19 +32,11 @@ import { UserRole } from '../../../core/models/role.model';
             <span class="mr-2">👥</span>Pacientes
           </a>
 
-          <a
-            routerLink="/app/professionals"
-            routerLinkActive="sidebar-active"
-            class="sidebar-link"
-          >
+          <a routerLink="/app/professionals" routerLinkActive="sidebar-active" class="sidebar-link">
             <span class="mr-2">💼</span>Profissionais
           </a>
 
-          <a
-            routerLink="/app/appointments"
-            routerLinkActive="sidebar-active"
-            class="sidebar-link"
-          >
+          <a routerLink="/app/appointments" routerLinkActive="sidebar-active" class="sidebar-link">
             <span class="mr-2">🗓️</span>Agenda
           </a>
 
@@ -66,7 +53,9 @@ import { UserRole } from '../../../core/models/role.model';
 
         <div class="p-4 border-t border-[var(--fs-border)]">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
+            <div
+              class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold"
+            >
               {{ getUserInitial() }}
             </div>
             <div class="text-sm flex-1">
@@ -87,13 +76,17 @@ import { UserRole } from '../../../core/models/role.model';
       <!-- Main Content -->
       <div class="flex-1 flex flex-col">
         <!-- Topbar -->
-        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-sm">
+        <header
+          class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-sm"
+        >
           <div>
             <p class="text-slate-500 text-sm">Bem-vindo</p>
             <h2 class="text-2xl font-bold text-slate-900">{{ pageTitle() }}</h2>
           </div>
           <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
+            <div
+              class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold"
+            >
               {{ getUserInitial() }}
             </div>
             <button

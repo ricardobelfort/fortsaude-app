@@ -53,7 +53,9 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           </div>
 
           <div class="space-y-1.5">
-            <p class="text-[11px] font-semibold tracking-[0.14em] text-slate-400 px-2">ADMIN & OUTROS</p>
+            <p class="text-[11px] font-semibold tracking-[0.14em] text-slate-400 px-2">
+              ADMIN & OUTROS
+            </p>
             <div class="nav-link nav-disabled">
               <app-icon name="grid" className="shrink-0 text-base"></app-icon>
               <span>Departamentos</span>
@@ -88,13 +90,14 @@ import { IconComponent } from '../../../shared/ui/icon.component';
         </nav>
 
         <!-- Pro Banner -->
-        <div class="mx-3 mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-sm text-indigo-900 space-y-2 border border-indigo-200">
+        <div
+          class="mx-3 mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-sm text-indigo-900 space-y-2 border border-indigo-200"
+        >
           <h3 class="text-sm font-semibold">Ative o Pro Access</h3>
-          <p class="text-xs text-indigo-700 leading-snug opacity-80">Desbloqueie mais recursos e funcionalidades avançadas</p>
-          <button
-            type="button"
-            class="w-full fs-button-primary"
-          >
+          <p class="text-xs text-indigo-700 leading-snug opacity-80">
+            Desbloqueie mais recursos e funcionalidades avançadas
+          </p>
+          <button type="button" class="w-full fs-button-primary">
             <app-icon name="star"></app-icon>
             Upgrade Pro
           </button>
@@ -125,8 +128,12 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             >
               <app-icon name="bell" className="text-lg"></app-icon>
             </button>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition cursor-pointer">
-              <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+            >
+              <div
+                class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm"
+              >
                 {{ getUserInitial() }}
               </div>
               <div class="hidden lg:flex flex-col items-start leading-tight">

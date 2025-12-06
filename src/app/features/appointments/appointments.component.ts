@@ -37,11 +37,7 @@ interface Professional {
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-3xl font-bold text-gray-900">Agenda de Atendimentos</h1>
-          <button
-            type="button"
-            class="fs-button-primary"
-            (click)="openNewAppointmentDialog()"
-          >
+          <button type="button" class="fs-button-primary" (click)="openNewAppointmentDialog()">
             <app-icon name="calendar"></app-icon>
             Novo Atendimento
           </button>

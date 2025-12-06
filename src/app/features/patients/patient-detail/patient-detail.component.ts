@@ -67,42 +67,50 @@ interface PatientInfo {
           <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <!-- Tab Buttons -->
             <div class="border-b border-gray-200 flex">
-              <button
-                class="flex-1 px-6 py-4 text-center font-semibold text-gray-700 hover:bg-gray-50 transition"
-                [class.border-b-4]="activeTab() === 'resumo'"
-                [class.border-indigo-600]="activeTab() === 'resumo'"
-                [class.text-indigo-600]="activeTab() === 'resumo'"
-                (click)="setActiveTab('resumo')"
-              >
-                <i class="pi pi-user mr-2"></i>Resumo
-              </button>
-              <button
-                class="flex-1 px-6 py-4 text-center font-semibold text-gray-700 hover:bg-gray-50 transition"
-                [class.border-b-4]="activeTab() === 'prontuario'"
-                [class.border-indigo-600]="activeTab() === 'prontuario'"
-                [class.text-indigo-600]="activeTab() === 'prontuario'"
-                (click)="setActiveTab('prontuario')"
-              >
-                <i class="pi pi-file-edit mr-2"></i>Prontuário
-              </button>
-              <button
-                class="flex-1 px-6 py-4 text-center font-semibold text-gray-700 hover:bg-gray-50 transition"
-                [class.border-b-4]="activeTab() === 'evolucoes'"
-                [class.border-indigo-600]="activeTab() === 'evolucoes'"
-                [class.text-indigo-600]="activeTab() === 'evolucoes'"
-                (click)="setActiveTab('evolucoes')"
-              >
-                <i class="pi pi-list mr-2"></i>Evoluções
-              </button>
-              <button
-                class="flex-1 px-6 py-4 text-center font-semibold text-gray-700 hover:bg-gray-50 transition"
-                [class.border-b-4]="activeTab() === 'documentos'"
-                [class.border-indigo-600]="activeTab() === 'documentos'"
-                [class.text-indigo-600]="activeTab() === 'documentos'"
-                (click)="setActiveTab('documentos')"
-              >
-                <i class="pi pi-file mr-2"></i>Documentos
-              </button>
+              <p-button
+                label="Resumo"
+                icon="pi pi-user"
+                [text]="true"
+                [outlined]="activeTab() !== 'resumo'"
+                severity="info"
+                (onClick)="setActiveTab('resumo')"
+                styleClass="flex-1 rounded-none border-b-2"
+                [class.border-b-indigo-600]="activeTab() === 'resumo'"
+                [class.border-b-transparent]="activeTab() !== 'resumo'"
+              ></p-button>
+              <p-button
+                label="Prontuário"
+                icon="pi pi-file-edit"
+                [text]="true"
+                [outlined]="activeTab() !== 'prontuario'"
+                severity="info"
+                (onClick)="setActiveTab('prontuario')"
+                styleClass="flex-1 rounded-none border-b-2"
+                [class.border-b-indigo-600]="activeTab() === 'prontuario'"
+                [class.border-b-transparent]="activeTab() !== 'prontuario'"
+              ></p-button>
+              <p-button
+                label="Evoluções"
+                icon="pi pi-list"
+                [text]="true"
+                [outlined]="activeTab() !== 'evolucoes'"
+                severity="info"
+                (onClick)="setActiveTab('evolucoes')"
+                styleClass="flex-1 rounded-none border-b-2"
+                [class.border-b-indigo-600]="activeTab() === 'evolucoes'"
+                [class.border-b-transparent]="activeTab() !== 'evolucoes'"
+              ></p-button>
+              <p-button
+                label="Documentos"
+                icon="pi pi-file"
+                [text]="true"
+                [outlined]="activeTab() !== 'documentos'"
+                severity="info"
+                (onClick)="setActiveTab('documentos')"
+                styleClass="flex-1 rounded-none border-b-2"
+                [class.border-b-indigo-600]="activeTab() === 'documentos'"
+                [class.border-b-transparent]="activeTab() !== 'documentos'"
+              ></p-button>
             </div>
 
             <!-- Tab Content -->

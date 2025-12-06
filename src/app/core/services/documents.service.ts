@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiClient } from './api.client';
-import { Document, CreateDocumentDto } from '../models';
+import { Document } from '../models';
 import { Observable } from 'rxjs';
 
 @Injectable({

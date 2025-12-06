@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, of } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { User } from '../models';
 import { environment } from '../../../environments/environment';
 

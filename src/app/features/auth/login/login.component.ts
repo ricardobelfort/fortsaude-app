@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -45,7 +45,6 @@ import { signal } from '@angular/core';
                   formControlName="email"
                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
                   placeholder="seu@email.com"
-                  [disabled]="isLoading()"
                 />
                 @if (email.invalid && email.touched) {
                   <div class="text-red-600 text-xs mt-1.5 font-medium">
@@ -74,7 +73,6 @@ import { signal } from '@angular/core';
                   formControlName="password"
                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
                   placeholder="Sua senha"
-                  [disabled]="isLoading()"
                   type="password"
                 />
                 @if (password.invalid && password.touched) {
@@ -159,16 +157,25 @@ export class LoginComponent {
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  readonly email = this.loginForm.get('email')!;
-  readonly password = this.loginForm.get('password')!;
+  private readonly emailControl = this.loginForm.get('email');
+  private readonly passwordControl = this.loginForm.get('password');
+
+  readonly email = this.emailControl!;
+  readonly password = this.passwordControl!;
 
   onLogin(): void {
     if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
+    // Desabilitar controles quando está carregando
+    this.emailControl?.disable();
+    this.passwordControl?.disable();
+
     const { email, password } = this.loginForm.value;
 
     if (!email || !password) {
+      this.emailControl?.enable();
+      this.passwordControl?.enable();
       this.isLoading.set(false);
       return;
     }
@@ -177,6 +184,8 @@ export class LoginComponent {
       .login(email, password)
       .pipe(
         finalize(() => {
+          this.emailControl?.enable();
+          this.passwordControl?.enable();
           this.isLoading.set(false);
         })
       )

@@ -2,12 +2,6 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { PasswordModule } from 'primeng/password';
-import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,80 +10,130 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    PasswordModule,
-    CardModule,
-    ToastModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ToastModule],
   providers: [MessageService],
   template: `
     <p-toast></p-toast>
     <div
-      class="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4"
+      class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
-      <p-card class="w-full max-w-md shadow-2xl">
-        <ng-template pTemplate="header">
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center">
-            <h1 class="text-3xl font-bold text-white mb-2">FortSaúde</h1>
-            <p class="text-blue-100">Sistema de Gestão Clínica</p>
-          </div>
-        </ng-template>
+      <div class="w-full max-w-md">
+        <!-- Logo/Branding (Outside Card) -->
+        <div class="mb-8 text-center">
+          <h1 class="text-4xl font-bold text-blue-900">FortSaúde</h1>
+          <p class="text-blue-700 mt-1">Sistema de Gestão Clínica</p>
+        </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
-            <input
-              pInputText
-              id="email"
-              type="email"
-              formControlName="email"
-              class="w-full"
-              placeholder="seu@email.com"
-              [disabled]="isLoading()"
-            />
-            <div *ngIf="email.invalid && email.touched" class="text-red-600 text-sm mt-1">
-              <span *ngIf="email.errors?.['required']">E-mail é obrigatório</span>
-              <span *ngIf="email.errors?.['email']">E-mail inválido</span>
+        <!-- Card Container -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          <div class="p-8">
+            <!-- Welcome Message -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Bem-vindo</h3>
+            <p class="text-gray-600 mb-8">Acesse sua conta para continuar</p>
+
+            <!-- Login Form -->
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-5">
+              <!-- Email Field -->
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2"
+                  >E-mail</label
+                >
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
+                  placeholder="seu@email.com"
+                  [disabled]="isLoading()"
+                />
+                @if (email.invalid && email.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium">
+                    @if (email.errors?.['required']) {
+                      <span>E-mail é obrigatório</span>
+                    }
+                    @if (email.errors?.['email']) {
+                      <span>E-mail inválido</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Password Field -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <label for="password" class="block text-sm font-medium text-gray-700"
+                    >Senha</label
+                  >
+                  <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >Esqueceu a senha?</a
+                  >
+                </div>
+                <input
+                  id="password"
+                  formControlName="password"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-900"
+                  placeholder="Sua senha"
+                  [disabled]="isLoading()"
+                  type="password"
+                />
+                @if (password.invalid && password.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium">
+                    @if (password.errors?.['required']) {
+                      <span>Senha é obrigatória</span>
+                    }
+                    @if (password.errors?.['minlength']) {
+                      <span>Mínimo de 6 caracteres</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                [disabled]="loginForm.invalid || isLoading()"
+                class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2.5 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              >
+                @if (isLoading()) {
+                  <span>Autenticando...</span>
+                  <svg
+                    class="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                } @else {
+                  <span>Entrar</span>
+                  <i class="pi pi-sign-in"></i>
+                }
+              </button>
+            </form>
+
+            <!-- Demo Info & Sign Up -->
+            <div class="mt-8 pt-8 border-t border-gray-200 text-center">
+              <p class="text-xs text-gray-600 mb-4">Demo: use credenciais do seu sistema</p>
+              <p class="text-sm text-gray-700">
+                Não tem conta?
+                <a href="#" class="text-blue-600 hover:text-blue-700 font-semibold">Criar conta</a>
+              </p>
             </div>
           </div>
-
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-            <p-password
-              id="password"
-              formControlName="password"
-              [feedback]="false"
-              class="w-full"
-              placeholder="Sua senha"
-              [disabled]="isLoading()"
-            ></p-password>
-            <div *ngIf="password.invalid && password.touched" class="text-red-600 text-sm mt-1">
-              <span *ngIf="password.errors?.['required']">Senha é obrigatória</span>
-              <span *ngIf="password.errors?.['minlength']">Mínimo de 6 caracteres</span>
-            </div>
-          </div>
-
-          <p-button
-            [label]="isLoading() ? 'Autenticando...' : 'Entrar'"
-            type="submit"
-            class="w-full"
-            [loading]="isLoading()"
-            [disabled]="loginForm.invalid || isLoading()"
-          ></p-button>
-        </form>
-
-        <ng-template pTemplate="footer">
-          <div class="text-center text-sm text-gray-600 border-t pt-4 mt-4">
-            <p>Demo: use credenciais do seu sistema</p>
-          </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
   `,
   styles: [

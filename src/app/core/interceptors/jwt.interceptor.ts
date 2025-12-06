@@ -45,4 +45,3 @@ export class JwtInterceptor implements HttpInterceptor {
     return url.includes('/auth/login') || url.includes('/auth/refresh');
   }
 }
-

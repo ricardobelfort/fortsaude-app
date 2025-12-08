@@ -45,6 +45,9 @@ export class IconComponent {
       'rotate-ccw': 'fas fa-redo',
       eye: 'fas fa-eye',
       save: 'fas fa-save',
+      'chevron-left': 'fas fa-chevron-left',
+      'chevron-right': 'fas fa-chevron-right',
+      menu: 'fas fa-bars',
     };
 
     return iconMap[this.name] || `fas fa-${this.name}`;

@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  signal,
+  HostListener,
+  ElementRef,
+  inject,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IconComponent } from '../../../shared/ui/icon.component';
 
@@ -31,8 +40,6 @@ import { IconComponent } from '../../../shared/ui/icon.component';
         background-color: rgb(241 245 249);
         color: rgb(15 23 42);
         font-weight: 600;
-        border-left: 4px solid rgb(99 102 241);
-        padding-left: 0.625rem;
       }
 
       .nav-disabled {
@@ -57,6 +64,68 @@ import { IconComponent } from '../../../shared/ui/icon.component';
         background-color: rgb(241 245 249);
         border-color: rgb(226 232 240);
       }
+
+      .dropdown-menu {
+        position: absolute;
+        bottom: 0;
+        left: 100%;
+        margin-left: 0.5rem;
+        width: 16rem;
+        background-color: white;
+        border: 1px solid rgb(226 232 240);
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        overflow: hidden;
+      }
+
+      .dropdown-header {
+        padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+      }
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        color: rgb(51 65 85);
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+      }
+
+      .dropdown-item:hover {
+        background-color: rgb(248 250 252);
+      }
+
+      .dropdown-item.update-app {
+        color: rgb(20 184 166);
+        font-weight: 500;
+      }
+
+      .dropdown-footer {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid rgb(241 245 249);
+        font-size: 0.75rem;
+        color: rgb(148 163 184);
+        text-align: center;
+      }
+
+      .user-profile-btn {
+        width: 100%;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+      }
+
+      .user-profile-btn:hover {
+        opacity: 0.9;
+      }
     `,
   ],
   template: `
@@ -66,7 +135,12 @@ import { IconComponent } from '../../../shared/ui/icon.component';
       [class.w-20]="!expanded()"
       aria-label="Navegação lateral"
     >
-      <div class="h-14 px-4 flex items-center gap-3 border-b border-slate-200">
+      <div
+        class="h-14 flex items-center border-b border-slate-200"
+        [class.px-4]="expanded()"
+        [class.gap-3]="expanded()"
+        [class.justify-center]="!expanded()"
+      >
         <div
           class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-semibold tracking-wide"
         >
@@ -174,7 +248,6 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             ></app-icon>
             @if (expanded()) {
               <span>Departamentos</span>
-              <span class="badge">Em breve</span>
             }
           </div>
           <div
@@ -189,7 +262,6 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             ></app-icon>
             @if (expanded()) {
               <span>Financeiro</span>
-              <span class="badge">Em breve</span>
             }
           </div>
           <div
@@ -204,7 +276,6 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             ></app-icon>
             @if (expanded()) {
               <span>Serviços</span>
-              <span class="badge">Em breve</span>
             }
           </div>
           <div
@@ -219,7 +290,6 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             ></app-icon>
             @if (expanded()) {
               <span>Comunicação</span>
-              <span class="badge">Em breve</span>
             }
           </div>
 
@@ -244,41 +314,133 @@ import { IconComponent } from '../../../shared/ui/icon.component';
         </div>
       </nav>
 
-      <div class="mt-auto space-y-3" [class.px-3]="expanded()" [class.px-2]="!expanded()">
-        <div
-          class="rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-900 border border-indigo-200"
-          [class.p-4]="expanded()"
-          [class.p-2]="!expanded()"
-        >
-          @if (expanded()) {
-            <h3 class="text-sm font-semibold mb-1">Ative o Pro Access</h3>
-            <p class="text-xs text-indigo-700 leading-snug opacity-80 mb-3">
-              Desbloqueie mais recursos e funcionalidades avançadas
-            </p>
-            <button type="button" class="w-full fs-button-primary">
-              <app-icon name="star"></app-icon>
-              Upgrade Pro
+      <div
+        class="mt-auto space-y-3 p-2 border-t border-slate-200"
+        [class.px-3]="expanded()"
+        [class.px-2]="!expanded()"
+      >
+        <!-- User Avatar Card -->
+        @if (expanded()) {
+          <div class="relative">
+            <button type="button" class="user-profile-btn" (click)="toggleDropdown()">
+              <div class="rounded-md p-2 hover:bg-slate-100 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div>
+                    @if (avatarUrl() && avatarUrl() !== '') {
+                      <img
+                        [src]="avatarUrl()"
+                        alt="Avatar"
+                        class="w-9 h-9 rounded-md object-cover"
+                      />
+                    } @else {
+                      <div
+                        class="w-9 h-9 rounded-md flex items-center justify-center bg-pink-200 text-pink-700 font-bold text-lg"
+                      >
+                        {{ initial() }}
+                      </div>
+                    }
+                  </div>
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <span class="font-semibold text-slate-900 text-left text-sm truncate">{{
+                      fullName()
+                    }}</span>
+                    <span class="text-xs text-slate-500 text-left truncate">{{ email() }}</span>
+                  </div>
+                  <app-icon
+                    [name]="isDropdownOpen() ? 'chevron-up' : 'chevron-down'"
+                    className="text-slate-400 text-sm flex-shrink-0"
+                  ></app-icon>
+                </div>
+              </div>
             </button>
-          } @else {
-            <div class="flex items-center justify-center">
-              <app-icon name="star" className="text-indigo-600"></app-icon>
-            </div>
-          }
-        </div>
 
-        <div class="pb-3">
-          <button
-            type="button"
-            class="w-full fs-button-secondary"
-            [class.justify-center]="!expanded()"
-            (click)="logout.emit()"
-          >
-            <app-icon name="log-out"></app-icon>
-            @if (expanded()) {
-              <span>Sair</span>
+            @if (isDropdownOpen()) {
+              <div class="dropdown-menu">
+                <div class="dropdown-header">
+                  <div class="flex items-center gap-3">
+                    <div>
+                      @if (avatarUrl() && avatarUrl() !== '') {
+                        <img
+                          [src]="avatarUrl()"
+                          alt="Avatar"
+                          class="w-12 h-12 rounded-xl object-cover"
+                        />
+                      } @else {
+                        <div
+                          class="w-12 h-12 rounded-xl flex items-center justify-center bg-pink-200 text-pink-700 font-bold text-lg"
+                        >
+                          {{ initial() }}
+                        </div>
+                      }
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                      <span class="font-semibold text-slate-900 text-sm truncate">{{
+                        fullName()
+                      }}</span>
+                      <span class="text-xs text-slate-500 truncate">{{ email() }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="h-px bg-slate-200 my-2"></div>
+
+                <div class="py-1">
+                  <button type="button" class="dropdown-item">
+                    <app-icon name="folder" className="text-slate-500"></app-icon>
+                    <span>Integrations</span>
+                  </button>
+                  <button type="button" class="dropdown-item">
+                    <app-icon name="clock" className="text-slate-500"></app-icon>
+                    <span>History</span>
+                  </button>
+                  <button type="button" class="dropdown-item">
+                    <app-icon name="star" className="text-yellow-500"></app-icon>
+                    <span>Upgrade to Pro</span>
+                  </button>
+                  <button type="button" class="dropdown-item update-app">
+                    <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+                    <span>Update App</span>
+                  </button>
+                </div>
+
+                <div class="h-px bg-slate-200"></div>
+
+                <div class="py-1">
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    (click)="logout.emit(); toggleDropdown()"
+                  >
+                    <app-icon name="log-out" className="text-slate-500"></app-icon>
+                    <span>Logout</span>
+                  </button>
+                </div>
+
+                <div class="h-px bg-slate-200"></div>
+
+                <div class="dropdown-footer">v1.5.69 • Terms & Conditions</div>
+              </div>
             }
-          </button>
-        </div>
+          </div>
+        } @else {
+          <div class="flex justify-center">
+            <button
+              type="button"
+              (click)="logout.emit()"
+              class="bg-transparent border-none cursor-pointer"
+            >
+              @if (avatarUrl() && avatarUrl() !== '') {
+                <img [src]="avatarUrl()" alt="Avatar" class="w-10 h-10 rounded-lg object-cover" />
+              } @else {
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center bg-pink-200 text-pink-700 font-bold"
+                >
+                  {{ initial() }}
+                </div>
+              }
+            </button>
+          </div>
+        }
       </div>
     </aside>
   `,
@@ -288,4 +450,23 @@ export class SidebarComponent {
   readonly expanded = input.required<boolean>();
   readonly canAccessAdmin = input<boolean>(false);
   readonly logout = output<void>();
+  readonly fullName = input<string>('Usuário');
+  readonly email = input<string>('user@email.com');
+  readonly avatarUrl = input<string>('');
+  readonly initial = input<string>('U');
+
+  private elementRef = inject(ElementRef);
+  protected isDropdownOpen = signal(false);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+    if (!clickedInside && this.isDropdownOpen()) {
+      this.isDropdownOpen.set(false);
+    }
+  }
+
+  protected toggleDropdown(): void {
+    this.isDropdownOpen.update((value) => !value);
+  }
 }

@@ -28,6 +28,7 @@ import {
   DepartementIcon,
   UnfoldMoreIcon,
   UnfoldLessIcon,
+  UserAdd02Icon
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -58,6 +59,7 @@ const iconMap = {
   department: DepartementIcon,
   'unfold-more': UnfoldMoreIcon,
   'unfold-less': UnfoldLessIcon,
+  'user-plus': UserAdd02Icon
 } as const;
 
 @Component({

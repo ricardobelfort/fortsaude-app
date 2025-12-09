@@ -3,6 +3,10 @@
 @import 'tailwindcss';
 @import 'ngx-toastr/toastr';
 
+* {
+  font-family: 'Inter', sans-serif;
+}
+
 @layer components {
   /* Height standardization */
   :root {
@@ -20,8 +24,20 @@
   .fs-textarea {
     @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 text-sm leading-none transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:ring-offset-0 cursor-pointer;
     height: var(--fs-input-height);
+  }
+
+  .fs-input,
+  .fs-textarea {
     display: flex;
     align-items: center;
+  }
+
+  .fs-select {
+    padding-right: 2.5rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
   }
 
   /* Invalid input styles */

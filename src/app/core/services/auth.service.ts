@@ -60,7 +60,7 @@ export class AuthService {
 
     if (accessToken) {
       this.accessTokenSignal.set(accessToken);
-      
+
       // Decode token and set user data
       const payload = this.decodeToken(accessToken);
       if (payload) {
@@ -115,7 +115,7 @@ export class AuthService {
       tap((response) => {
         this.accessTokenSignal.set(response.accessToken);
         this.refreshTokenSignal.set(response.refreshToken);
-        
+
         // Decode JWT and extract user data
         const payload = this.decodeToken(response.accessToken);
         if (payload) {
@@ -182,9 +182,7 @@ export class AuthService {
         return null;
       }
 
-      const decoded = JSON.parse(
-        atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))
-      );
+      const decoded = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
       return decoded as JwtPayload;
     } catch {
       return null;

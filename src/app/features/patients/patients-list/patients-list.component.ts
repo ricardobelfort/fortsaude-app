@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PatientsService } from '../../../core/services/patients.service';
 import { Patient, CreatePatientDto, UpdatePatientDto } from '../../../core/models';
-import { AlertService } from '../../../shared/ui/alert.service';
 import { IconComponent } from '../../../shared/ui/icon.component';
+import { SaveLoadingDirective } from '../../../shared/ui/save-loading.directive';
 
 @Component({
   selector: 'app-patients-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, IconComponent],
+  imports: [CommonModule, FormsModule, RouterLink, IconComponent, SaveLoadingDirective],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -19,11 +19,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           <h1 class="text-3xl font-bold text-gray-800">Pacientes</h1>
           <p class="text-gray-600">Gestão completa dos pacientes da clínica</p>
         </div>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
-          (click)="openDialog()"
-        >
+        <button type="button" class="fs-button-primary" (click)="openDialog()">
           <app-icon [name]="'user-plus'"></app-icon>
           Novo Paciente
         </button>
@@ -42,7 +38,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
               Buscar
             </button>
             <button type="button" class="fs-button-secondary" (click)="clearFilters()">
-              <app-icon [name]="'rotate-ccw'"></app-icon>
+              <app-icon [name]="'filter-remove'"></app-icon>
               Limpar
             </button>
           </div>
@@ -141,7 +137,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
               </div>
               <div>
                 <label class="fs-label">CPF/Documento</label>
-                <input [(ngModel)]="formData.document" class="fs-input" />
+                <input [(ngModel)]="formData.documentId" class="fs-input" />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -160,17 +156,20 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             </div>
             <div>
               <label class="fs-label">Observações</label>
-              <textarea [(ngModel)]="formData.observations" class="fs-textarea" rows="3"></textarea>
+              <textarea [(ngModel)]="formData.notes" class="fs-textarea" rows="3"></textarea>
             </div>
           </div>
 
           <div class="flex justify-end gap-3 mt-6">
             <button type="button" class="fs-button-secondary" (click)="displayDialog.set(false)">
-              <app-icon [name]="'x-circle'"></app-icon>
               Cancelar
             </button>
-            <button type="button" class="fs-button-primary" (click)="savePatient()">
-              <app-icon [name]="'check-circle'"></app-icon>
+            <button
+              type="button"
+              class="fs-button-primary"
+              (click)="savePatient()"
+              [appSaveLoading]="isSaving()"
+            >
               Salvar
             </button>
           </div>
@@ -182,21 +181,22 @@ import { IconComponent } from '../../../shared/ui/icon.component';
 })
 export class PatientsListComponent implements OnInit {
   private readonly patientsService = inject(PatientsService);
-  private readonly alertService = inject(AlertService);
 
-  patients = signal<Patient[]>([]);
-  displayDialog = signal(false);
+  readonly patients = signal<Patient[]>([]);
+  readonly displayDialog = signal(false);
+  readonly isSaving = signal(false);
+
   searchText = '';
   editingPatient: Patient | null = null;
 
   formData: Partial<CreatePatientDto> = {
     fullName: '',
-    dateOfBirth: new Date(),
-    document: '',
+    dateOfBirth: '',
+    documentId: undefined,
     phone: '',
     email: '',
     address: '',
-    observations: '',
+    notes: '',
   };
 
   ngOnInit(): void {
@@ -213,9 +213,6 @@ export class PatientsListComponent implements OnInit {
       next: (data) => {
         this.patients.set(data);
       },
-      error: () => {
-        this.alertService.error('Falha ao carregar pacientes');
-      },
     });
   }
 
@@ -231,16 +228,25 @@ export class PatientsListComponent implements OnInit {
   }
 
   editPatient(patient: Patient): void {
-    this.editingPatient = { ...patient };
-    this.formData = { ...patient };
+    this.editingPatient = patient;
+    this.formData = {
+      fullName: patient.fullName,
+      dateOfBirth: patient.dateOfBirth,
+      documentId: patient.documentId || undefined,
+      phone: patient.phone,
+      email: patient.email,
+      address: patient.address || undefined,
+      notes: patient.notes || undefined,
+    };
     this.displayDialog.set(true);
   }
 
   savePatient(): void {
     if (!this.formData.fullName || !this.formData.email) {
-      this.alertService.error('Preencha os campos obrigatórios');
       return;
     }
+
+    this.isSaving.set(true);
 
     if (this.editingPatient) {
       // Update
@@ -248,49 +254,42 @@ export class PatientsListComponent implements OnInit {
         .update(this.editingPatient.id, this.formData as UpdatePatientDto)
         .subscribe({
           next: () => {
-            this.alertService.success('Paciente atualizado');
             this.displayDialog.set(false);
+            this.isSaving.set(false);
             this.loadPatients();
           },
           error: () => {
-            this.alertService.error('Falha ao atualizar paciente');
+            this.isSaving.set(false);
           },
         });
     } else {
       // Create
       this.patientsService.create(this.formData as CreatePatientDto).subscribe({
         next: () => {
-          this.alertService.success('Paciente criado');
           this.displayDialog.set(false);
+          this.isSaving.set(false);
           this.loadPatients();
         },
         error: () => {
-          this.alertService.error('Falha ao criar paciente');
+          this.isSaving.set(false);
         },
       });
     }
   }
 
   async deletePatient(id: string): Promise<void> {
-    const confirmed = await this.alertService.confirm({
-      text: 'Tem certeza que deseja deletar este paciente?',
-      confirmButtonText: 'Sim, deletar',
-    });
-
-    if (!confirmed) return;
+    if (!confirm('Tem certeza que deseja deletar este paciente?')) {
+      return;
+    }
 
     this.patientsService.delete(id).subscribe({
       next: () => {
-        this.alertService.success('Paciente deletado');
         this.loadPatients();
-      },
-      error: () => {
-        this.alertService.error('Falha ao deletar paciente');
       },
     });
   }
 
-  calculateAge(dateOfBirth: Date): number {
+  calculateAge(dateOfBirth: string): number {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -304,12 +303,12 @@ export class PatientsListComponent implements OnInit {
   private resetForm(): void {
     this.formData = {
       fullName: '',
-      dateOfBirth: new Date(),
-      document: '',
+      dateOfBirth: '',
+      documentId: undefined,
       phone: '',
       email: '',
       address: '',
-      observations: '',
+      notes: '',
     };
   }
 }

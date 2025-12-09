@@ -1,7 +1,7 @@
 import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { User } from '../models';
+import { User, UserRole } from '../models';
 import { environment } from '../../../environments/environment';
 
 interface LoginRequest {
@@ -11,7 +11,21 @@ interface LoginRequest {
 
 interface LoginResponse {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
+}
+
+interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+interface JwtPayload {
+  sub: string;
+  clinicId: string;
+  email: string;
+  name: string;
+  role: string;
+  iat: number;
+  exp: number;
 }
 
 @Injectable({
@@ -22,12 +36,13 @@ export class AuthService {
   private readonly baseUrl = environment.apiUrl;
 
   // Signals
-  private readonly tokenSignal = signal<string | null>(null);
+  private readonly accessTokenSignal = signal<string | null>(null);
+  private readonly refreshTokenSignal = signal<string | null>(null);
   private readonly userSignal = signal<User | null>(null);
   private readonly isInitializedSignal = signal(false);
 
   // Computed values
-  readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly isAuthenticated = computed(() => !!this.accessTokenSignal());
   readonly currentUser = computed(() => this.userSignal());
   readonly isInitialized = computed(() => this.isInitializedSignal());
 
@@ -40,41 +55,53 @@ export class AuthService {
    * Initialize auth state from localStorage
    */
   private initializeAuthState(): void {
-    const token = this.getStoredToken();
-    if (token) {
-      this.tokenSignal.set(token);
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr) as User;
-          this.userSignal.set(user);
-        } catch {
-          localStorage.removeItem('user');
-        }
+    const accessToken = this.getStoredAccessToken();
+    const refreshToken = this.getStoredRefreshToken();
+
+    if (accessToken) {
+      this.accessTokenSignal.set(accessToken);
+      
+      // Decode token and set user data
+      const payload = this.decodeToken(accessToken);
+      if (payload) {
+        const user: User = {
+          id: payload.sub,
+          clinicId: payload.clinicId,
+          email: payload.email,
+          fullName: payload.name,
+          role: payload.role as UserRole,
+          iat: payload.iat,
+          exp: payload.exp,
+        };
+        this.userSignal.set(user);
       }
     }
+    if (refreshToken) {
+      this.refreshTokenSignal.set(refreshToken);
+    }
+
     this.isInitializedSignal.set(true);
   }
 
   /**
-   * Setup side effect to persist token and user to localStorage
+   * Setup side effect to persist tokens to localStorage
    */
   private setupPersistedState(): void {
     effect(() => {
-      const token = this.tokenSignal();
+      const token = this.accessTokenSignal();
       if (token) {
-        localStorage.setItem('token', token);
+        localStorage.setItem('accessToken', token);
       } else {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
       }
     });
 
     effect(() => {
-      const user = this.userSignal();
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
+      const token = this.refreshTokenSignal();
+      if (token) {
+        localStorage.setItem('refreshToken', token);
       } else {
-        localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
       }
     });
   }
@@ -86,10 +113,41 @@ export class AuthService {
     const body: LoginRequest = { email, password };
     return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, body).pipe(
       tap((response) => {
-        this.tokenSignal.set(response.accessToken);
-        if (response.refreshToken) {
-          localStorage.setItem('refreshToken', response.refreshToken);
+        this.accessTokenSignal.set(response.accessToken);
+        this.refreshTokenSignal.set(response.refreshToken);
+        
+        // Decode JWT and extract user data
+        const payload = this.decodeToken(response.accessToken);
+        if (payload) {
+          const user: User = {
+            id: payload.sub,
+            clinicId: payload.clinicId,
+            email: payload.email,
+            fullName: payload.name,
+            role: payload.role as UserRole,
+            iat: payload.iat,
+            exp: payload.exp,
+          };
+          this.userSignal.set(user);
         }
+      })
+    );
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  refreshAccessToken(): Observable<LoginResponse> {
+    const refreshToken = this.refreshTokenSignal();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const body: RefreshTokenRequest = { refreshToken };
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/refresh`, body).pipe(
+      tap((response) => {
+        this.accessTokenSignal.set(response.accessToken);
+        this.refreshTokenSignal.set(response.refreshToken);
       })
     );
   }
@@ -109,25 +167,61 @@ export class AuthService {
    * Logout and clear auth state
    */
   logout(): void {
-    this.tokenSignal.set(null);
+    this.accessTokenSignal.set(null);
+    this.refreshTokenSignal.set(null);
     this.userSignal.set(null);
-    localStorage.removeItem('refreshToken');
   }
 
   /**
-   * Get the current token
+   * Decode JWT token to extract payload
    */
-  getToken(): string | null {
-    return this.tokenSignal();
+  private decodeToken(token: string): JwtPayload | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      const decoded = JSON.parse(
+        atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))
+      );
+      return decoded as JwtPayload;
+    } catch {
+      return null;
+    }
   }
 
   /**
-   * Get stored token from localStorage
+   * Get the current access token
    */
-  private getStoredToken(): string | null {
+  getAccessToken(): string | null {
+    return this.accessTokenSignal();
+  }
+
+  /**
+   * Get the current refresh token
+   */
+  getRefreshToken(): string | null {
+    return this.refreshTokenSignal();
+  }
+
+  /**
+   * Get stored access token from localStorage
+   */
+  private getStoredAccessToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;
     }
-    return localStorage.getItem('token');
+    return localStorage.getItem('accessToken');
+  }
+
+  /**
+   * Get stored refresh token from localStorage
+   */
+  private getStoredRefreshToken(): string | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    return localStorage.getItem('refreshToken');
   }
 }

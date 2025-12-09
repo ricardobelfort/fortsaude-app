@@ -3,10 +3,9 @@ import { UserRole } from './role.model';
 export interface User {
   id: string;
   clinicId: string;
-  fullName: string;
   email: string;
+  fullName: string;
   role: UserRole;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  iat: number;
+  exp: number;
 }

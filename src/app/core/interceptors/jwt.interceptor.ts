@@ -17,7 +17,7 @@ export class JwtInterceptor implements HttpInterceptor {
   private readonly router = inject(Router);
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const token = this.authService.getToken();
+    const token = this.authService.getAccessToken();
 
     if (token && !this.isAuthEndpoint(request.url)) {
       request = request.clone({

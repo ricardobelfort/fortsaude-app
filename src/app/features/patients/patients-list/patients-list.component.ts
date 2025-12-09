@@ -24,7 +24,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
           (click)="openDialog()"
         >
-          <app-icon name="user-plus"></app-icon>
+          <app-icon [name]="\'user-plus\'"></app-icon>
           Novo Paciente
         </button>
       </div>
@@ -38,11 +38,11 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           </div>
           <div class="flex items-end gap-2">
             <button type="button" class="fs-button-primary" (click)="loadPatients()">
-              <app-icon name="search"></app-icon>
+              <app-icon [name]="\'search\'"></app-icon>
               Buscar
             </button>
             <button type="button" class="fs-button-secondary" (click)="clearFilters()">
-              <app-icon name="rotate-ccw"></app-icon>
+              <app-icon [name]="\'rotate-ccw\'"></app-icon>
               Limpar
             </button>
           </div>
@@ -83,7 +83,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                         [routerLink]="['/app/patients', patient.id]"
                         class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
                       >
-                        <app-icon name="eye"></app-icon>
+                        <app-icon [name]="\'eye\'"></app-icon>
                         Ver
                       </a>
                       <button
@@ -91,7 +91,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                         class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
                         (click)="editPatient(patient)"
                       >
-                        <app-icon name="edit-3"></app-icon>
+                        <app-icon [name]="\'edit-3\'"></app-icon>
                         Editar
                       </button>
                       <button
@@ -99,7 +99,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                         class="inline-flex items-center gap-1 text-red-600 hover:text-red-800"
                         (click)="deletePatient(patient.id)"
                       >
-                        <app-icon name="trash-2"></app-icon>
+                        <app-icon [name]="\'trash-2\'"></app-icon>
                         Excluir
                       </button>
                     </div>
@@ -125,7 +125,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
               class="text-gray-500 hover:text-gray-700"
               (click)="displayDialog.set(false)"
             >
-              <app-icon name="x"></app-icon>
+              <app-icon [name]="\'x\'"></app-icon>
             </button>
           </div>
 
@@ -166,11 +166,11 @@ import { IconComponent } from '../../../shared/ui/icon.component';
 
           <div class="flex justify-end gap-3 mt-6">
             <button type="button" class="fs-button-secondary" (click)="displayDialog.set(false)">
-              <app-icon name="x-circle"></app-icon>
+              <app-icon [name]="\'x-circle\'"></app-icon>
               Cancelar
             </button>
             <button type="button" class="fs-button-primary" (click)="savePatient()">
-              <app-icon name="check-circle"></app-icon>
+              <app-icon [name]="\'check-circle\'"></app-icon>
               Salvar
             </button>
           </div>

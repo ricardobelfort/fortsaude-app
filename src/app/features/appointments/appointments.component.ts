@@ -38,7 +38,7 @@ interface Professional {
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-3xl font-bold text-gray-900">Agenda de Atendimentos</h1>
           <button type="button" class="fs-button-primary" (click)="openNewAppointmentDialog()">
-            <app-icon name="calendar"></app-icon>
+            <app-icon [name]="\'calendar\'"></app-icon>
             Novo Atendimento
           </button>
         </div>
@@ -124,7 +124,7 @@ interface Professional {
                         (click)="editAppointment(apt)"
                         class="inline-flex items-center gap-1 px-3 py-2 text-blue-600 hover:text-blue-800"
                       >
-                        <app-icon name="edit-3"></app-icon>
+                        <app-icon [name]="\'edit-3\'"></app-icon>
                         Editar
                       </button>
                       <button
@@ -132,7 +132,7 @@ interface Professional {
                         (click)="deleteAppointment(apt.id)"
                         class="inline-flex items-center gap-1 px-3 py-2 text-red-600 hover:text-red-800"
                       >
-                        <app-icon name="trash-2"></app-icon>
+                        <app-icon [name]="\'trash-2\'"></app-icon>
                         Excluir
                       </button>
                     </div>
@@ -163,7 +163,7 @@ interface Professional {
               class="text-gray-500 hover:text-gray-700"
               (click)="showDialog = false"
             >
-              <app-icon name="x"></app-icon>
+              <app-icon [name]="\'x\'"></app-icon>
             </button>
           </div>
 
@@ -228,7 +228,7 @@ interface Professional {
 
             <div class="flex justify-end gap-3">
               <button type="button" class="fs-button-secondary" (click)="showDialog = false">
-                <app-icon name="x-circle"></app-icon>
+                <app-icon [name]="\'x-circle\'"></app-icon>
                 Cancelar
               </button>
               <button
@@ -236,7 +236,7 @@ interface Professional {
                 class="fs-button-primary"
                 [disabled]="!form.valid || isLoading()"
               >
-                <app-icon name="check-circle"></app-icon>
+                <app-icon [name]="\'check-circle\'"></app-icon>
                 {{ isLoading() ? 'Salvando...' : 'Salvar' }}
               </button>
             </div>

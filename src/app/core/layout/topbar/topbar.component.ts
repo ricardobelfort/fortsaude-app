@@ -8,17 +8,17 @@ import { IconComponent } from '../../../shared/ui/icon.component';
   imports: [CommonModule, IconComponent],
   template: `
     <header
-      class="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between"
+      class="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between relative"
     >
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="flex items-center justify-center w-10 h-10 rounded-full text-slate-600 hover:bg-slate-100 cursor-pointer transition"
+          class="absolute left-2 flex items-center justify-center w-10 h-10 rounded-full text-slate-600 hover:bg-slate-100 cursor-pointer transition"
           (click)="toggleSidebar.emit()"
           [attr.aria-expanded]="expanded()"
           aria-label="Alternar sidebar"
         >
-          <app-icon [name]="expanded() ? 'chevron-left' : 'chevron-right'"></app-icon>
+          <app-icon [size]="20" [name]="expanded() ? 'menu' : 'chevron-right'"></app-icon>
         </button>
       </div>
 
@@ -28,7 +28,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           class="flex items-center justify-center w-10 h-10 rounded-full text-slate-500 hover:bg-slate-100 cursor-pointer transition"
           title="Notificações"
         >
-          <app-icon name="bell" className="text-lg"></app-icon>
+          <app-icon [name]="'bell-sleep'" [size]="20" [className]="'text-lg'"></app-icon>
         </button>
         <div
           class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition cursor-pointer"
@@ -41,7 +41,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
           </div>
           <div class="hidden lg:flex flex-col items-start leading-tight">
             <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
-            <p class="text-xs text-slate-500">{{ email() }}</p>
+            <p class="text-xs text-slate-500'">{{ email() }}</p>
           </div>
         </div>
       </div>

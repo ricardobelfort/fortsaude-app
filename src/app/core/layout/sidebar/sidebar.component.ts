@@ -173,7 +173,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             [attr.title]="expanded() ? null : 'Dashboard'"
           >
             <app-icon
-              name="layout"
+              [name]="'layout'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -189,7 +189,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             [attr.title]="expanded() ? null : 'Agenda'"
           >
             <app-icon
-              name="calendar"
+              [name]="'calendar'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -205,7 +205,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             [attr.title]="expanded() ? null : 'Pacientes'"
           >
             <app-icon
-              name="users"
+              [name]="'users'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -221,7 +221,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             [attr.title]="expanded() ? null : 'Profissionais'"
           >
             <app-icon
-              name="user-check"
+              [name]="'groups'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -243,7 +243,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             title="Departamentos"
           >
             <app-icon
-              name="grid"
+              [name]="'department'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -257,7 +257,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             title="Financeiro"
           >
             <app-icon
-              name="credit-card"
+              [name]="'money'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -271,7 +271,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             title="Serviços"
           >
             <app-icon
-              name="list"
+              [name]="'service'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -285,7 +285,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             title="Comunicação"
           >
             <app-icon
-              name="message-square"
+              [name]="'message-notification'"
               [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
             ></app-icon>
             @if (expanded()) {
@@ -303,7 +303,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
               [attr.title]="expanded() ? null : 'Administração'"
             >
               <app-icon
-                name="shield"
+                [name]="'shield'"
                 [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
               ></app-icon>
               @if (expanded()) {
@@ -347,8 +347,9 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                     <span class="text-xs text-slate-500 text-left truncate">{{ email() }}</span>
                   </div>
                   <app-icon
-                    [name]="isDropdownOpen() ? 'chevron-up' : 'chevron-down'"
-                    className="text-slate-400 text-sm flex-shrink-0"
+                    [size]="16"
+                    [name]="isDropdownOpen() ? 'unfold-less' : 'unfold-more'"
+                    [className]="'text-slate-400 text-sm flex-shrink-0'"
                   ></app-icon>
                 </div>
               </div>
@@ -386,15 +387,15 @@ import { IconComponent } from '../../../shared/ui/icon.component';
 
                 <div class="py-1">
                   <button type="button" class="dropdown-item">
-                    <app-icon name="folder" className="text-slate-500"></app-icon>
+                    <app-icon [name]="'folder'" [className]="'text-slate-500'"></app-icon>
                     <span>Integrations</span>
                   </button>
                   <button type="button" class="dropdown-item">
-                    <app-icon name="clock" className="text-slate-500"></app-icon>
+                    <app-icon [name]="'clock'" [className]="'text-slate-500'"></app-icon>
                     <span>History</span>
                   </button>
                   <button type="button" class="dropdown-item">
-                    <app-icon name="star" className="text-yellow-500"></app-icon>
+                    <app-icon [name]="'star'" [className]="'text-yellow-500'"></app-icon>
                     <span>Upgrade to Pro</span>
                   </button>
                   <button type="button" class="dropdown-item update-app">
@@ -411,7 +412,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                     class="dropdown-item"
                     (click)="logout.emit(); toggleDropdown()"
                   >
-                    <app-icon name="log-out" className="text-slate-500"></app-icon>
+                    <app-icon [name]="'log-out'" [className]="'text-slate-500'"></app-icon>
                     <span>Logout</span>
                   </button>
                 </div>

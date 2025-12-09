@@ -1,55 +1,97 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
+import { HugeiconsIconComponent } from '@hugeicons/angular';
+
+// Import Hugeicons - mapping custom names to icon imports
+import {
+  Home07Icon,
+  Calendar01Icon,
+  UserMultiple02Icon,
+  UserGroup03Icon,
+  Settings01Icon,
+  ViewIcon,
+  ViewOffIcon,
+  Mail01Icon,
+  LockPasswordIcon,
+  Cancel01Icon,
+  CheckmarkCircleIcon,
+  Add01Icon,
+  Menu01Icon,
+  ArrowLeftIcon,
+  ArrowRightDoubleIcon,
+  Search01Icon,
+  NotificationSnooze01Icon,
+  Notification02Icon,
+  Bookmark01Icon,
+  MessageNotification01Icon,
+  PowerServiceIcon,
+  MoneyBag02Icon,
+  DepartementIcon,
+  UnfoldMoreIcon,
+  UnfoldLessIcon,
+} from '@hugeicons/core-free-icons';
+
+// Icon mapping object for easy lookup
+const iconMap = {
+  layout: Home07Icon,
+  calendar: Calendar01Icon,
+  users: UserMultiple02Icon,
+  groups: UserGroup03Icon,
+  settings: Settings01Icon,
+  eye: ViewIcon,
+  'eye-off': ViewOffIcon,
+  mail: Mail01Icon,
+  letter: Mail01Icon,
+  lock: LockPasswordIcon,
+  x: Cancel01Icon,
+  'check-circle': CheckmarkCircleIcon,
+  plus: Add01Icon,
+  menu: Menu01Icon,
+  'chevron-left': ArrowLeftIcon,
+  'chevron-right': ArrowRightDoubleIcon,
+  search: Search01Icon,
+  'bell-sleep': NotificationSnooze01Icon,
+  bell: Notification02Icon,
+  save: Bookmark01Icon,
+  'message-notification': MessageNotification01Icon,
+  service: PowerServiceIcon,
+  money: MoneyBag02Icon,
+  department: DepartementIcon,
+  'unfold-more': UnfoldMoreIcon,
+  'unfold-less': UnfoldLessIcon,
+} as const;
 
 @Component({
   selector: 'app-icon',
   standalone: true,
-  imports: [CommonModule],
-  template: ` <i [class]="iconClass" [ngClass]="className" [attr.aria-hidden]="true"></i> `,
+  imports: [HugeiconsIconComponent],
+  template: `
+    @if (icon()) {
+      <hugeicons-icon
+        [icon]="icon()"
+        [size]="sizeNumber()"
+        color="currentColor"
+        [strokeWidth]="1.5"
+        [class]="className()"
+        aria-hidden="true"
+      ></hugeicons-icon>
+    } @else {
+      <span class="text-xs text-gray-400">?</span>
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {
-  @Input({ required: true }) name!: string;
-  @Input() className = '';
+  name = input.required<string>();
+  className = input<string>('');
+  size = input<string | number>('24');
 
-  get iconClass(): string {
-    // Map common icon names to Font Awesome classes
-    const iconMap: Record<string, string> = {
-      layout: 'fas fa-th-large',
-      calendar: 'fas fa-calendar-alt',
-      users: 'fas fa-users',
-      'user-check': 'fas fa-user-check',
-      grid: 'fas fa-th',
-      'credit-card': 'fas fa-credit-card',
-      list: 'fas fa-list',
-      'message-square': 'fas fa-comment',
-      shield: 'fas fa-shield-alt',
-      star: 'fas fa-star',
-      settings: 'fas fa-cog',
-      'help-circle': 'fas fa-question-circle',
-      zap: 'fas fa-bolt',
-      'log-out': 'fas fa-sign-out-alt',
-      'chevrons-up': 'fas fa-chevron-up',
-      search: 'fas fa-search',
-      bell: 'fas fa-bell',
-      'user-plus': 'fas fa-user-plus',
-      briefcase: 'fas fa-briefcase',
-      'edit-3': 'fas fa-edit',
-      'trash-2': 'fas fa-trash',
-      x: 'fas fa-times',
-      'x-circle': 'fas fa-times-circle',
-      'check-circle': 'fas fa-check-circle',
-      plus: 'fas fa-plus',
-      'upload-cloud': 'fas fa-cloud-upload-alt',
-      'download-cloud': 'fas fa-cloud-download-alt',
-      'rotate-ccw': 'fas fa-redo',
-      eye: 'fas fa-eye',
-      save: 'fas fa-save',
-      'chevron-left': 'fas fa-chevron-left',
-      'chevron-right': 'fas fa-chevron-right',
-      menu: 'fas fa-bars',
-    };
+  sizeNumber = computed(() => {
+    const s = this.size();
+    return typeof s === 'string' ? parseInt(s, 10) : s;
+  });
 
-    return iconMap[this.name] || `fas fa-${this.name}`;
-  }
+  icon = computed(() => {
+    const iconName = this.name() as keyof typeof iconMap;
+    return iconMap[iconName] || null;
+  });
 }

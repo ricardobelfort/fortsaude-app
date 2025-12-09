@@ -1,7 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
-@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import 'ngx-toastr/toastr';
 
 @layer components {
@@ -23,6 +22,23 @@
     height: var(--fs-input-height);
     display: flex;
     align-items: center;
+  }
+
+  /* Invalid input styles */
+  .fs-input:invalid:not(:placeholder-shown),
+  .fs-select:invalid:not(:placeholder-shown),
+  .fs-textarea:invalid:not(:placeholder-shown),
+  .fs-input.ng-invalid.ng-touched,
+  .fs-select.ng-invalid.ng-touched,
+  .fs-textarea.ng-invalid.ng-touched {
+    @apply border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-200;
+  }
+
+  /* Valid input styles */
+  .fs-input.ng-valid.ng-touched:not(.ng-pristine),
+  .fs-select.ng-valid.ng-touched:not(.ng-pristine),
+  .fs-textarea.ng-valid.ng-touched:not(.ng-pristine) {
+    @apply border-green-500 bg-green-50 focus:border-green-500 focus:ring-green-200;
   }
 
   .fs-button-primary {

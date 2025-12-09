@@ -24,7 +24,7 @@ export interface EvolutionRecord {
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700"
           (click)="openDialog()"
         >
-          <app-icon name="plus"></app-icon>
+          <app-icon [name]="\'plus\'"></app-icon>
           Nova Evolução
         </button>
       </div>
@@ -46,7 +46,7 @@ export interface EvolutionRecord {
                     class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
                     (click)="deleteEvolution(evolution.id)"
                   >
-                    <app-icon name="trash-2"></app-icon>
+                    <app-icon [name]="\'trash-2\'"></app-icon>
                     Remover
                   </button>
                 </div>
@@ -74,7 +74,7 @@ export interface EvolutionRecord {
               class="text-gray-500 hover:text-gray-700"
               (click)="showDialog = false"
             >
-              <app-icon name="x"></app-icon>
+              <app-icon [name]="\'x\'"></app-icon>
             </button>
           </div>
 

@@ -20,7 +20,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
           <p class="text-gray-600">Gerenciamento de profissionais de saúde</p>
         </div>
         <button type="button" class="fs-button-primary" (click)="openDialog()">
-          <app-icon name="user-plus"></app-icon>
+          <app-icon [name]="\'user-plus\'"></app-icon>
           Novo Profissional
         </button>
       </div>
@@ -43,7 +43,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
           </div>
           <div class="flex items-end">
             <button type="button" class="fs-button-primary" (click)="loadProfessionals()">
-              <app-icon name="search"></app-icon>
+              <app-icon [name]="\'search\'"></app-icon>
               Buscar
             </button>
           </div>
@@ -95,7 +95,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
                         class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
                         (click)="editProfessional(professional)"
                       >
-                        <app-icon name="edit-3"></app-icon>
+                        <app-icon [name]="\'edit-3\'"></app-icon>
                         Editar
                       </button>
                       <button
@@ -103,7 +103,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
                         class="inline-flex items-center gap-1 text-red-600 hover:text-red-800"
                         (click)="deleteProfessional(professional.id)"
                       >
-                        <app-icon name="trash-2"></app-icon>
+                        <app-icon [name]="\'trash-2\'"></app-icon>
                         Excluir
                       </button>
                     </div>
@@ -136,7 +136,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
               class="text-gray-500 hover:text-gray-700"
               (click)="displayDialog.set(false)"
             >
-              <app-icon name="x"></app-icon>
+              <app-icon [name]="\'x\'"></app-icon>
             </button>
           </div>
           <p class="text-gray-600">Formulário em desenvolvimento.</p>

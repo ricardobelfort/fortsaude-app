@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { IconComponent } from '../../../shared/ui/icon.component';
 import { finalize } from 'rxjs';
 import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent],
   template: `
     <div
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
@@ -35,13 +37,18 @@ import { signal } from '@angular/core';
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2"
                   >E-mail</label
                 >
-                <input
-                  id="email"
-                  type="email"
-                  formControlName="email"
-                  class="fs-input"
-                  placeholder="seu@email.com"
-                />
+                <div class="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    class="fs-input pl-10"
+                    placeholder="seu@email.com"
+                  />
+                  <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <app-icon [name]="'letter'" [size]="16" [className]="'text-base'"></app-icon>
+                  </div>
+                </div>
                 @if (email.invalid && email.touched) {
                   <div class="text-red-600 text-xs mt-1.5 font-medium">
                     @if (email.errors?.['required']) {
@@ -62,19 +69,35 @@ import { signal } from '@angular/core';
                   >
                   <button
                     type="button"
-                    class="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-60"
-                    disabled
+                    (click)="navigateToForgotPassword()"
+                    class="text-sm text-blue-600 hover:text-blue-700 transition cursor-pointer"
                   >
                     Esqueceu a senha?
                   </button>
                 </div>
-                <input
-                  id="password"
-                  formControlName="password"
-                  class="fs-input"
-                  placeholder="Sua senha"
-                  type="password"
-                />
+                <div class="relative">
+                  <input
+                    id="password"
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    class="fs-input pl-10 pr-10"
+                    placeholder="Sua senha"
+                  />
+                  <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <app-icon [name]="'lock'" [size]="16" [className]="'text-base'"></app-icon>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
+                  >
+                    <app-icon
+                      [name]="showPassword() ? 'eye-off' : 'eye'"
+                      [size]="16"
+                      [className]="'text-lg'"
+                    ></app-icon>
+                  </button>
+                </div>
                 @if (password.invalid && password.touched) {
                   <div class="text-red-600 text-xs mt-1.5 font-medium">
                     @if (password.errors?.['required']) {
@@ -98,26 +121,14 @@ import { signal } from '@angular/core';
               </button>
             </form>
 
-            @if (feedback(); as fb) {
-              <div
-                class="mt-4 p-3 rounded-lg text-sm"
-                [class.bg-green-100]="fb.type === 'success'"
-                [class.text-green-800]="fb.type === 'success'"
-                [class.bg-red-100]="fb.type === 'error'"
-                [class.text-red-800]="fb.type === 'error'"
-              >
-                {{ fb.message }}
-              </div>
-            }
-
             <!-- Sign Up -->
             <div class="mt-8 pt-8 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
                 Não tem conta?
                 <button
                   type="button"
-                  class="text-blue-600 hover:text-blue-700 disabled:opacity-60"
-                  disabled
+                  (click)="navigateToSignup()"
+                  class="text-blue-600 hover:text-blue-700 transition font-medium"
                 >
                   Criar conta
                 </button>
@@ -141,10 +152,11 @@ import { signal } from '@angular/core';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly router = inject(Router);
 
   readonly isLoading = signal(false);
-  readonly feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+  readonly showPassword = signal(false);
   readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
@@ -155,6 +167,18 @@ export class LoginComponent {
 
   readonly email = this.emailControl!;
   readonly password = this.passwordControl!;
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update((value) => !value);
+  }
+
+  navigateToSignup(): void {
+    this.router.navigate(['/auth/signup']);
+  }
+
+  navigateToForgotPassword(): void {
+    this.router.navigate(['/auth/forgot-password']);
+  }
 
   onLogin(): void {
     if (this.loginForm.invalid) return;
@@ -184,13 +208,13 @@ export class LoginComponent {
       )
       .subscribe({
         next: () => {
-          this.feedback.set({ type: 'success', message: 'Autenticação realizada com sucesso' });
+          this.errorHandler.showSuccess('Autenticação realizada com sucesso');
           setTimeout(() => this.router.navigate(['/app/dashboard']), 500);
         },
         error: (error: unknown) => {
           console.error('Login error:', error);
           const errorMessage = this.extractErrorMessage(error);
-          this.feedback.set({ type: 'error', message: errorMessage });
+          this.errorHandler.showErrorToast(errorMessage);
         },
       });
   }

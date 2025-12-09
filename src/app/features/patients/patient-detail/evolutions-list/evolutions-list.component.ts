@@ -17,19 +17,19 @@ export interface EvolutionRecord {
   imports: [CommonModule, ReactiveFormsModule, IconComponent],
   template: `
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-gray-900">Evoluções</h2>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700"
-          (click)="openDialog()"
-        >
-          <app-icon [name]="'plus'"></app-icon>
-          Nova Evolução
-        </button>
-      </div>
-
       @if (evolutions().length > 0) {
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-gray-900">Evoluções</h2>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
+            (click)="openDialog()"
+          >
+            <app-icon [name]="'plus'"></app-icon>
+            Nova Evolução
+          </button>
+        </div>
+
         <div class="space-y-4">
           @for (evolution of evolutions(); track evolution.id) {
             <div class="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition">
@@ -43,7 +43,7 @@ export interface EvolutionRecord {
                 <div class="flex gap-2">
                   <button
                     type="button"
-                    class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
+                    class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
                     (click)="deleteEvolution(evolution.id)"
                   >
                     <app-icon [name]="'trash-2'"></app-icon>
@@ -56,22 +56,32 @@ export interface EvolutionRecord {
           }
         </div>
       } @else {
-        <div class="text-center py-12 text-gray-500">
-          <p class="text-5xl mb-4">📄</p>
-          <p>Nenhuma evolução registrada</p>
+        <div class="flex flex-col items-center justify-center py-24 text-gray-400">
+          <app-icon [name]="'file'" [size]="64" class="mb-4"></app-icon>
+          <p class="text-lg text-gray-500 mb-6">Nenhuma evolução registrada</p>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors cursor-pointer"
+            (click)="openDialog()"
+          >
+            <app-icon [name]="'plus'"></app-icon>
+            Nova Evolução
+          </button>
         </div>
       }
     </div>
 
     <!-- Dialog -->
     @if (showDialog) {
-      <div class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
+      <div
+        class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto animate-fade-in"
+      >
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mt-16 mb-10 p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold text-gray-900">Nova Evolução</h3>
             <button
               type="button"
-              class="text-gray-500 hover:text-gray-700"
+              class="text-gray-500 hover:text-gray-700 transition-colors"
               (click)="showDialog = false"
             >
               <app-icon [name]="'x'"></app-icon>

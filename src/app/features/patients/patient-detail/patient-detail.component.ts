@@ -5,6 +5,9 @@ import { PatientsService } from '../../../core/services';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
+import { IconComponent } from '../../../shared/ui/icon.component';
+import { EmptyValuePipe } from '../../../shared/pipes/empty-value.pipe';
+import { FormatCpfPipe } from '../../../shared/pipes/format-cpf.pipe';
 
 interface PatientInfo {
   id: string;
@@ -27,10 +30,13 @@ interface PatientInfo {
     MedicalRecordFormComponent,
     EvolutionsListComponent,
     DocumentsListComponent,
+    IconComponent,
+    EmptyValuePipe,
+    FormatCpfPipe,
   ],
   template: `
-    <div class="p-6 bg-gray-50 min-h-screen">
-      <div class="max-w-6xl mx-auto">
+    <div class="p-6 bg-white rounded-2xl shadow-sm">
+      <div class="max-w mx-auto">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <div>
@@ -43,7 +49,8 @@ interface PatientInfo {
             </h1>
             @if (patient(); as p) {
               <p class="text-gray-600 mt-2">
-                CPF: {{ p.document }} | Idade: {{ calculateAge(p.dateOfBirth) }} anos
+                CPF: {{ p.document | formatCpf | emptyValue }} | Idade:
+                {{ calculateAge(p.dateOfBirth) }} anos
               </p>
             }
           </div>
@@ -51,18 +58,19 @@ interface PatientInfo {
             [routerLink]="['/app/patients']"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
           >
+            <app-icon [name]="'arrow-left'"></app-icon>
             Voltar
           </a>
         </div>
 
         <!-- Tabs Navigation -->
         @if (patient(); as p) {
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <!-- Tab Buttons -->
             <div class="border-b border-gray-200 flex">
               <button
                 type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
                 [class.border-b-indigo-600]="activeTab() === 'resumo'"
                 [class.border-b-transparent]="activeTab() !== 'resumo'"
                 (click)="setActiveTab('resumo')"
@@ -71,7 +79,7 @@ interface PatientInfo {
               </button>
               <button
                 type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
                 [class.border-b-indigo-600]="activeTab() === 'prontuario'"
                 [class.border-b-transparent]="activeTab() !== 'prontuario'"
                 (click)="setActiveTab('prontuario')"
@@ -80,7 +88,7 @@ interface PatientInfo {
               </button>
               <button
                 type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
                 [class.border-b-indigo-600]="activeTab() === 'evolucoes'"
                 [class.border-b-transparent]="activeTab() !== 'evolucoes'"
                 (click)="setActiveTab('evolucoes')"
@@ -89,7 +97,7 @@ interface PatientInfo {
               </button>
               <button
                 type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2"
+                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
                 [class.border-b-indigo-600]="activeTab() === 'documentos'"
                 [class.border-b-transparent]="activeTab() !== 'documentos'"
                 (click)="setActiveTab('documentos')"
@@ -102,30 +110,28 @@ interface PatientInfo {
             <div class="p-6">
               <!-- Resumo Tab -->
               @if (activeTab() === 'resumo') {
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                    <p class="text-gray-900">{{ p.email }}</p>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Email</label>
+                    <p class="text-gray-600">{{ p.email | emptyValue }}</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
-                    <p class="text-gray-900">{{ p.phone || '-' }}</p>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Telefone</label>
+                    <p class="text-gray-600">{{ p.phone | emptyValue }}</p>
                   </div>
                   <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
-                    <p class="text-gray-900">{{ p.address || '-' }}</p>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Endereço</label>
+                    <p class="text-gray-600">{{ p.address | emptyValue }}</p>
                   </div>
                   <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2"
-                      >Observações</label
-                    >
-                    <p class="text-gray-900">{{ p.observations || '-' }}</p>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Observações</label>
+                    <p class="text-gray-600">{{ p.observations | emptyValue }}</p>
                   </div>
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2"
+                    <label class="block text-sm font-bold text-gray-900 mb-1"
                       >Data de Cadastro</label
                     >
-                    <p class="text-gray-900">{{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+                    <p class="text-gray-600">{{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
                   </div>
                 </div>
               }

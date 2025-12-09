@@ -87,9 +87,9 @@ interface DocumentRecord {
           }
         </div>
       } @else {
-        <div class="text-center py-12 text-gray-500">
-          <p class="text-5xl mb-4">📄</p>
-          <p>Nenhum documento enviado</p>
+        <div class="flex flex-col items-center justify-center py-24 text-gray-400">
+          <app-icon [name]="'file'" class="h-16 w-16 mb-4"></app-icon>
+          <p class="text-lg text-gray-500">Nenhum documento enviado</p>
         </div>
       }
     </div>

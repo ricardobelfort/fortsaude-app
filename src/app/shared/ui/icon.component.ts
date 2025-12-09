@@ -18,6 +18,7 @@ import {
   Menu01Icon,
   ArrowLeftIcon,
   ArrowRightDoubleIcon,
+  ArrowLeft02Icon,
   Search01Icon,
   NotificationSnooze01Icon,
   Notification02Icon,
@@ -29,7 +30,11 @@ import {
   UnfoldMoreIcon,
   UnfoldLessIcon,
   UserAdd02Icon,
-  FilterRemoveIcon
+  FilterRemoveIcon,
+  Edit03Icon,
+  Delete02Icon,
+  FileAddIcon,
+  File01Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -39,8 +44,12 @@ const iconMap = {
   users: UserMultiple02Icon,
   groups: UserGroup03Icon,
   settings: Settings01Icon,
+  'file-add': FileAddIcon,
+  'file-text': File01Icon,
   eye: ViewIcon,
   'eye-off': ViewOffIcon,
+  edit: Edit03Icon,
+  delete: Delete02Icon,
   mail: Mail01Icon,
   letter: Mail01Icon,
   lock: LockPasswordIcon,
@@ -50,6 +59,7 @@ const iconMap = {
   menu: Menu01Icon,
   'chevron-left': ArrowLeftIcon,
   'chevron-right': ArrowRightDoubleIcon,
+  'arrow-left': ArrowLeft02Icon,
   search: Search01Icon,
   'bell-sleep': NotificationSnooze01Icon,
   bell: Notification02Icon,

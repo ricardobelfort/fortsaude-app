@@ -3,6 +3,28 @@
 @import 'tailwindcss';
 @import 'ngx-toastr/toastr';
 
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 * {
   font-family: 'Inter', sans-serif;
 }
@@ -23,7 +45,6 @@
   .fs-select,
   .fs-textarea {
     @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 text-sm leading-none transition hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:ring-offset-0 cursor-pointer;
-    height: var(--fs-input-height);
   }
 
   .fs-input,
@@ -192,3 +213,4 @@ body {
   border-left: 3px solid var(--fs-primary);
   padding-left: 11px;
 }
+

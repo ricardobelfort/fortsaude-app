@@ -1,8 +1,8 @@
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
-import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';

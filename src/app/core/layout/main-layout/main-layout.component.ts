@@ -31,11 +31,7 @@ import { TopbarComponent } from '../topbar/topbar.component';
 
         <!-- Content Area -->
         <main class="flex-1 overflow-y-auto">
-          <div class="mx-auto w-full max-w-5xl px-6 py-6 lg:py-8">
-            <div class="mb-6">
-              <p class="text-sm text-slate-500">Bem-vindo</p>
-              <h1 class="text-2xl font-semibold text-slate-900 leading-tight">{{ pageTitle() }}</h1>
-            </div>
+          <div class="w-full px-8 py-8">
             <router-outlet></router-outlet>
           </div>
         </main>

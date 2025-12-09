@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PatientsService } from '../../../core/services';
+import { PatientsService, UserStateService } from '../../../core/services';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
@@ -165,10 +165,18 @@ interface PatientInfo {
 export class PatientDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly patientsService = inject(PatientsService);
+  private readonly userStateService = inject(UserStateService);
 
   patient = signal<PatientInfo | null>(null);
   isLoading = signal(false);
   activeTab = signal<'resumo' | 'prontuario' | 'evolucoes' | 'documentos'>('resumo');
+
+  // Example of accessing user data from UserStateService
+  // You can use these signals to get current user info:
+  // this.userStateService.userName()
+  // this.userStateService.userEmail()
+  // this.userStateService.userId()
+  // this.userStateService.userRole()
 
   ngOnInit() {
     this.loadPatient();

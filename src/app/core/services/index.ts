@@ -1,5 +1,6 @@
 export * from './api.client';
 export * from './auth.service';
+export * from './user-state.service';
 export * from './current-user.service';
 export * from './patients.service';
 export * from './professionals.service';

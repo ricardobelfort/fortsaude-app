@@ -8,9 +8,11 @@ import {
   HostListener,
   ElementRef,
   inject,
+  computed,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IconComponent } from '../../../shared/ui/icon.component';
+import { UserStateService } from '../../../core/services/user-state.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -448,16 +450,27 @@ import { IconComponent } from '../../../shared/ui/icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
+  private readonly userStateService = inject(UserStateService);
+
   readonly expanded = input.required<boolean>();
   readonly canAccessAdmin = input<boolean>(false);
   readonly logout = output<void>();
-  readonly fullName = input<string>('Usuário');
-  readonly email = input<string>('user@email.com');
-  readonly avatarUrl = input<string>('');
-  readonly initial = input<string>('U');
 
   private elementRef = inject(ElementRef);
   protected isDropdownOpen = signal(false);
+
+  // Get user data from UserStateService
+  readonly fullName = computed(() => this.userStateService.userName() || 'Usuário');
+  readonly email = computed(() => this.userStateService.userEmail() || 'user@email.com');
+  readonly initial = computed(() => {
+    const name = this.userStateService.userName();
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  });
+  readonly avatarUrl = computed(() => {
+    // Avatar URL could be stored in user service or fetched from backend
+    // For now, we'll use an empty string and it will show the initial letter
+    return '';
+  });
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

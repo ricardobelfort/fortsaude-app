@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, computed } from '@angular/core';
 import { IconComponent } from '../../../shared/ui/icon.component';
+import { UserStateService } from '../../../core/services/user-state.service';
 
 @Component({
   selector: 'app-topbar',
@@ -50,10 +51,16 @@ import { IconComponent } from '../../../shared/ui/icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopbarComponent {
-  readonly expanded = input<boolean>(true);
-  readonly fullName = input<string>('Usuário');
-  readonly email = input<string>('user@email.com');
-  readonly initial = input<string>('U');
+  private readonly userStateService = inject(UserStateService);
 
+  readonly expanded = input<boolean>(true);
   readonly toggleSidebar = output<void>();
+
+  // Get user data from UserStateService
+  readonly fullName = computed(() => this.userStateService.userName() || 'Usuário');
+  readonly email = computed(() => this.userStateService.userEmail() || 'user@email.com');
+  readonly initial = computed(() => {
+    const name = this.userStateService.userName();
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  });
 }

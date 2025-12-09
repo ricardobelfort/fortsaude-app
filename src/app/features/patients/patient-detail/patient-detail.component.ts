@@ -7,17 +7,18 @@ import { EvolutionsListComponent } from './evolutions-list/evolutions-list.compo
 import { DocumentsListComponent } from './documents-list/documents-list.component';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { EmptyValuePipe } from '../../../shared/pipes/empty-value.pipe';
-import { FormatCpfPipe } from '../../../shared/pipes/format-cpf.pipe';
+import { StatusBadgePipe } from '../../../shared/pipes/status-badge.pipe';
 
 interface PatientInfo {
   id: string;
+  active: boolean;
   fullName: string;
-  document: string;
+  documentId: string;
   dateOfBirth: string;
   email: string;
   phone?: string;
   address?: string;
-  observations?: string;
+  notes?: string;
   createdAt: string | Date;
 }
 
@@ -32,7 +33,7 @@ interface PatientInfo {
     DocumentsListComponent,
     IconComponent,
     EmptyValuePipe,
-    FormatCpfPipe,
+    StatusBadgePipe,
   ],
   template: `
     <div class="p-6 bg-white rounded-2xl shadow-sm">
@@ -49,8 +50,10 @@ interface PatientInfo {
             </h1>
             @if (patient(); as p) {
               <p class="text-gray-600 mt-2">
-                CPF: {{ p.document | formatCpf | emptyValue }} | Idade:
-                {{ calculateAge(p.dateOfBirth) }} anos
+                <span class="font-bold mr-2">Status:</span>
+                <span [ngClass]="(p.active | statusBadge).className">
+                  {{ (p.active | statusBadge).text }}
+                </span>
               </p>
             }
           </div>
@@ -110,7 +113,15 @@ interface PatientInfo {
             <div class="p-6">
               <!-- Resumo Tab -->
               @if (activeTab() === 'resumo') {
-                <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+                <div class="grid grid-cols-3 gap-x-8 gap-y-4">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Nome Completo</label>
+                    <p class="text-gray-600">{{ p.fullName | emptyValue }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Documento</label>
+                    <p class="text-gray-600">{{ p.documentId | emptyValue }}</p>
+                  </div>
                   <div>
                     <label class="block text-sm font-bold text-gray-900 mb-1">Email</label>
                     <p class="text-gray-600">{{ p.email | emptyValue }}</p>
@@ -123,15 +134,15 @@ interface PatientInfo {
                     <label class="block text-sm font-bold text-gray-900 mb-1">Endereço</label>
                     <p class="text-gray-600">{{ p.address | emptyValue }}</p>
                   </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Observações</label>
-                    <p class="text-gray-600">{{ p.observations | emptyValue }}</p>
-                  </div>
                   <div>
                     <label class="block text-sm font-bold text-gray-900 mb-1"
                       >Data de Cadastro</label
                     >
                     <p class="text-gray-600">{{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="block text-sm font-bold text-gray-900 mb-1">Observações</label>
+                    <p class="text-gray-600">{{ p.notes | emptyValue }}</p>
                   </div>
                 </div>
               }

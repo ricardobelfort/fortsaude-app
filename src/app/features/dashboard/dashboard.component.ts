@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CurrentUserService } from '../../core/services/current-user.service';
+import { StatusBadgePipe } from '../../shared/pipes/status-badge.pipe';
 
 interface UpcomingAppointment {
   id: string;
@@ -13,7 +14,7 @@ interface UpcomingAppointment {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgePipe],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -97,8 +98,8 @@ interface UpcomingAppointment {
                     {{ appointment.startTime | date: 'dd/MM/yyyy HH:mm' }}
                   </td>
                   <td class="px-6 py-4">
-                    <span class="stat-pill" [ngClass]="getStatusClass(appointment.status)">
-                      {{ appointment.status }}
+                    <span [ngClass]="(appointment.status | statusBadge).className">
+                      {{ (appointment.status | statusBadge).text }}
                     </span>
                   </td>
                 </tr>
@@ -144,16 +145,5 @@ export class DashboardComponent implements OnInit {
         status: 'CONFIRMADO',
       },
     ]);
-  }
-
-  getStatusClass(status: string): string {
-    const statusClasses: Record<string, string> = {
-      AGENDADO: 'status-scheduled',
-      CONFIRMADO: 'status-confirmed',
-      COMPLETED: 'status-completed',
-      NO_SHOW: 'status-no-show',
-      CANCELLED: 'status-cancelled',
-    };
-    return statusClasses[status] || 'status-completed';
   }
 }

@@ -57,7 +57,7 @@ export interface EvolutionRecord {
         </div>
       } @else {
         <div class="flex flex-col items-center justify-center py-24 text-gray-400">
-          <app-icon [name]="'file'" [size]="64" class="mb-4"></app-icon>
+          <app-icon [name]="'file-add'" [size]="64" class="mb-4"></app-icon>
           <p class="text-lg text-gray-500 mb-6">Nenhuma evolução registrada</p>
           <button
             type="button"

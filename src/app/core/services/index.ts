@@ -7,3 +7,4 @@ export * from './appointments.service';
 export * from './medical-records.service';
 export * from './evolutions.service';
 export * from './documents.service';
+export * from './error-handler.service';

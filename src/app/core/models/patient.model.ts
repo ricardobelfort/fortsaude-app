@@ -54,6 +54,21 @@ export interface Patient {
   updatedAt: string;
 }
 
+export interface PatientInfo {
+  id: string;
+  active: boolean;
+  fullName: string;
+  documentId: string;
+  dateOfBirth: string;
+  email: string;
+  phone?: string;
+  notes?: string;
+  address?: Address;
+  clinic?: Clinic;
+  createdAt: string | Date;
+  createdBy: string | Date;
+}
+
 export interface CreatePatientDto {
   fullName: string;
   dateOfBirth: string;
@@ -74,4 +89,18 @@ export interface UpdatePatientDto {
   address?: string;
   notes?: string;
   active?: boolean;
+}
+
+export interface Address {
+  city: string;
+  complement: string;
+  createdAt: string;
+  id: string;
+  neighborhood: string;
+  number: string;
+  state: string;
+  street: string;
+  type: string;
+  updatedAt: string;
+  zipCode: string;
 }

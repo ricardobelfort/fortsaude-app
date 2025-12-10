@@ -7,6 +7,7 @@ import {
   Calendar01Icon,
   UserMultiple02Icon,
   UserGroup03Icon,
+  User03Icon,
   Settings01Icon,
   ViewIcon,
   ViewOffIcon,
@@ -37,6 +38,8 @@ import {
   File01Icon,
   ArrowUp01Icon,
   ArrowDown01Icon,
+  WaterfallUp01Icon,
+  DocumentAttachmentIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -45,6 +48,7 @@ const iconMap = {
   calendar: Calendar01Icon,
   users: UserMultiple02Icon,
   groups: UserGroup03Icon,
+  user: User03Icon,
   settings: Settings01Icon,
   'file-add': FileAddIcon,
   'file-text': File01Icon,
@@ -76,6 +80,8 @@ const iconMap = {
   'filter-remove': FilterRemoveIcon,
   'arrow-up': ArrowUp01Icon,
   'arrow-down': ArrowDown01Icon,
+  'waterfall-up': WaterfallUp01Icon,
+  'document-attachment': DocumentAttachmentIcon,
 } as const;
 
 @Component({

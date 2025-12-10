@@ -1,26 +1,17 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PatientsService, UserStateService } from '../../../core/services';
+import { PatientsService } from '../../../core/services';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { EmptyValuePipe } from '../../../shared/pipes/empty-value.pipe';
 import { StatusBadgePipe } from '../../../shared/pipes/status-badge.pipe';
-
-interface PatientInfo {
-  id: string;
-  active: boolean;
-  fullName: string;
-  documentId: string;
-  dateOfBirth: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  notes?: string;
-  createdAt: string | Date;
-}
+import { FormatCpfPipe } from '../../../shared/pipes/format-cpf.pipe';
+import { FormatPhonePipe } from '../../../shared/pipes/format-phone.pipe';
+import { FormatZipCodePipe } from '../../../shared/pipes/format-zip-code.pipe';
+import { PatientInfo } from '../../../core/models/patient.model';
 
 @Component({
   selector: 'app-patient-detail',
@@ -34,29 +25,31 @@ interface PatientInfo {
     IconComponent,
     EmptyValuePipe,
     StatusBadgePipe,
+    FormatCpfPipe,
+    FormatPhonePipe,
+    FormatZipCodePipe,
   ],
   template: `
-    <div class="p-6 bg-white rounded-2xl shadow-sm">
-      <div class="max-w mx-auto">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">
-              @if (patient(); as p) {
-                {{ p.fullName }}
-              } @else {
-                <div class="w-[300px] h-9 bg-gray-200 animate-pulse rounded"></div>
-              }
-            </h1>
+    <div class="space-y-6">
+      <!-- Header com título e botão voltar -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
             @if (patient(); as p) {
-              <p class="text-gray-600 mt-2">
-                <span class="font-bold mr-2">Status:</span>
-                <span [ngClass]="(p.active | statusBadge).className">
-                  {{ (p.active | statusBadge).text }}
-                </span>
-              </p>
+              {{ p.fullName }}
+            } @else {
+              <div class="w-[300px] h-9 bg-gray-200 animate-pulse rounded"></div>
             }
-          </div>
+          </h1>
+          <p class="text-gray-600">Detalhes e histórico do paciente</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium"
+          >
+            Editar
+          </button>
           <a
             [routerLink]="['/app/patients']"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
@@ -65,110 +58,180 @@ interface PatientInfo {
             Voltar
           </a>
         </div>
+      </div>
 
-        <!-- Tabs Navigation -->
-        @if (patient(); as p) {
-          <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <!-- Tab Buttons -->
-            <div class="border-b border-gray-200 flex">
-              <button
-                type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
-                [class.border-b-indigo-600]="activeTab() === 'resumo'"
-                [class.border-b-transparent]="activeTab() !== 'resumo'"
-                (click)="setActiveTab('resumo')"
-              >
+      @if (patient(); as p) {
+        <!-- Card com abas -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <!-- Abas no topo -->
+          <div class="border-b border-slate-200 flex bg-white">
+            <button
+              type="button"
+              class="px-6 py-4 text-sm font-semibold cursor-pointer transition-colors border-b-2"
+              [ngClass]="
+                activeTab() === 'resumo'
+                  ? 'bg-indigo-600 text-white border-b-transparent'
+                  : 'text-gray-700 hover:bg-slate-50 border-b-transparent'
+              "
+              (click)="setActiveTab('resumo')"
+            >
+              <div class="flex items-center gap-2">
+                <app-icon [name]="'user'" [size]="18"></app-icon>
                 Resumo
-              </button>
-              <button
-                type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
-                [class.border-b-indigo-600]="activeTab() === 'prontuario'"
-                [class.border-b-transparent]="activeTab() !== 'prontuario'"
-                (click)="setActiveTab('prontuario')"
-              >
+              </div>
+            </button>
+            <button
+              type="button"
+              class="px-6 py-4 text-sm font-semibold cursor-pointer transition-colors border-b-2"
+              [ngClass]="
+                activeTab() === 'prontuario'
+                  ? 'bg-indigo-600 text-white border-b-transparent'
+                  : 'text-gray-700 hover:bg-slate-50 border-b-transparent'
+              "
+              (click)="setActiveTab('prontuario')"
+            >
+              <div class="flex items-center gap-2">
+                <app-icon [name]="'file-text'" [size]="18"></app-icon>
                 Prontuário
-              </button>
-              <button
-                type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
-                [class.border-b-indigo-600]="activeTab() === 'evolucoes'"
-                [class.border-b-transparent]="activeTab() !== 'evolucoes'"
-                (click)="setActiveTab('evolucoes')"
-              >
+              </div>
+            </button>
+            <button
+              type="button"
+              class="px-6 py-4 text-sm font-semibold cursor-pointer transition-colors border-b-2"
+              [ngClass]="
+                activeTab() === 'evolucoes'
+                  ? 'bg-indigo-600 text-white border-b-transparent'
+                  : 'text-gray-700 hover:bg-slate-50 border-b-transparent'
+              "
+              (click)="setActiveTab('evolucoes')"
+            >
+              <div class="flex items-center gap-2">
+                <app-icon [name]="'waterfall-up'" [size]="18"></app-icon>
                 Evoluções
-              </button>
-              <button
-                type="button"
-                class="flex-1 px-4 py-3 text-sm font-semibold border-b-2 cursor-pointer hover:bg-slate-50 transition-colors"
-                [class.border-b-indigo-600]="activeTab() === 'documentos'"
-                [class.border-b-transparent]="activeTab() !== 'documentos'"
-                (click)="setActiveTab('documentos')"
-              >
+              </div>
+            </button>
+            <button
+              type="button"
+              class="px-6 py-4 text-sm font-semibold cursor-pointer transition-colors border-b-2"
+              [ngClass]="
+                activeTab() === 'documentos'
+                  ? 'bg-indigo-600 text-white border-b-transparent'
+                  : 'text-gray-700 hover:bg-slate-50 border-b-transparent'
+              "
+              (click)="setActiveTab('documentos')"
+            >
+              <div class="flex items-center gap-2">
+                <app-icon [name]="'document-attachment'" [size]="18"></app-icon>
                 Documentos
-              </button>
-            </div>
+              </div>
+            </button>
+          </div>
 
-            <!-- Tab Content -->
-            <div class="p-6">
-              <!-- Resumo Tab -->
-              @if (activeTab() === 'resumo') {
-                <div class="grid grid-cols-3 gap-x-8 gap-y-4">
-                  <div>
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Nome Completo</label>
-                    <p class="text-gray-600">{{ p.fullName | emptyValue }}</p>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Documento</label>
-                    <p class="text-gray-600">{{ p.documentId | emptyValue }}</p>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Email</label>
-                    <p class="text-gray-600">{{ p.email | emptyValue }}</p>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Telefone</label>
-                    <p class="text-gray-600">{{ p.phone | emptyValue }}</p>
-                  </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Endereço</label>
-                    <p class="text-gray-600">{{ p.address | emptyValue }}</p>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-bold text-gray-900 mb-1"
-                      >Data de Cadastro</label
-                    >
-                    <p class="text-gray-600">{{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
-                  </div>
-                  <div class="col-span-2">
-                    <label class="block text-sm font-bold text-gray-900 mb-1">Observações</label>
-                    <p class="text-gray-600">{{ p.notes | emptyValue }}</p>
+          <!-- Conteúdo das abas -->
+          <div class="p-6">
+            <!-- Resumo Tab -->
+            @if (activeTab() === 'resumo') {
+              <div class="space-y-6 relative">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-4">Informações do Paciente</h3>
+                  <div class="grid grid-cols-2 gap-6">
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1"
+                        >Nome Completo
+                      </label>
+                      <p class="text-gray-900">{{ p.fullName }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Email</label>
+                      <p class="text-gray-900">{{ p.email | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">CPF</label>
+                      <p class="text-gray-900">{{ p.documentId | formatCpf | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Telefone</label>
+                      <p class="text-gray-900">{{ p.phone | formatPhone | emptyValue }}</p>
+                    </div>
+                    <div class="col-span-2">
+                      <label class="text-sm font-semibold text-gray-600 block mb-1"
+                        >Observações</label
+                      >
+                      <p class="text-gray-900">{{ p.notes | emptyValue }}</p>
+                    </div>
                   </div>
                 </div>
-              }
+                <div class="pt-6 border-t border-slate-200">
+                  <h3 class="text-lg font-bold text-gray-900 mb-4">Endereço</h3>
+                  <div class="grid grid-cols-4 gap-6">
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Rua</label>
+                      <p class="text-gray-900">{{ p.address?.street | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Número</label>
+                      <p class="text-gray-900">{{ p.address?.number | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1"
+                        >Complemento</label
+                      >
+                      <p class="text-gray-900">{{ p.address?.complement | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Tipo</label>
+                      <p class="text-gray-900">{{ p.address?.type | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Bairro</label>
+                      <p class="text-gray-900">{{ p.address?.neighborhood | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">CEP</label>
+                      <p class="text-gray-900">
+                        {{ p.address?.zipCode | formatZipCode | emptyValue }}
+                      </p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Cidade</label>
+                      <p class="text-gray-900">{{ p.address?.city | emptyValue }}</p>
+                    </div>
+                    <div>
+                      <label class="text-sm font-semibold text-gray-600 block mb-1">Estado</label>
+                      <p class="text-gray-900">{{ p.address?.state | emptyValue }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="absolute top-0 right-0 flex items-center gap-2">
+                  <label class="text-xs font-semibold text-gray-600 block">Status</label>
+                  <span [ngClass]="(p.active | statusBadge).className">
+                    {{ (p.active | statusBadge).text }}
+                  </span>
+                </div>
+              </div>
+            }
 
-              <!-- Prontuário Tab -->
-              @if (activeTab() === 'prontuario') {
-                <app-medical-record-form [patientId]="p.id"></app-medical-record-form>
-              }
+            <!-- Prontuário Tab -->
+            @if (activeTab() === 'prontuario') {
+              <app-medical-record-form [patientId]="p.id"></app-medical-record-form>
+            }
 
-              <!-- Evoluções Tab -->
-              @if (activeTab() === 'evolucoes') {
-                <app-evolutions-list [patientId]="p.id"></app-evolutions-list>
-              }
+            <!-- Evoluções Tab -->
+            @if (activeTab() === 'evolucoes') {
+              <app-evolutions-list [patientId]="p.id"></app-evolutions-list>
+            }
 
-              <!-- Documentos Tab -->
-              @if (activeTab() === 'documentos') {
-                <app-documents-list [patientId]="p.id"></app-documents-list>
-              }
-            </div>
+            <!-- Documentos Tab -->
+            @if (activeTab() === 'documentos') {
+              <app-documents-list [patientId]="p.id"></app-documents-list>
+            }
           </div>
-        } @else {
-          <div class="bg-white rounded-lg p-6">
-            <div class="h-[400px] bg-gray-200 animate-pulse rounded"></div>
-          </div>
-        }
-      </div>
+        </div>
+      } @else {
+        <div class="bg-white rounded-lg p-6">
+          <div class="h-[400px] bg-gray-200 animate-pulse rounded"></div>
+        </div>
+      }
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -176,7 +239,6 @@ interface PatientInfo {
 export class PatientDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly patientsService = inject(PatientsService);
-  private readonly userStateService = inject(UserStateService);
 
   patient = signal<PatientInfo | null>(null);
   isLoading = signal(false);

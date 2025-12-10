@@ -27,14 +27,14 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
         </button>
       </div>
 
-      <!-- Filtros -->
-      <div class="bg-white rounded-lg shadow-md p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="fs-label">Buscar por nome ou e-mail</label>
-            <input [(ngModel)]="searchText" placeholder="Nome, email..." class="fs-input" />
-          </div>
-          <div class="flex items-end gap-2">
+      <!-- Tabela -->
+      <div class="bg-white rounded-lg shadow-md">
+        <!-- Filtro dentro do card -->
+        <div class="border-b border-slate-200 px-6 py-4">
+          <div class="flex items-center justify-end gap-3">
+            <div class="w-80">
+              <input [(ngModel)]="searchText" placeholder="Nome, email..." class="fs-input" />
+            </div>
             <button type="button" class="fs-button-primary" (click)="loadPatients()">
               <app-icon [name]="'search'"></app-icon>
               Buscar
@@ -45,16 +45,16 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Tabela -->
-      <div class="bg-white rounded-lg shadow-md p-4">
-        <app-table
-          [data]="getTableData()"
-          [columns]="tableColumns()"
-          [isLoading]="isLoading()"
-          (action)="handleTableAction($event)"
-        ></app-table>
+        <!-- Tabela -->
+        <div class="px-6 py-4">
+          <app-table
+            [data]="getTableData()"
+            [columns]="tableColumns()"
+            [isLoading]="isLoading()"
+            (action)="handleTableAction($event)"
+          ></app-table>
+        </div>
       </div>
 
       <!-- Dialog -->

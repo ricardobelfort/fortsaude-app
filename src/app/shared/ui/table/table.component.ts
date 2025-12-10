@@ -144,7 +144,7 @@ export interface TableConfig {
               <div class="flex items-center justify-between">
                 <p class="text-sm text-slate-600">
                   Mostrando {{ startIndex() + 1 }} a {{ endIndex() }} de
-                  {{ data().length }} registros
+                  {{ data().length }} registro{{ data().length !== 1 ? 's' : '' }}
                 </p>
                 <div class="flex items-center gap-1">
                   <button

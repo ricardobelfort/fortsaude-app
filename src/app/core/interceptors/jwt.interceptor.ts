@@ -9,21 +9,31 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { UserStateService } from '../services/user-state.service';
 import { Router } from '@angular/router';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
+  private readonly userStateService = inject(UserStateService);
   private readonly router = inject(Router);
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAccessToken();
+    const tenantId = this.userStateService.userClinicId();
 
     if (token && !this.isAuthEndpoint(request.url)) {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      // Add X-Tenant-ID header if tenant ID exists
+      if (tenantId) {
+        headers['X-Tenant-ID'] = tenantId;
+      }
+
       request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
+        setHeaders: headers,
       });
     }
 

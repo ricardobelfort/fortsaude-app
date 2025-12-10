@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { EvolutionsService } from '../../../../core/services';
 import { AlertService } from '../../../../shared/ui/alert.service';
 import { IconComponent } from '../../../../shared/ui/icon.component';
+import { SpinnerComponent } from '../../../../shared/ui/spinner.component';
 
 export interface EvolutionRecord {
   id: string;
@@ -14,10 +15,17 @@ export interface EvolutionRecord {
 @Component({
   selector: 'app-evolutions-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, SpinnerComponent],
   template: `
     <div class="space-y-6">
-      @if (evolutions().length > 0) {
+      @if (isLoading()) {
+        <div class="flex items-center justify-center py-12">
+          <div class="text-center">
+            <app-spinner [size]="16"></app-spinner>
+            <p class="mt-4 text-gray-600">Carregando evoluções...</p>
+          </div>
+        </div>
+      } @else if (evolutions().length > 0) {
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-gray-900">Evoluções</h2>
           <button

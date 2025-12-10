@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon.component';
+import { SpinnerComponent } from '../spinner.component';
 
 export interface TableColumn {
   key: string;
@@ -21,20 +22,18 @@ export interface TableConfig {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, SpinnerComponent],
   template: `
-    <div class="space-y-4">
+    <div class="space-y-0">
       <!-- Loading state -->
       @if (isLoading()) {
         <div class="flex items-center justify-center py-12">
           <div class="text-center">
-            <div
-              class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
-            ></div>
-            <p class="mt-2 text-gray-600">Carregando dados...</p>
+            <app-spinner [size]="16"></app-spinner>
+            <p class="mt-3 text-gray-600">Carregando...</p>
           </div>
         </div>
-      } @else if (paginatedData().length === 0) {
+      } @else if (data().length === 0) {
         <!-- Empty state -->
         <div class="flex items-center justify-center py-12">
           <div class="text-center">
@@ -43,132 +42,160 @@ export interface TableConfig {
           </div>
         </div>
       } @else {
-        <!-- Table -->
-        <div class="overflow-x-auto rounded-lg border border-gray-200">
-          <table class="w-full text-sm text-gray-900">
-            <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                @for (column of columns(); track column.key) {
-                  <th
-                    class="px-4 py-3 font-semibold text-gray-700 text-left"
-                    [style.width]="column.width"
-                  >
-                    @if (column.sortable) {
-                      <button
-                        type="button"
-                        (click)="sort(column.key)"
-                        class="flex items-center gap-2 hover:text-gray-900 transition-colors"
-                      >
-                        {{ column.header }}
-                        @if (sortBy() === column.key) {
-                          <app-icon
-                            [name]="sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down'"
-                            class="h-4 w-4"
-                          ></app-icon>
-                        }
-                      </button>
-                    } @else {
-                      {{ column.header }}
-                    }
-                  </th>
-                }
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of paginatedData(); track trackByFn(row); let rowIndex = $index) {
-                <tr
-                  [class.bg-slate-50]="striped() && rowIndex % 2 === 0"
-                  class="border-b border-slate-200 hover:bg-slate-50 transition-colors"
-                >
+        <!-- Table Container -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-gray-900">
+              <thead class="border-b border-slate-200">
+                <tr>
                   @for (column of columns(); track column.key) {
-                    <td class="px-4 py-3 whitespace-nowrap">
-                      @if (column.badge) {
-                        @let badge = column.badge(getRowValue(row, column.key));
-                        <span
-                          [class]="getBadgeClass(badge.color)"
-                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    <th
+                      class="px-6 py-3 font-semibold text-slate-900 text-left"
+                      [style.width]="column.width"
+                    >
+                      @if (column.sortable) {
+                        <button
+                          type="button"
+                          (click)="sort(column.key)"
+                          class="flex items-center gap-2 hover:text-slate-700 transition-colors cursor-pointer"
                         >
-                          {{ badge.text }}
-                        </span>
-                      } @else if (column.format) {
-                        {{ column.format(getRowValue(row, column.key)) }}
+                          {{ column.header }}
+                          <app-icon
+                            [name]="
+                              sortBy() === column.key
+                                ? sortOrder() === 'asc'
+                                  ? 'arrow-up'
+                                  : 'arrow-down'
+                                : 'unfold-more'
+                            "
+                            [size]="16"
+                            [class]="sortBy() === column.key ? 'text-slate-900' : 'text-slate-400'"
+                          ></app-icon>
+                        </button>
                       } @else {
-                        {{ getRowValue(row, column.key) }}
+                        {{ column.header }}
                       }
-                    </td>
+                    </th>
                   }
-                  <td class="px-4 py-3 text-center">
-                    <div class="flex items-center justify-center gap-1">
-                      <button
-                        type="button"
-                        (click)="action.emit({ action: 'view', row })"
-                        title="Visualizar"
-                        class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <app-icon [name]="'eye'" [size]="20"></app-icon>
-                      </button>
-                      <button
-                        type="button"
-                        (click)="action.emit({ action: 'edit', row })"
-                        title="Editar"
-                        class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <app-icon [name]="'edit'" [size]="20"></app-icon>
-                      </button>
-                      <button
-                        type="button"
-                        (click)="action.emit({ action: 'delete', row })"
-                        title="Excluir"
-                        class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <app-icon [name]="'delete'" [size]="20"></app-icon>
-                      </button>
-                    </div>
-                  </td>
+                  <th class="px-6 py-3 font-semibold text-slate-900 text-center">Ações</th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        @if (totalPages() > 1) {
-          <div class="flex items-center justify-between">
-            <p class="text-sm text-slate-600">
-              Mostrando {{ startIndex() + 1 }} a {{ endIndex() }} de {{ data().length }} registros
-            </p>
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                (click)="previousPage()"
-                [disabled]="currentPage() === 1"
-                class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <app-icon [name]="'chevron-left'" class="h-4 w-4"></app-icon>
-              </button>
-              @for (page of pageNumbers(); track page) {
-                <button
-                  type="button"
-                  (click)="goToPage(page)"
-                  [class.bg-slate-600]="currentPage() === page"
-                  [class.text-white]="currentPage() === page"
-                  class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
-                >
-                  {{ page }}
-                </button>
-              }
-              <button
-                type="button"
-                (click)="nextPage()"
-                [disabled]="currentPage() === totalPages()"
-                class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <app-icon [name]="'chevron-right'" class="h-4 w-4"></app-icon>
-              </button>
-            </div>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                @for (row of paginatedData(); track trackByFn(row); let rowIndex = $index) {
+                  <tr
+                    [class.bg-slate-50]="striped() && rowIndex % 2 === 0"
+                    class="hover:bg-slate-50 transition-colors"
+                  >
+                    @for (column of columns(); track column.key) {
+                      <td class="px-6 py-4 text-slate-700">
+                        @if (column.badge) {
+                          @let badge = column.badge(getRowValue(row, column.key));
+                          <span
+                            [class]="getBadgeClass(badge.color)"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          >
+                            {{ badge.text }}
+                          </span>
+                        } @else if (column.format) {
+                          {{ column.format(getRowValue(row, column.key)) }}
+                        } @else {
+                          {{ getRowValue(row, column.key) }}
+                        }
+                      </td>
+                    }
+                    <td class="px-6 py-4 text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button
+                          type="button"
+                          (click)="action.emit({ action: 'view', row })"
+                          title="Visualizar"
+                          class="p-2 text-slate-600 hover:bg-slate-200 rounded transition-colors cursor-pointer"
+                        >
+                          <app-icon [name]="'eye'" [size]="18"></app-icon>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="action.emit({ action: 'edit', row })"
+                          title="Editar"
+                          class="p-2 text-slate-600 hover:bg-slate-200 rounded transition-colors cursor-pointer"
+                        >
+                          <app-icon [name]="'edit'" [size]="18"></app-icon>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="action.emit({ action: 'delete', row })"
+                          title="Excluir"
+                          class="p-2 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                        >
+                          <app-icon [name]="'delete'" [size]="18"></app-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
-        }
+
+          <!-- Footer with Pagination -->
+          @if (data().length > 0) {
+            <div class="border-t border-slate-200 px-6 py-2">
+              <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-600">
+                  Mostrando {{ startIndex() + 1 }} a {{ endIndex() }} de
+                  {{ data().length }} registros
+                </p>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    (click)="previousPage()"
+                    [disabled]="currentPage() === 1"
+                    class="p-2 rounded text-slate-600 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <app-icon [name]="'chevron-left'" [size]="16"></app-icon>
+                  </button>
+
+                  @for (page of pageNumbers(); track page) {
+                    <button
+                      type="button"
+                      (click)="goToPage(page)"
+                      [class.bg-indigo-600]="currentPage() === page"
+                      [class.text-white]="currentPage() === page"
+                      [class.text-slate-700]="currentPage() !== page"
+                      [class.hover:bg-slate-200]="currentPage() !== page"
+                      class="px-3 p-2 rounded text-xs font-medium transition-colors"
+                    >
+                      {{ page }}
+                    </button>
+                  }
+
+                  @if (showEllipsisEnd()) {
+                    <span class="px-2 py-2 text-slate-600">...</span>
+                    <button
+                      type="button"
+                      (click)="goToPage(totalPages())"
+                      [class.text-slate-700]="currentPage() !== totalPages()"
+                      [class.hover:bg-slate-200]="currentPage() !== totalPages()"
+                      class="px-3 py-2 rounded text-xs font-medium transition-colors"
+                    >
+                      {{ totalPages() }}
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    (click)="nextPage()"
+                    [disabled]="currentPage() === totalPages()"
+                    class="p-2 rounded text-slate-600 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <app-icon [name]="'chevron-right'" [size]="16"></app-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       }
     </div>
   `,
@@ -247,6 +274,13 @@ export class TableComponent {
     }
 
     return pages;
+  });
+
+  readonly showEllipsisEnd = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const end = Math.min(total, current + 2);
+    return end < total - 1;
   });
 
   // Methods

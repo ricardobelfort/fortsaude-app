@@ -35,6 +35,8 @@ import {
   Delete02Icon,
   FileAddIcon,
   File01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -72,6 +74,8 @@ const iconMap = {
   'unfold-less': UnfoldLessIcon,
   'user-plus': UserAdd02Icon,
   'filter-remove': FilterRemoveIcon,
+  'arrow-up': ArrowUp01Icon,
+  'arrow-down': ArrowDown01Icon,
 } as const;
 
 @Component({

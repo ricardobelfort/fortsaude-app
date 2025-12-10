@@ -4,26 +4,38 @@ import { Component, input, ChangeDetectionStrategy } from '@angular/core';
   selector: 'app-spinner',
   standalone: true,
   template: `
-    <svg
-      class="inline-block animate-spin"
-      [attr.width]="size()"
-      [attr.height]="size()"
-      [attr.viewBox]="'0 0 24 24'"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"></circle>
-      <path
-        d="M22 12a10 10 0 11-20 0 10 10 0 0120 0"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        fill="none"
-      ></path>
-    </svg>
+    <div class="flex items-center justify-center gap-1.5">
+      <div class="spinner-square" style="animation-delay: 0s"></div>
+      <div class="spinner-square" style="animation-delay: 0.15s"></div>
+      <div class="spinner-square" style="animation-delay: 0.3s"></div>
+    </div>
+  `,
+  styles: `
+    .spinner-square {
+      width: var(--spinner-size);
+      height: var(--spinner-size);
+      background-color: #2563eb;
+      border-radius: 4px;
+      animation: squareScale 1.2s ease-in-out infinite;
+    }
+
+    @keyframes squareScale {
+      0%,
+      100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.--spinner-size.px]': 'size()',
+  },
 })
 export class SpinnerComponent {
-  size = input<number>(16);
+  size = input<number>(12);
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DocumentsService } from '../../../../core/services';
 import { AlertService } from '../../../../shared/ui/alert.service';
 import { IconComponent } from '../../../../shared/ui/icon.component';
+import { SpinnerComponent } from '../../../../shared/ui/spinner.component';
 
 interface DocumentRecord {
   id: string;
@@ -16,81 +17,90 @@ interface DocumentRecord {
 @Component({
   selector: 'app-documents-list',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, SpinnerComponent],
   template: `
     <div class="space-y-6">
-      <div class="flex justify-end">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
-          (click)="triggerFileInput()"
-        >
-          <app-icon [name]="'upload-cloud'"></app-icon>
-          Upload de Documento
-        </button>
-        <input
-          #fileInput
-          type="file"
-          hidden
-          (change)="onFileSelected($event)"
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-        />
-      </div>
-
-      @if (feedback(); as fb) {
-        <div
-          class="px-4 py-3 rounded-lg text-sm"
-          [class.bg-green-100]="fb.type === 'success'"
-          [class.text-green-800]="fb.type === 'success'"
-          [class.bg-red-100]="fb.type === 'error'"
-          [class.text-red-800]="fb.type === 'error'"
-        >
-          {{ fb.message }}
-        </div>
-      }
-
-      @if (documents().length > 0) {
-        <div class="space-y-3">
-          @for (doc of documents(); track doc.id) {
-            <div
-              class="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition"
-            >
-              <div>
-                <p class="font-semibold text-gray-900">{{ doc.fileName }}</p>
-                <p class="text-sm text-gray-500">
-                  {{ formatFileSizePublic(doc.fileSize) }} | {{ doc.documentType }}
-                </p>
-                <p class="text-xs text-gray-400">
-                  {{ doc.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-2 px-3 py-2 text-blue-600 hover:text-blue-800 disabled:opacity-60"
-                  disabled
-                  (click)="downloadDocument(doc)"
-                >
-                  <app-icon [name]="'download-cloud'"></app-icon>
-                  Baixar
-                </button>
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
-                  (click)="deleteDocument(doc.id)"
-                >
-                  <app-icon [name]="'trash-2'"></app-icon>
-                  Excluir
-                </button>
-              </div>
-            </div>
-          }
+      @if (isLoading()) {
+        <div class="flex items-center justify-center py-12">
+          <div class="text-center">
+            <app-spinner [size]="16"></app-spinner>
+            <p class="mt-4 text-gray-600">Carregando documentos...</p>
+          </div>
         </div>
       } @else {
-        <div class="flex flex-col items-center justify-center py-24 text-gray-400">
-          <app-icon [name]="'file'" class="h-16 w-16 mb-4"></app-icon>
-          <p class="text-lg text-gray-500">Nenhum documento enviado</p>
+        <div class="flex justify-end">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            (click)="triggerFileInput()"
+          >
+            <app-icon [name]="'upload-cloud'"></app-icon>
+            Upload de Documento
+          </button>
+          <input
+            #fileInput
+            type="file"
+            hidden
+            (change)="onFileSelected($event)"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          />
         </div>
+
+        @if (feedback(); as fb) {
+          <div
+            class="px-4 py-3 rounded-lg text-sm"
+            [class.bg-green-100]="fb.type === 'success'"
+            [class.text-green-800]="fb.type === 'success'"
+            [class.bg-red-100]="fb.type === 'error'"
+            [class.text-red-800]="fb.type === 'error'"
+          >
+            {{ fb.message }}
+          </div>
+        }
+
+        @if (documents().length > 0) {
+          <div class="space-y-3">
+            @for (doc of documents(); track doc.id) {
+              <div
+                class="flex items-center justify-between border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition"
+              >
+                <div>
+                  <p class="font-semibold text-gray-900">{{ doc.fileName }}</p>
+                  <p class="text-sm text-gray-500">
+                    {{ formatFileSizePublic(doc.fileSize) }} | {{ doc.documentType }}
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    {{ doc.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-2 px-3 py-2 text-blue-600 hover:text-blue-800 disabled:opacity-60"
+                    disabled
+                    (click)="downloadDocument(doc)"
+                  >
+                    <app-icon [name]="'download-cloud'"></app-icon>
+                    Baixar
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800"
+                    (click)="deleteDocument(doc.id)"
+                  >
+                    <app-icon [name]="'trash-2'"></app-icon>
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex flex-col items-center justify-center py-24 text-gray-400">
+            <app-icon [name]="'file'" class="h-16 w-16 mb-4"></app-icon>
+            <p class="text-lg text-gray-500">Nenhum documento enviado</p>
+          </div>
+        }
       }
     </div>
   `,

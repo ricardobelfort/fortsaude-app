@@ -24,8 +24,8 @@ import { UserStateService } from '@core/services/user-state.service';
         display: flex;
         align-items: center;
         gap: 0.625rem;
-        padding: 0.75rem 0.75rem;
-        border-radius: 0.25rem;
+        padding: 0.5rem 0.5rem;
+        border-radius: 0.5rem;
         font-size: 0.875rem;
         font-weight: 500;
         color: rgb(51 65 85);
@@ -152,15 +152,10 @@ import { UserStateService } from '@core/services/user-state.service';
         [class.gap-3]="expanded()"
         [class.justify-center]="!expanded()"
       >
-        <div
-          class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-semibold tracking-wide"
-        >
-          FS
-        </div>
+        <img src="assets/images/heartbeat.png" width="42" alt="MultClinic Logo" />
         @if (expanded()) {
           <div>
-            <p class="text-xs uppercase tracking-[0.12em] text-slate-400">Clínica</p>
-            <p class="text-sm font-semibold text-slate-900">FortSaúde</p>
+            <p class="text-md uppercase font-semibold tracking-[0.2em] text-gray-800">MultClinic</p>
           </div>
         }
       </div>
@@ -368,34 +363,6 @@ import { UserStateService } from '@core/services/user-state.service';
 
             @if (isDropdownOpen()) {
               <div class="dropdown-menu">
-                <!-- <div class="dropdown-header">
-                  <div class="flex items-center gap-3">
-                    <div>
-                      @if (avatarUrl() && avatarUrl() !== '') {
-                        <img
-                          [src]="avatarUrl()"
-                          alt="Avatar"
-                          class="w-12 h-12 rounded-xl object-cover"
-                        />
-                      } @else {
-                        <div
-                          class="w-12 h-12 rounded-xl flex items-center justify-center bg-pink-200 text-pink-700 font-bold text-lg"
-                        >
-                          {{ initial() }}
-                        </div>
-                      }
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                      <span class="font-semibold text-slate-900 text-sm truncate">{{
-                        fullName()
-                      }}</span>
-                      <span class="text-xs text-slate-500 truncate">{{ email() }}</span>
-                    </div>
-                  </div>
-                </div> -->
-
-                <!-- <div class="h-px bg-slate-200 my-2"></div> -->
-
                 <div class="py-1">
                   <button type="button" class="dropdown-item">
                     <app-icon [name]="'user'" [size]="20" [className]="'text-slate-500'"></app-icon>

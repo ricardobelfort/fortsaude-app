@@ -22,7 +22,7 @@ interface UpcomingAppointment {
         class="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl p-8 text-white shadow-sm"
       >
         <h1 class="text-3xl font-bold mb-2">Bem-vindo, {{ fullName }}</h1>
-        <p class="text-indigo-100">Sistema de Gestão Clínica FortSaúde</p>
+        <p class="text-indigo-100">Sistema de Gestão Clínica Multidisciplinar</p>
       </div>
 
       <!-- KPI Cards -->

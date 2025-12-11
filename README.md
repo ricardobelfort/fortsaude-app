@@ -1,4 +1,4 @@
-# 🏥 FortSaúde - Frontend SaaS para Clínica Multidisciplinar
+# 🏥 MultiClinic - Frontend SaaS para Gestão de Clínica Multidisciplinar
 
 Sistema moderno e escalável para gestão de clínicas multidisciplinares de saúde, desenvolvido com **Angular 21**, **PrimeNG 21**, **Tailwind CSS 4** e **FullCalendar**.
 

@@ -1,18 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
-import { CurrentUserService } from '../../../core/services/current-user.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { UserRole } from '../../../core/models/role.model';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { TopbarComponent } from '../topbar/topbar.component';
+import { CurrentUserService } from '@core/services/current-user.service';
+import { AuthService } from '@core/services/auth.service';
+import { UserRole } from '@core/models/role.model';
+import { SidebarComponent } from '@core/layout/sidebar/sidebar.component';
+import { TopbarComponent } from '@core/layout/topbar/topbar.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, TopbarComponent],
   template: `
-    <div class="min-h-screen bg-[#f5f6fb] text-slate-900 flex">
+    <div class="min-h-screen bg-[#f5f7fb] text-slate-900 flex">
       <app-sidebar
         [expanded]="isSidebarExpanded()"
         [canAccessAdmin]="canAccessAdmin()"

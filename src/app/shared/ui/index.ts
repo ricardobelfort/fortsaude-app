@@ -1,4 +1,4 @@
-export { IconComponent } from './icon.component';
-export { SpinnerComponent } from './spinner.component';
-export { SaveLoadingDirective } from './save-loading.directive';
-export { AlertService } from './alert.service';
+export { IconComponent } from '@shared/ui/icon.component';
+export { SpinnerComponent } from '@shared/ui/spinner.component';
+export { SaveLoadingDirective } from '@shared/ui/save-loading.directive';
+export { AlertService } from '@shared/ui/alert.service';

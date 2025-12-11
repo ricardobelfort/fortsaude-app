@@ -17,8 +17,8 @@ export interface Appointment {
   observations?: string;
   createdAt: Date;
   updatedAt: Date;
-  patient?: { fullName: string }; // relação do backend
-  professional?: { firstName: string; lastName: string; category: string; color?: string }; // relação
+  patient?: { fullName: string };
+  professional?: { firstName: string; lastName: string; category: string; color?: string };
 }
 
 export interface CreateAppointmentDto {

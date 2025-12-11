@@ -8,8 +8,8 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
-import { UserStateService } from '../services/user-state.service';
+import { AuthService } from '@core/services/auth.service';
+import { UserStateService } from '@core/services/user-state.service';
 import { Router } from '@angular/router';
 
 @Injectable()

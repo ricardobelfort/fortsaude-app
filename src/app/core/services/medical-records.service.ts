@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiClient } from './api.client';
-import { MedicalRecord, CreateMedicalRecordDto, UpdateMedicalRecordDto } from '../models';
+import { ApiClient } from '@core/services/api.client';
+import { MedicalRecord, CreateMedicalRecordDto, UpdateMedicalRecordDto } from '@core/models';
 import { Observable } from 'rxjs';
 
 @Injectable({

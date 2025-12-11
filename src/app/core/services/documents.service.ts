@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ApiClient } from './api.client';
-import { Document } from '../models';
+import { ApiClient } from '@core/services/api.client';
+import { Document } from '@core/models';
 import { Observable } from 'rxjs';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ import { Observable } from 'rxjs';
 export class DocumentsService {
   private readonly api = inject(ApiClient);
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = `${environment.apiUrl}`;
 
   getByPatientId(patientId: string): Observable<Document[]> {
     return this.api.get<Document[]>(`/patients/${patientId}/documents`);

@@ -1,6 +1,6 @@
 import { Injectable, inject, computed } from '@angular/core';
-import { AuthService } from './auth.service';
-import { User } from '../models';
+import { AuthService } from '@core/services/auth.service';
+import { User } from '@core/models';
 
 /**
  * Service to manage user state globally across the application

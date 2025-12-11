@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
-import { UserRole } from './core/models';
-import { LoginComponent } from './features/auth/login/login.component';
-import { SignupComponent } from './features/auth/signup/signup.component';
-import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
-import { UnauthorizedComponent } from './features/error/unauthorized/unauthorized.component';
-import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
+import { authGuard } from '@core/guards/auth.guard';
+import { roleGuard } from '@core/guards/role.guard';
+import { UserRole } from '@core/models';
+import { LoginComponent } from '@features/auth/login/login.component';
+import { SignupComponent } from '@features/auth/signup/signup.component';
+import { ForgotPasswordComponent } from '@features/auth/forgot-password/forgot-password.component';
+import { UnauthorizedComponent } from '@features/error/unauthorized/unauthorized.component';
+import { MainLayoutComponent } from '@core/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {

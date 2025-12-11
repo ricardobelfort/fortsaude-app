@@ -11,8 +11,8 @@ import {
   computed,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IconComponent } from '../../../shared/ui/icon.component';
-import { UserStateService } from '../../../core/services/user-state.service';
+import { IconComponent } from '@shared/ui/icon.component';
+import { UserStateService } from '@core/services/user-state.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -69,14 +69,15 @@ import { UserStateService } from '../../../core/services/user-state.service';
 
       .dropdown-menu {
         position: absolute;
-        bottom: 0;
-        left: 100%;
+        bottom: 120%;
+        left: 10px;
         margin-left: 0.5rem;
-        width: 16rem;
+        width: 14rem;
         background-color: white;
-        border-radius: 1rem;
+        border-radius: 0.3rem;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         z-index: 50;
+        padding: 0 0.25rem;
         overflow: hidden;
       }
 
@@ -88,8 +89,8 @@ import { UserStateService } from '../../../core/services/user-state.service';
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
         color: rgb(51 65 85);
         cursor: pointer;
         transition: background-color 0.15s ease;
@@ -100,12 +101,22 @@ import { UserStateService } from '../../../core/services/user-state.service';
       }
 
       .dropdown-item:hover {
-        background-color: rgb(248 250 252);
+        background-color: rgb(241 245 249);
+        border-radius: 0.3rem;
       }
 
       .dropdown-item.update-app {
         color: rgb(20 184 166);
         font-weight: 500;
+      }
+
+      .dropdown-item.logout {
+        color: rgb(220 38 38);
+        font-weight: 500;
+      }
+
+      .dropdown-item.logout:hover {
+        background-color: rgb(254 242 242);
       }
 
       .dropdown-footer {
@@ -315,7 +326,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
       </nav>
 
       <div
-        class="mt-auto space-y-3 p-2 border-t border-slate-200"
+        class="mt-auto space-y-3 p-2 border-t border-dashed border-slate-200"
         [class.px-3]="expanded()"
         [class.px-2]="!expanded()"
       >
@@ -323,7 +334,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
         @if (expanded()) {
           <div class="relative">
             <button type="button" class="user-profile-btn" (click)="toggleDropdown()">
-              <div class="rounded-md p-2 hover:bg-slate-100 transition-colors">
+              <div class="rounded-md p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
                 <div class="flex items-center gap-3">
                   <div>
                     @if (avatarUrl() && avatarUrl() !== '') {
@@ -357,7 +368,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
 
             @if (isDropdownOpen()) {
               <div class="dropdown-menu">
-                <div class="dropdown-header">
+                <!-- <div class="dropdown-header">
                   <div class="flex items-center gap-3">
                     <div>
                       @if (avatarUrl() && avatarUrl() !== '') {
@@ -381,34 +392,37 @@ import { UserStateService } from '../../../core/services/user-state.service';
                       <span class="text-xs text-slate-500 truncate">{{ email() }}</span>
                     </div>
                   </div>
-                </div>
+                </div> -->
 
-                <div class="h-px bg-slate-200 my-2"></div>
+                <!-- <div class="h-px bg-slate-200 my-2"></div> -->
 
                 <div class="py-1">
                   <button type="button" class="dropdown-item">
-                    <app-icon [name]="'user'" [className]="'text-slate-500'"></app-icon>
+                    <app-icon [name]="'user'" [size]="20" [className]="'text-slate-500'"></app-icon>
                     <span>Meu Perfil</span>
                   </button>
                   <button type="button" class="dropdown-item">
-                    <app-icon [name]="'settings'" [className]="'text-slate-500'"></app-icon>
+                    <app-icon
+                      [name]="'settings'"
+                      [size]="20"
+                      [className]="'text-slate-500'"
+                    ></app-icon>
                     <span>Configurações</span>
                   </button>
                   <button type="button" class="dropdown-item">
-                    <app-icon [name]="'star'" [className]="'text-yellow-500'"></app-icon>
+                    <app-icon
+                      [name]="'star'"
+                      [size]="20"
+                      [className]="'text-yellow-500'"
+                    ></app-icon>
                     <span>Upgrade to Pro</span>
                   </button>
-                </div>
-
-                <div class="h-px bg-slate-200"></div>
-
-                <div class="py-1">
                   <button
                     type="button"
-                    class="dropdown-item"
+                    class="dropdown-item logout"
                     (click)="logout.emit(); toggleDropdown()"
                   >
-                    <app-icon [name]="'logout'" [className]="'text-slate-500'"></app-icon>
+                    <app-icon [name]="'logout'" [size]="20" [className]="'text-red-500'"></app-icon>
                     <span>Logout</span>
                   </button>
                 </div>

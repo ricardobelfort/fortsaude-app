@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, computed } from '@angular/core';
-import { IconComponent } from '../../../shared/ui/icon.component';
-import { UserStateService } from '../../../core/services/user-state.service';
+import { IconComponent } from '@shared/ui/icon.component';
+import { UserStateService } from '@core/services/user-state.service';
 
 @Component({
   selector: 'app-topbar',
@@ -14,7 +14,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="absolute left-2 flex items-center justify-center w-10 h-10 rounded-full text-slate-600 hover:bg-slate-100 cursor-pointer transition"
+          class="absolute left-2 flex items-center justify-center w-10 h-10 rounded-sm text-slate-600 hover:bg-slate-100 cursor-pointer transition"
           (click)="toggleSidebar.emit()"
           [attr.aria-expanded]="expanded()"
           aria-label="Alternar sidebar"

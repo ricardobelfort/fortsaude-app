@@ -458,7 +458,11 @@ export class SidebarComponent {
   readonly email = computed(() => this.userStateService.userEmail() || 'user@email.com');
   readonly initial = computed(() => {
     const name = this.userStateService.userName();
-    return name ? name.charAt(0).toUpperCase() : 'U';
+    if (!name) return 'U';
+
+    // Simply get the first character, normalize accents
+    const normalized = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return normalized.charAt(0).toUpperCase();
   });
   readonly avatarUrl = computed(() => {
     // Avatar URL could be stored in user service or fetched from backend

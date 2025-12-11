@@ -148,6 +148,21 @@ export class AuthService {
       tap((response) => {
         this.accessTokenSignal.set(response.accessToken);
         this.refreshTokenSignal.set(response.refreshToken);
+
+        // Decode new token and update user data
+        const payload = this.decodeToken(response.accessToken);
+        if (payload) {
+          const user: User = {
+            id: payload.sub,
+            clinicId: payload.clinicId,
+            email: payload.email,
+            fullName: payload.name,
+            role: payload.role as UserRole,
+            iat: payload.iat,
+            exp: payload.exp,
+          };
+          this.userSignal.set(user);
+        }
       })
     );
   }
@@ -182,7 +197,24 @@ export class AuthService {
         return null;
       }
 
-      const decoded = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      // Decode base64url to base64
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+
+      // Add padding if needed
+      const padLength = (4 - (base64.length % 4)) % 4;
+      const padded = base64 + '='.repeat(padLength);
+
+      // Decode using proper UTF-8 handling
+      const binaryString = atob(padded);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const decoder = new TextDecoder('utf-8');
+      const jsonString = decoder.decode(bytes);
+      const decoded = JSON.parse(jsonString);
+
       return decoded as JwtPayload;
     } catch {
       return null;

@@ -11,8 +11,8 @@ import { IconComponent } from '../../../shared/ui/icon.component';
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-3xl font-bold text-gray-900">Profissionais</h1>
-          <button type="button" class="fs-button-primary" disabled>
-            <app-icon [name]="\'user-plus\'"></app-icon>
+          <button type="button" class="btn btn-neutral" disabled>
+            <app-icon [name]="'user-plus'"></app-icon>
             Novo Profissional
           </button>
         </div>

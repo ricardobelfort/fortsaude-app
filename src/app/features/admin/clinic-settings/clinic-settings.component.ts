@@ -73,12 +73,8 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             </div>
 
             <div class="flex justify-end gap-3">
-              <button
-                type="submit"
-                class="fs-button-primary"
-                [disabled]="!form.valid || isLoading()"
-              >
-                <app-icon [name]="\'save\'"></app-icon>
+              <button type="submit" class="btn btn-neutral" [disabled]="!form.valid || isLoading()">
+                <app-icon [name]="'save'"></app-icon>
                 {{ isLoading() ? 'Salvando...' : 'Salvar' }}
               </button>
             </div>

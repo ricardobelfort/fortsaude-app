@@ -59,7 +59,7 @@ interface MedicalRecordData {
       }
 
       <div class="flex gap-4">
-        <button type="submit" class="fs-button-primary" [disabled]="!form.valid || isLoading()">
+        <button type="submit" class="btn btn-neutral" [disabled]="!form.valid || isLoading()">
           {{ isLoading() ? 'Salvando...' : 'Salvar' }}
         </button>
       </div>

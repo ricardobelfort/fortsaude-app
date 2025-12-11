@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PatientsService } from '../../../core/services/patients.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Patient, CreatePatientDto, UpdatePatientDto } from '../../../core/models';
@@ -29,7 +30,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
           <h1 class="text-3xl font-bold text-gray-800">Pacientes</h1>
           <p class="text-gray-600">Gestão completa dos pacientes da clínica</p>
         </div>
-        <button type="button" class="fs-button-primary" (click)="openDialog()">
+        <button type="button" class="btn btn-neutral" (click)="openDialog()">
           <app-icon [name]="'user-plus'"></app-icon>
           Novo Paciente
         </button>
@@ -41,13 +42,36 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
         <div class="border-b border-slate-200 px-6 py-4">
           <div class="flex items-center justify-end gap-3">
             <div class="w-80">
-              <input [(ngModel)]="searchText" placeholder="Nome, email..." class="fs-input" />
+              <label class="input">
+                <svg
+                  class="h-[1em] opacity-50"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <g
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    stroke-width="2.5"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </g>
+                </svg>
+                <input
+                  [(ngModel)]="searchText"
+                  (input)="onSearchInput($event)"
+                  placeholder="Nome, email..."
+                  class="grow"
+                />
+              </label>
             </div>
-            <button type="button" class="fs-button-primary" (click)="loadPatients()">
+            <button type="button" class="btn btn-neutral" (click)="loadPatients()">
               <app-icon [name]="'search'"></app-icon>
               Buscar
             </button>
-            <button type="button" class="fs-button-secondary" (click)="clearFilters()">
+            <button type="button" class="btn btn-outline" (click)="clearFilters()">
               <app-icon [name]="'filter-remove'"></app-icon>
               Limpar
             </button>
@@ -101,6 +125,16 @@ export class PatientsListComponent implements OnInit {
   searchText = '';
   editingPatient: Patient | null = null;
 
+  private allPatients: Patient[] = [];
+  private readonly searchSubject = new Subject<string>();
+
+  constructor() {
+    // Setup debounced search
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((searchTerm) => {
+      this.performSearch(searchTerm);
+    });
+  }
+
   readonly tableColumns = () =>
     [
       { key: 'fullName', header: 'Nome', sortable: true },
@@ -137,15 +171,37 @@ export class PatientsListComponent implements OnInit {
     this.loadPatients();
   }
 
-  loadPatients(): void {
-    this.isLoading.set(true);
-    const params: Record<string, string> = {};
-    if (this.searchText) {
-      params['search'] = this.searchText;
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchSubject.next(target.value);
+  }
+
+  private performSearch(searchTerm: string): void {
+    if (!searchTerm.trim()) {
+      // Se vazio, mostra todos
+      this.patients.set(this.allPatients);
+      return;
     }
 
-    this.patientsService.getAll(params).subscribe({
+    // Filtra localmente
+    const term = searchTerm.toLowerCase();
+    const filtered = this.allPatients.filter((patient) => {
+      return (
+        patient.fullName.toLowerCase().includes(term) ||
+        patient.email.toLowerCase().includes(term) ||
+        patient.phone.includes(term)
+      );
+    });
+
+    this.patients.set(filtered);
+  }
+
+  loadPatients(): void {
+    this.isLoading.set(true);
+
+    this.patientsService.getAll({}).subscribe({
       next: (data) => {
+        this.allPatients = data;
         this.patients.set(data);
         this.isLoading.set(false);
       },
@@ -179,7 +235,7 @@ export class PatientsListComponent implements OnInit {
         next: () => {
           this.displayDialog.set(false);
           this.isSaving.set(false);
-          this.loadPatients();
+          this.performSearch(this.searchText);
         },
         error: () => {
           this.isSaving.set(false);
@@ -191,7 +247,7 @@ export class PatientsListComponent implements OnInit {
         next: () => {
           this.displayDialog.set(false);
           this.isSaving.set(false);
-          this.loadPatients();
+          this.performSearch(this.searchText);
         },
         error: () => {
           this.isSaving.set(false);
@@ -232,7 +288,7 @@ export class PatientsListComponent implements OnInit {
 
         this.patientsService.delete(id).subscribe({
           next: () => {
-            this.loadPatients();
+            this.performSearch(this.searchText);
           },
         });
       });

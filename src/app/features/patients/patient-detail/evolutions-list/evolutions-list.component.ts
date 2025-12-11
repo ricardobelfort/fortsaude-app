@@ -107,14 +107,10 @@ export interface EvolutionRecord {
               ></textarea>
             </div>
             <div class="flex justify-end gap-3">
-              <button type="button" class="fs-button-secondary" (click)="showDialog = false">
+              <button type="button" class="btn btn-outline" (click)="showDialog = false">
                 Cancelar
               </button>
-              <button
-                type="submit"
-                class="fs-button-primary"
-                [disabled]="!form.valid || isLoading()"
-              >
+              <button type="submit" class="btn btn-neutral" [disabled]="!form.valid || isLoading()">
                 {{ isLoading() ? 'Salvando...' : 'Salvar' }}
               </button>
             </div>

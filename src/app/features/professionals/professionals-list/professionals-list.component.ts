@@ -19,7 +19,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
           <h1 class="text-3xl font-bold text-gray-800">Profissionais</h1>
           <p class="text-gray-600">Gerenciamento de profissionais de saúde</p>
         </div>
-        <button type="button" class="fs-button-primary" (click)="openDialog()">
+        <button type="button" class="btn btn-neutral" (click)="openDialog()">
           <app-icon [name]="'user-plus'"></app-icon>
           Novo Profissional
         </button>
@@ -42,7 +42,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
             </select>
           </div>
           <div class="flex items-end">
-            <button type="button" class="fs-button-primary" (click)="loadProfessionals()">
+            <button type="button" class="btn btn-neutral" (click)="loadProfessionals()">
               <app-icon [name]="'search'"></app-icon>
               Buscar
             </button>
@@ -140,7 +140,7 @@ import { AlertService } from '../../../shared/ui/alert.service';
           </div>
           <p class="text-gray-600">Formulário em desenvolvimento.</p>
           <div class="flex justify-center gap-3">
-            <button type="button" class="fs-button-secondary" (click)="displayDialog.set(false)">
+            <button type="button" class="btn btn-outline" (click)="displayDialog.set(false)">
               Fechar
             </button>
           </div>

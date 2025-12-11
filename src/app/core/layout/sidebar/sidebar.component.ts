@@ -32,6 +32,7 @@ import { UserStateService } from '@core/services/user-state.service';
         transition: background-color 0.15s ease;
         cursor: pointer;
         line-height: 1;
+        position: relative;
       }
 
       .nav-link:hover {
@@ -65,6 +66,40 @@ import { UserStateService } from '@core/services/user-state.service';
         color: rgb(100 116 139);
         background-color: rgb(241 245 249);
         border-color: rgb(226 232 240);
+      }
+
+      .tooltip-wrapper {
+        position: relative;
+        overflow: visible;
+      }
+
+      .tooltip {
+        position: fixed;
+        background-color: rgb(15 23 42);
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .tooltip::before {
+        content: '';
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 0.375rem solid transparent;
+        border-right-color: rgb(15 23 42);
+      }
+
+      .tooltip.visible {
+        opacity: 1;
       }
 
       .dropdown-menu {
@@ -143,7 +178,7 @@ import { UserStateService } from '@core/services/user-state.service';
     <aside
       class="shrink-0 border-r border-slate-200 bg-white flex flex-col transition-all duration-200 min-h-screen h-screen"
       [class.w-64]="expanded()"
-      [class.w-20]="!expanded()"
+      [class.w-16]="!expanded()"
       aria-label="Navegação lateral"
     >
       <div
@@ -161,7 +196,7 @@ import { UserStateService } from '@core/services/user-state.service';
       </div>
 
       <nav
-        class="flex-1 py-4 space-y-5 overflow-y-auto"
+        class="flex-1 py-3 space-y-4 overflow-y-auto overflow-x-visible"
         [class.px-3]="expanded()"
         [class.px-2]="!expanded()"
       >
@@ -171,12 +206,13 @@ import { UserStateService } from '@core/services/user-state.service';
           }
           <a
             routerLink="/app/dashboard"
-            class="nav-link"
+            class="nav-link tooltip-wrapper"
             routerLinkActive="nav-active"
             [routerLinkActiveOptions]="{ exact: true }"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            [attr.title]="expanded() ? null : 'Dashboard'"
+            (mouseenter)="onTooltipMouseEnter($event, 'dashboard')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'layout'"
@@ -185,14 +221,24 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Dashboard</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'dashboard'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Dashboard</span
+              >
+            }
           </a>
           <a
             routerLink="/app/appointments"
-            class="nav-link"
+            class="nav-link tooltip-wrapper"
             routerLinkActive="nav-active"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            [attr.title]="expanded() ? null : 'Agenda'"
+            (mouseenter)="onTooltipMouseEnter($event, 'agenda')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'calendar'"
@@ -201,14 +247,24 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Agenda</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'agenda'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Agenda</span
+              >
+            }
           </a>
           <a
             routerLink="/app/patients"
-            class="nav-link"
+            class="nav-link tooltip-wrapper"
             routerLinkActive="nav-active"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            [attr.title]="expanded() ? null : 'Pacientes'"
+            (mouseenter)="onTooltipMouseEnter($event, 'patients')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'users'"
@@ -217,14 +273,24 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Pacientes</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'patients'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Pacientes</span
+              >
+            }
           </a>
           <a
             routerLink="/app/professionals"
-            class="nav-link"
+            class="nav-link tooltip-wrapper"
             routerLinkActive="nav-active"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            [attr.title]="expanded() ? null : 'Profissionais'"
+            (mouseenter)="onTooltipMouseEnter($event, 'professionals')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'groups'"
@@ -232,6 +298,15 @@ import { UserStateService } from '@core/services/user-state.service';
             ></app-icon>
             @if (expanded()) {
               <span>Profissionais</span>
+            }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'professionals'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Profissionais</span
+              >
             }
           </a>
         </div>
@@ -243,10 +318,11 @@ import { UserStateService } from '@core/services/user-state.service';
             </p>
           }
           <div
-            class="nav-link nav-disabled"
+            class="nav-link nav-disabled tooltip-wrapper"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            title="Departamentos"
+            (mouseenter)="onTooltipMouseEnter($event, 'departments')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'department'"
@@ -255,12 +331,22 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Departamentos</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'departments'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Departamentos</span
+              >
+            }
           </div>
           <div
-            class="nav-link nav-disabled"
+            class="nav-link nav-disabled tooltip-wrapper"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            title="Financeiro"
+            (mouseenter)="onTooltipMouseEnter($event, 'financial')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'money'"
@@ -269,12 +355,22 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Financeiro</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'financial'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Financeiro</span
+              >
+            }
           </div>
           <div
-            class="nav-link nav-disabled"
+            class="nav-link nav-disabled tooltip-wrapper"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            title="Serviços"
+            (mouseenter)="onTooltipMouseEnter($event, 'services')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'service'"
@@ -283,12 +379,22 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Serviços</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'services'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Serviços</span
+              >
+            }
           </div>
           <div
-            class="nav-link nav-disabled"
+            class="nav-link nav-disabled tooltip-wrapper"
             [class.justify-center]="!expanded()"
             [class.px-2]="!expanded()"
-            title="Comunicação"
+            (mouseenter)="onTooltipMouseEnter($event, 'communication')"
+            (mouseleave)="onTooltipMouseLeave()"
           >
             <app-icon
               [name]="'message-notification'"
@@ -297,16 +403,26 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (expanded()) {
               <span>Comunicação</span>
             }
+            @if (!expanded()) {
+              <span
+                class="tooltip"
+                [class.visible]="activeTooltipId() === 'communication'"
+                [style.top.px]="tooltipPosition()?.top"
+                [style.left.px]="tooltipPosition()?.left"
+                >Comunicação</span
+              >
+            }
           </div>
 
           @if (canAccessAdmin()) {
             <a
               routerLink="/app/admin/users"
-              class="nav-link"
+              class="nav-link tooltip-wrapper"
               routerLinkActive="nav-active"
               [class.justify-center]="!expanded()"
               [class.px-2]="!expanded()"
-              [attr.title]="expanded() ? null : 'Administração'"
+              (mouseenter)="onTooltipMouseEnter($event, 'admin')"
+              (mouseleave)="onTooltipMouseLeave()"
             >
               <app-icon
                 [name]="'shield'"
@@ -315,13 +431,22 @@ import { UserStateService } from '@core/services/user-state.service';
               @if (expanded()) {
                 <span>Administração</span>
               }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'admin'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Administração</span
+                >
+              }
             </a>
           }
         </div>
       </nav>
 
       <div
-        class="mt-auto space-y-3 p-2 border-t border-dashed border-slate-200"
+        class="mt-auto space-y-2 py-2 border-t border-dashed border-slate-200"
         [class.px-3]="expanded()"
         [class.px-2]="!expanded()"
       >
@@ -433,6 +558,8 @@ export class SidebarComponent {
 
   private elementRef = inject(ElementRef);
   protected isDropdownOpen = signal(false);
+  protected tooltipPosition = signal<{ top: number; left: number } | null>(null);
+  protected activeTooltipId = signal<string | null>(null);
 
   // Get user data from UserStateService
   readonly fullName = computed(() => this.userStateService.userName() || 'Usuário');
@@ -457,6 +584,24 @@ export class SidebarComponent {
     if (!clickedInside && this.isDropdownOpen()) {
       this.isDropdownOpen.set(false);
     }
+  }
+
+  protected onTooltipMouseEnter(event: MouseEvent, tooltipId: string): void {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const top = rect.top + rect.height / 2 - 15; // Centralizar verticalmente
+    const left = rect.right + 8; // À direita do elemento
+
+    this.activeTooltipId.set(tooltipId);
+    this.tooltipPosition.set({
+      top,
+      left,
+    });
+  }
+
+  protected onTooltipMouseLeave(): void {
+    this.activeTooltipId.set(null);
+    this.tooltipPosition.set(null);
   }
 
   protected toggleDropdown(): void {

@@ -17,60 +17,63 @@ import { signal } from '@angular/core';
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
       <div class="w-full max-w-md">
-        <!-- Logo/Branding (Outside Card) -->
-        <div class="mb-8 text-center">
-          <h1 class="text-4xl font-bold text-blue-900">FortSaúde</h1>
-          <p class="text-blue-700 mt-1">Sistema de Gestão Clínica</p>
-        </div>
+        <!-- Card Container using DaisyUI -->
+        <div class="card bg-white shadow-lg border border-gray-200">
+          <div class="card-body">
+            <!-- Logo/Branding -->
+            <div class="mb-6 text-center">
+              <h1 class="text-4xl font-bold text-blue-900">FortSaúde</h1>
+              <p class="text-blue-600 mt-1 text-sm">Sistema de Gestão Clínica</p>
+            </div>
 
-        <!-- Card Container -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div class="p-8">
             <!-- Welcome Message -->
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">Bem-vindo</h3>
-            <p class="text-gray-600 mb-8">Acesse sua conta para continuar</p>
+            <h3 class="text-2xl font-bold text-gray-900">Bem-vindo</h3>
+            <p class="text-gray-600 mb-6">Acesse sua conta para continuar</p>
 
             <!-- Login Form -->
-            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-5">
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-3">
               <!-- Email Field -->
-              <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2"
-                  >E-mail</label
-                >
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text font-medium text-gray-700">E-mail</span>
+                </label>
                 <div class="relative">
                   <input
                     id="email"
                     type="email"
                     formControlName="email"
-                    class="fs-input pl-10"
+                    class="input input-bordered w-full pl-10 bg-white text-gray-900 text-base"
+                    [class.input-error]="email.invalid && email.touched"
                     placeholder="seu@email.com"
                   />
-                  <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <div class="absolute left-3 top-3 text-gray-400 pointer-events-none z-10">
                     <app-icon [name]="'letter'" [size]="16" [className]="'text-base'"></app-icon>
                   </div>
                 </div>
                 @if (email.invalid && email.touched) {
-                  <div class="text-red-600 text-xs mt-1.5 font-medium">
-                    @if (email.errors?.['required']) {
-                      <span>E-mail é obrigatório</span>
-                    }
-                    @if (email.errors?.['email']) {
-                      <span>E-mail inválido</span>
-                    }
-                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-error font-medium">
+                      @if (email.errors?.['required']) {
+                        <span>E-mail é obrigatório</span>
+                      }
+                      @if (email.errors?.['email']) {
+                        <span>E-mail inválido</span>
+                      }
+                    </span>
+                  </label>
                 }
               </div>
 
               <!-- Password Field -->
-              <div>
-                <div class="flex justify-between items-center mb-2">
-                  <label for="password" class="block text-sm font-medium text-gray-700"
-                    >Senha</label
-                  >
+              <div class="form-control w-full">
+                <div class="flex items-center justify-between mb-2">
+                  <label for="password" class="label p-0">
+                    <span class="label-text font-medium text-gray-700">Senha</span>
+                  </label>
                   <button
                     type="button"
                     (click)="navigateToForgotPassword()"
-                    class="text-sm text-blue-600 hover:text-blue-700 transition cursor-pointer"
+                    class="text-sm text-blue-600 hover:text-blue-700 font-medium transition"
                   >
                     Esqueceu a senha?
                   </button>
@@ -80,55 +83,62 @@ import { signal } from '@angular/core';
                     id="password"
                     [type]="showPassword() ? 'text' : 'password'"
                     formControlName="password"
-                    class="fs-input pl-10 pr-10"
+                    class="input input-bordered w-full pl-10 pr-10 bg-white text-gray-900 text-base"
+                    [class.input-error]="password.invalid && password.touched"
                     placeholder="Sua senha"
                   />
-                  <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <div class="absolute left-3 top-3 text-gray-400 pointer-events-none z-10">
                     <app-icon [name]="'lock'" [size]="16" [className]="'text-base'"></app-icon>
                   </div>
                   <button
                     type="button"
                     (click)="togglePasswordVisibility()"
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
+                    class="absolute right-3 top-3 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1 z-10"
                   >
                     <app-icon
                       [name]="showPassword() ? 'eye-off' : 'eye'"
                       [size]="16"
-                      [className]="'text-lg'"
+                      [className]="'text-base'"
                     ></app-icon>
                   </button>
                 </div>
                 @if (password.invalid && password.touched) {
-                  <div class="text-red-600 text-xs mt-1.5 font-medium">
-                    @if (password.errors?.['required']) {
-                      <span>Senha é obrigatória</span>
-                    }
-                    @if (password.errors?.['minlength']) {
-                      <span>Mínimo de 6 caracteres</span>
-                    }
-                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-error font-medium">
+                      @if (password.errors?.['required']) {
+                        <span>Senha é obrigatória</span>
+                      }
+                      @if (password.errors?.['minlength']) {
+                        <span>Mínimo de 6 caracteres</span>
+                      }
+                    </span>
+                  </label>
                 }
               </div>
 
               <!-- Submit Button -->
               <button
                 type="submit"
-                class="fs-button-primary w-full"
+                class="btn btn-primary w-full mt-4"
                 [disabled]="loginForm.invalid || isLoading()"
               >
-                <span *ngIf="isLoading(); else loginLabel">Entrando...</span>
-                <ng-template #loginLabel>Entrar</ng-template>
+                @if (isLoading()) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  Entrando...
+                } @else {
+                  Entrar
+                }
               </button>
             </form>
 
             <!-- Sign Up -->
-            <div class="mt-8 pt-8 border-t border-gray-200 text-center">
+            <div class="mt-4 pt-4 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
                 Não tem conta?
                 <button
                   type="button"
                   (click)="navigateToSignup()"
-                  class="text-blue-600 hover:text-blue-700 transition font-medium"
+                  class="link link-primary font-medium text-blue-600"
                 >
                   Criar conta
                 </button>

@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap');
 
 @import 'tailwindcss';
+@plugin "daisyui";
 @import 'ngx-toastr/toastr';
 
 html {
@@ -40,6 +41,7 @@ app-root {
     --fs-input-padding-x: 0.75rem; /* 12px */
   }
 
+  /* Manter classes customizadas para compatibilidade com componentes legados */
   .fs-label {
     @apply block text-sm font-medium text-gray-700 mb-2;
   }

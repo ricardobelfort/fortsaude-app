@@ -6,13 +6,21 @@ import { PatientsService } from '../../../core/services/patients.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Patient, CreatePatientDto, UpdatePatientDto } from '../../../core/models';
 import { IconComponent } from '../../../shared/ui/icon.component';
-import { SaveLoadingDirective } from '../../../shared/ui/save-loading.directive';
 import { TableComponent, TableColumn } from '../../../shared/ui/table/table.component';
+import { ModalComponent } from '../../../shared/ui/modal/modal.component';
+import { PatientFormComponent } from '../patient-form/patient-form.component';
 
 @Component({
   selector: 'app-patients-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, SaveLoadingDirective, TableComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IconComponent,
+    TableComponent,
+    ModalComponent,
+    PatientFormComponent,
+  ],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -59,76 +67,22 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
 
       <!-- Dialog -->
       @if (displayDialog()) {
-        <div class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
-          <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mt-10 mb-10 p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-gray-900">
-                {{ editingPatient ? 'Editar Paciente' : 'Novo Paciente' }}
-              </h3>
-              <button
-                type="button"
-                class="text-gray-500 hover:text-gray-700"
-                (click)="displayDialog.set(false)"
-              >
-                <app-icon [name]="'x'"></app-icon>
-              </button>
-            </div>
-
-            <div class="space-y-4">
-              <div>
-                <label class="fs-label">Nome Completo</label>
-                <input [(ngModel)]="formData.fullName" class="fs-input" />
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="fs-label">Data de Nascimento</label>
-                  <input type="date" [(ngModel)]="formData.dateOfBirth" class="fs-input" />
-                </div>
-                <div>
-                  <label class="fs-label">CPF/Documento</label>
-                  <input
-                    [(ngModel)]="formData.documentId"
-                    (input)="onDocumentIdChange($event)"
-                    class="fs-input"
-                    placeholder="xxx.xxx.xxx-xx"
-                  />
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="fs-label">Telefone</label>
-                  <input [(ngModel)]="formData.phone" class="fs-input" />
-                </div>
-                <div>
-                  <label class="fs-label">E-mail</label>
-                  <input type="email" [(ngModel)]="formData.email" class="fs-input" />
-                </div>
-              </div>
-              <div>
-                <label class="fs-label">Endereço</label>
-                <input [(ngModel)]="formData.address" class="fs-input" />
-              </div>
-              <div>
-                <label class="fs-label">Observações</label>
-                <textarea [(ngModel)]="formData.notes" class="fs-textarea" rows="5"></textarea>
-              </div>
-            </div>
-
-            <div class="flex justify-end gap-3 mt-6">
-              <button type="button" class="fs-button-secondary" (click)="displayDialog.set(false)">
-                Cancelar
-              </button>
-              <button
-                type="button"
-                class="fs-button-primary"
-                (click)="savePatient()"
-                [appSaveLoading]="isSaving()"
-              >
-                Salvar
-              </button>
-            </div>
+        <app-modal
+          [title]="editingPatient ? 'Editar Paciente' : 'Novo Paciente'"
+          [submitButtonText]="editingPatient ? 'Atualizar Paciente' : 'Criar Paciente'"
+          [isLoading]="isSaving()"
+          formId="patient-edit-form"
+          (cancelled)="displayDialog.set(false)"
+        >
+          <div modal-content>
+            <app-patient-form
+              [patient]="editingPatient"
+              [isSubmitting]="isSaving()"
+              (submitted)="savePatient($event)"
+              (cancelled)="displayDialog.set(false)"
+            ></app-patient-form>
           </div>
-        </div>
+        </app-modal>
       }
     </div>
   `,
@@ -146,16 +100,6 @@ export class PatientsListComponent implements OnInit {
 
   searchText = '';
   editingPatient: Patient | null = null;
-
-  formData: Partial<CreatePatientDto & { dateOfBirth: Date | string | undefined }> = {
-    fullName: '',
-    dateOfBirth: '',
-    documentId: undefined,
-    phone: '',
-    email: '',
-    address: '',
-    notes: '',
-  };
 
   readonly tableColumns = () =>
     [
@@ -216,71 +160,34 @@ export class PatientsListComponent implements OnInit {
     this.loadPatients();
   }
 
-  onDocumentIdChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value;
-
-    // Remove non-numeric characters
-    const cleanValue = value.replace(/\D/g, '');
-
-    // Format as CPF (11 digits) or CNPJ (14 digits)
-    let formatted = cleanValue;
-    if (cleanValue.length === 11) {
-      // CPF: XXX.XXX.XXX-XX
-      formatted = cleanValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    } else if (cleanValue.length === 14) {
-      // CNPJ: XX.XXX.XXX/XXXX-XX
-      formatted = cleanValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-    }
-
-    // Update the form data with the formatted value
-    this.formData.documentId = formatted || value;
-  }
-
   openDialog(): void {
-    this.resetForm();
     this.editingPatient = null;
     this.displayDialog.set(true);
   }
 
   editPatient(patient: Patient): void {
     this.editingPatient = patient;
-    this.formData = {
-      fullName: patient.fullName,
-      dateOfBirth: patient.dateOfBirth,
-      documentId: patient.documentId || undefined,
-      phone: patient.phone,
-      email: patient.email,
-      address: patient.address || undefined,
-      notes: patient.notes || undefined,
-    };
     this.displayDialog.set(true);
   }
 
-  savePatient(): void {
-    if (!this.formData.fullName || !this.formData.email) {
-      return;
-    }
-
+  savePatient(formData: CreatePatientDto | UpdatePatientDto): void {
     this.isSaving.set(true);
 
     if (this.editingPatient) {
       // Update
-      this.patientsService
-        .update(this.editingPatient.id, this.formData as UpdatePatientDto)
-        .subscribe({
-          next: () => {
-            this.displayDialog.set(false);
-            this.isSaving.set(false);
-            this.loadPatients();
-          },
-          error: () => {
-            this.isSaving.set(false);
-          },
-        });
+      this.patientsService.update(this.editingPatient.id, formData as UpdatePatientDto).subscribe({
+        next: () => {
+          this.displayDialog.set(false);
+          this.isSaving.set(false);
+          this.loadPatients();
+        },
+        error: () => {
+          this.isSaving.set(false);
+        },
+      });
     } else {
       // Create
-      this.patientsService.create(this.formData as CreatePatientDto).subscribe({
+      this.patientsService.create(formData as CreatePatientDto).subscribe({
         next: () => {
           this.displayDialog.set(false);
           this.isSaving.set(false);
@@ -333,17 +240,5 @@ export class PatientsListComponent implements OnInit {
 
   getTableData(): Record<string, unknown>[] {
     return this.patients() as unknown as Record<string, unknown>[];
-  }
-
-  private resetForm(): void {
-    this.formData = {
-      fullName: '',
-      dateOfBirth: '',
-      documentId: undefined,
-      phone: '',
-      email: '',
-      address: '',
-      notes: '',
-    };
   }
 }

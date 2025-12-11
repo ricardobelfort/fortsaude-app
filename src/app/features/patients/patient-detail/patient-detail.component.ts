@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PatientsService } from '../../../core/services';
+import { PatientFormComponent } from '../patient-form/patient-form.component';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
+import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { EmptyValuePipe } from '../../../shared/pipes/empty-value.pipe';
 import { StatusBadgePipe } from '../../../shared/pipes/status-badge.pipe';
@@ -21,10 +22,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
   imports: [
     CommonModule,
     RouterLink,
-    ReactiveFormsModule,
+    PatientFormComponent,
     MedicalRecordFormComponent,
     EvolutionsListComponent,
     DocumentsListComponent,
+    ModalComponent,
     IconComponent,
     EmptyValuePipe,
     StatusBadgePipe,
@@ -34,6 +36,26 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
   ],
   template: `
     <div class="space-y-6">
+      <!-- Modal de Edição - Overlay -->
+      @if (isEditing()) {
+        <app-modal
+          title="Editar Paciente"
+          submitButtonText="Atualizar Paciente"
+          [isLoading]="isSaving()"
+          formId="patient-edit-form"
+          (cancelled)="isEditing.set(false)"
+        >
+          <div modal-content>
+            <app-patient-form
+              [patient]="patient()"
+              [isSubmitting]="isSaving()"
+              (submitted)="onSaveChanges($event)"
+              (cancelled)="isEditing.set(false)"
+            ></app-patient-form>
+          </div>
+        </app-modal>
+      }
+
       <!-- Header com título e botão voltar -->
       <div class="flex items-center justify-between">
         <div>
@@ -65,10 +87,12 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
       </div>
 
       @if (patient(); as p) {
-        <!-- Card com abas -->
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- Card com abas - Layout flexível com footer fixo -->
+        <div
+          class="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-[calc(100vh-250px)]"
+        >
           <!-- Abas no topo -->
-          <div class="border-b border-slate-200 flex bg-white">
+          <div class="border-b border-slate-200 flex bg-white flex-shrink-0">
             <button
               type="button"
               class="px-6 py-4 text-sm font-semibold cursor-pointer transition-colors border-b-2"
@@ -120,30 +144,59 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
           </div>
 
           <!-- Conteúdo das abas -->
-          <div class="p-6">
+          <div class="p-6 overflow-y-auto flex-1">
             <!-- Resumo Tab -->
             @if (activeTab() === 'resumo') {
               @if (!isEditing()) {
                 <!-- Visualização -->
-                <div class="space-y-6 relative">
+                <div class="space-y-6">
+                  <!-- Dados Pessoais -->
                   <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Dados do Paciente</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Dados Pessoais</h3>
                     <div class="grid grid-cols-2 gap-6">
                       <div>
                         <label class="text-sm font-bold text-gray-900 block mb-1"
-                          >Nome Completo
-                        </label>
+                          >Nome Completo</label
+                        >
                         <p class="text-gray-500 font-light">{{ p.fullName }}</p>
                       </div>
                       <div>
-                        <label class="text-sm font-semibold text-gray-900 block mb-1">Email</label>
-                        <p class="text-gray-500 font-light">{{ p.email | emptyValue }}</p>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1">Status</label>
+                        <p [ngClass]="(p.active | statusBadge).className">
+                          {{ (p.active | statusBadge).text }}
+                        </p>
                       </div>
                       <div>
                         <label class="text-sm font-semibold text-gray-900 block mb-1">CPF</label>
                         <p class="text-gray-500 font-light">
                           {{ p.documentId | formatCpf | emptyValue }}
                         </p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1">RG</label>
+                        <p class="text-gray-500 font-light">{{ p.rg | emptyValue }}</p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Data de Nascimento</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ p.dateOfBirth | date: 'dd/MM/yyyy' | emptyValue }}
+                        </p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1">Gênero</label>
+                        <p class="text-gray-500 font-light">{{ p.gender | emptyValue }}</p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Tipo Sanguíneo</label
+                        >
+                        <p class="text-gray-500 font-light">{{ p.bloodType | emptyValue }}</p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1">Email</label>
+                        <p class="text-gray-500 font-light">{{ p.email | emptyValue }}</p>
                       </div>
                       <div>
                         <label class="text-sm font-semibold text-gray-900 block mb-1"
@@ -153,14 +206,157 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                           {{ p.phone | formatPhone | emptyValue }}
                         </p>
                       </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Telefone de Emergência</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ p.emergencyPhone | formatPhone | emptyValue }}
+                        </p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Responsável 1 (Nome)</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ p.emergencyContactName | emptyValue }}
+                        </p>
+                      </div>
                       <div class="col-span-2">
                         <label class="text-sm font-semibold text-gray-900 block mb-1"
-                          >Observações</label
+                          >Grau de Parentesco</label
                         >
-                        <p class="text-gray-500 font-light">{{ p.notes | emptyValue }}</p>
+                        <p class="text-gray-500 font-light">
+                          {{ p.emergencyContactDegree | emptyValue }}
+                        </p>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Informações de Saúde -->
+                  <div class="pt-6 border-t border-slate-200">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Informações de Saúde</h3>
+                    <div class="grid grid-cols-2 gap-6">
+                      <div class="col-span-2">
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Nome do Médico</label
+                        >
+                        <p class="text-gray-500 font-light">{{ p.medicalDoctor | emptyValue }}</p>
+                      </div>
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Faz tratamento de saúde?</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ (p.healthTreatment ? 'Sim' : 'Não') | emptyValue }}
+                        </p>
+                      </div>
+                      @if (p.healthTreatment) {
+                        <div>
+                          <label class="text-sm font-semibold text-gray-900 block mb-1"
+                            >Qual tratamento?</label
+                          >
+                          <p class="text-gray-500 font-light">
+                            {{ p.healthTreatmentDetails | emptyValue }}
+                          </p>
+                        </div>
+                      }
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Usa medicações?</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ (p.medications ? 'Sim' : 'Não') | emptyValue }}
+                        </p>
+                      </div>
+                      @if (p.medications) {
+                        <div>
+                          <label class="text-sm font-semibold text-gray-900 block mb-1"
+                            >Qual medicação?</label
+                          >
+                          <p class="text-gray-500 font-light">
+                            {{ p.medicationsDetails | emptyValue }}
+                          </p>
+                        </div>
+                      }
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Possui Plano de Saúde?</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ (p.healthPlan ? 'Sim' : 'Não') | emptyValue }}
+                        </p>
+                      </div>
+                      @if (p.healthPlan) {
+                        <div>
+                          <label class="text-sm font-semibold text-gray-900 block mb-1"
+                            >Qual plano?</label
+                          >
+                          <p class="text-gray-500 font-light">
+                            {{ p.healthPlanDetails | emptyValue }}
+                          </p>
+                        </div>
+                      }
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Faz acompanhamento Odontológico?</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ (p.dentalTreatment ? 'Sim' : 'Não') | emptyValue }}
+                        </p>
+                      </div>
+                      @if (p.dentalTreatment) {
+                        <div>
+                          <label class="text-sm font-semibold text-gray-900 block mb-1"
+                            >Qual acompanhamento?</label
+                          >
+                          <p class="text-gray-500 font-light">
+                            {{ p.dentalTreatmentDetails | emptyValue }}
+                          </p>
+                        </div>
+                      }
+                      <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Necessita de atendimento especial?</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ (p.specialCareNeeded ? 'Sim' : 'Não') | emptyValue }}
+                        </p>
+                      </div>
+                      @if (p.specialCareNeeded) {
+                        <div class="col-span-2">
+                          <label class="text-sm font-semibold text-gray-900 block mb-1"
+                            >Em caso afirmativo, qual?</label
+                          >
+                          <p class="text-gray-500 font-light">
+                            {{ p.specialCareDetails | emptyValue }}
+                          </p>
+                        </div>
+                      }
+                      <div class="col-span-2">
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Será atendido pelas especialidades</label
+                        >
+                        <p class="text-gray-500 font-light">{{ p.specialties | emptyValue }}</p>
+                      </div>
+                      <div class="col-span-2">
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Preferência de horário de atendimento</label
+                        >
+                        <p class="text-gray-500 font-light">
+                          {{ p.preferredSchedule | emptyValue }}
+                        </p>
+                      </div>
+                      <div class="col-span-2">
+                        <label class="text-sm font-semibold text-gray-900 block mb-1"
+                          >Qual Convênio</label
+                        >
+                        <p class="text-gray-500 font-light">{{ p.agreement | emptyValue }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Endereço -->
                   <div class="pt-6 border-t border-slate-200">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Endereço</h3>
                     <div class="grid grid-cols-4 gap-6">
@@ -173,16 +369,16 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                         <p class="text-gray-500 font-light">{{ p.address?.number | emptyValue }}</p>
                       </div>
                       <div>
+                        <label class="text-sm font-semibold text-gray-900 block mb-1">Tipo</label>
+                        <p class="text-gray-500 font-light">{{ p.address?.type | emptyValue }}</p>
+                      </div>
+                      <div>
                         <label class="text-sm font-semibold text-gray-900 block mb-1"
                           >Complemento</label
                         >
                         <p class="text-gray-500 font-light">
                           {{ p.address?.complement | emptyValue }}
                         </p>
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-900 block mb-1">Tipo</label>
-                        <p class="text-gray-500 font-light">{{ p.address?.type | emptyValue }}</p>
                       </div>
                       <div>
                         <label class="text-sm font-semibold text-gray-900 block mb-1">Bairro</label>
@@ -206,129 +402,13 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                       </div>
                     </div>
                   </div>
-                  <div class="absolute top-0 right-0 flex items-center gap-2">
-                    <label class="text-xs font-semibold text-gray-900 block">Status</label>
-                    <span [ngClass]="(p.active | statusBadge).className">
-                      {{ (p.active | statusBadge).text }}
-                    </span>
+
+                  <!-- Observações -->
+                  <div class="pt-6 border-t border-slate-200">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Observações</h3>
+                    <p class="text-gray-500 font-light">{{ p.notes | emptyValue }}</p>
                   </div>
                 </div>
-              } @else {
-                <!-- Formulário de Edição -->
-                <form [formGroup]="editForm" (ngSubmit)="onSaveChanges()" class="space-y-6">
-                  <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Informações do Paciente</h3>
-                    <div class="grid grid-cols-2 gap-6">
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2"
-                          >Nome Completo</label
-                        >
-                        <input type="text" formControlName="fullName" class="fs-input w-full" />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Email</label>
-                        <input type="email" formControlName="email" class="fs-input w-full" />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">CPF</label>
-                        <input type="text" formControlName="documentId" class="fs-input w-full" />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2"
-                          >Telefone</label
-                        >
-                        <input type="tel" formControlName="phone" class="fs-input w-full" />
-                      </div>
-                      <div class="col-span-2">
-                        <label class="text-sm font-semibold text-gray-600 block mb-2"
-                          >Observações</label
-                        >
-                        <textarea
-                          formControlName="notes"
-                          rows="3"
-                          class="fs-textarea w-full"
-                        ></textarea>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="pt-6 border-t border-slate-200">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Endereço</h3>
-                    <div class="grid grid-cols-4 gap-6">
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Rua</label>
-                        <input
-                          type="text"
-                          formControlName="addressStreet"
-                          class="fs-input w-full"
-                        />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Número</label>
-                        <input
-                          type="text"
-                          formControlName="addressNumber"
-                          class="fs-input w-full"
-                        />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2"
-                          >Complemento</label
-                        >
-                        <input
-                          type="text"
-                          formControlName="addressComplement"
-                          class="fs-input w-full"
-                        />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Tipo</label>
-                        <input type="text" formControlName="addressType" class="fs-input w-full" />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Bairro</label>
-                        <input
-                          type="text"
-                          formControlName="addressNeighborhood"
-                          class="fs-input w-full"
-                        />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">CEP</label>
-                        <input
-                          type="text"
-                          formControlName="addressZipCode"
-                          class="fs-input w-full"
-                        />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Cidade</label>
-                        <input type="text" formControlName="addressCity" class="fs-input w-full" />
-                      </div>
-                      <div>
-                        <label class="text-sm font-semibold text-gray-600 block mb-2">Estado</label>
-                        <input type="text" formControlName="addressState" class="fs-input w-full" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-                    <button
-                      type="button"
-                      (click)="isEditing.set(false)"
-                      class="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      [disabled]="isSaving()"
-                      class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium disabled:opacity-50"
-                    >
-                      {{ isSaving() ? 'Salvando...' : 'Salvar Alterações' }}
-                    </button>
-                  </div>
-                </form>
               }
             }
 
@@ -359,29 +439,12 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
 export class PatientDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly patientsService = inject(PatientsService);
-  private readonly fb = inject(FormBuilder);
 
   patient = signal<PatientInfo | null>(null);
   isLoading = signal(false);
   isSaving = signal(false);
   isEditing = signal(false);
   activeTab = signal<'resumo' | 'prontuario' | 'evolucoes' | 'documentos'>('resumo');
-
-  editForm = this.fb.group({
-    fullName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    documentId: [''],
-    phone: [''],
-    notes: [''],
-    addressStreet: [''],
-    addressNumber: [''],
-    addressComplement: [''],
-    addressType: [''],
-    addressNeighborhood: [''],
-    addressZipCode: [''],
-    addressCity: [''],
-    addressState: [''],
-  });
 
   ngOnInit() {
     this.loadPatient();
@@ -396,7 +459,6 @@ export class PatientDetailComponent {
       next: (patient) => {
         const patientData = patient as unknown as PatientInfo;
         this.patient.set(patientData);
-        this.populateForm(patientData);
         this.isLoading.set(false);
       },
       error: () => {
@@ -405,55 +467,13 @@ export class PatientDetailComponent {
     });
   }
 
-  private populateForm(patient: PatientInfo): void {
-    this.editForm.patchValue({
-      fullName: patient.fullName,
-      email: patient.email,
-      documentId: patient.documentId,
-      phone: patient.phone,
-      notes: patient.notes,
-      addressStreet: patient.address?.street,
-      addressNumber: patient.address?.number,
-      addressComplement: patient.address?.complement,
-      addressType: patient.address?.type,
-      addressNeighborhood: patient.address?.neighborhood,
-      addressZipCode: patient.address?.zipCode,
-      addressCity: patient.address?.city,
-      addressState: patient.address?.state,
-    });
-  }
-
-  onSaveChanges(): void {
-    if (!this.editForm.valid || !this.patient()) return;
+  onSaveChanges(updateData: UpdatePatientDto): void {
+    if (!this.patient()) return;
 
     this.isSaving.set(true);
-
     const patientId = this.patient()!.id;
-    const formValue = this.editForm.value;
 
-    // Build address as a concatenated string or object based on API expectations
-    const addressString = [
-      formValue.addressStreet,
-      formValue.addressNumber,
-      formValue.addressComplement,
-      formValue.addressNeighborhood,
-      formValue.addressCity,
-      formValue.addressState,
-      formValue.addressZipCode,
-    ]
-      .filter(Boolean)
-      .join(', ');
-
-    const updateData: Record<string, unknown> = {
-      fullName: formValue.fullName || undefined,
-      email: formValue.email || undefined,
-      documentId: formValue.documentId || undefined,
-      phone: formValue.phone || undefined,
-      notes: formValue.notes || undefined,
-      address: addressString || undefined,
-    };
-
-    this.patientsService.update(patientId, updateData as UpdatePatientDto).subscribe({
+    this.patientsService.update(patientId, updateData).subscribe({
       next: (updatedPatient) => {
         const patientData = updatedPatient as unknown as PatientInfo;
         this.patient.set(patientData);

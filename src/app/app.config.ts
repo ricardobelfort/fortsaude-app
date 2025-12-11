@@ -20,6 +20,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       progressBar: true,
       progressAnimation: 'increasing',
+      tapToDismiss: true,
     }),
     {
       provide: HTTP_INTERCEPTORS,

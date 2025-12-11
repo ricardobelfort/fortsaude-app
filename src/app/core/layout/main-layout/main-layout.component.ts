@@ -20,12 +20,12 @@ import { TopbarComponent } from '../topbar/topbar.component';
       ></app-sidebar>
 
       <!-- Main Content -->
-      <div class="flex-1 flex flex-col min-h-screen">
+      <div class="flex-1 flex flex-col h-screen">
         <app-topbar [expanded]="isSidebarExpanded()" (toggleSidebar)="toggleSidebar()"></app-topbar>
 
         <!-- Content Area -->
-        <main class="flex-1 overflow-y-auto">
-          <div class="w-full px-8 py-8">
+        <main class="flex-1 overflow-y-auto overflow-x-hidden">
+          <div class="w-full px-8 py-8 min-h-full">
             <router-outlet></router-outlet>
           </div>
         </main>

@@ -40,6 +40,8 @@ import {
   ArrowDown01Icon,
   WaterfallUp01Icon,
   DocumentAttachmentIcon,
+  Logout02Icon,
+  LocationStar02Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -82,6 +84,8 @@ const iconMap = {
   'arrow-down': ArrowDown01Icon,
   'waterfall-up': WaterfallUp01Icon,
   'document-attachment': DocumentAttachmentIcon,
+  logout: Logout02Icon,
+  star: LocationStar02Icon,
 } as const;
 
 @Component({

@@ -74,7 +74,6 @@ import { UserStateService } from '../../../core/services/user-state.service';
         margin-left: 0.5rem;
         width: 16rem;
         background-color: white;
-        border: 1px solid rgb(226 232 240);
         border-radius: 1rem;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         z-index: 50;
@@ -111,7 +110,6 @@ import { UserStateService } from '../../../core/services/user-state.service';
 
       .dropdown-footer {
         padding: 0.75rem 1rem;
-        border-top: 1px solid rgb(241 245 249);
         font-size: 0.75rem;
         color: rgb(148 163 184);
         text-align: center;
@@ -389,20 +387,16 @@ import { UserStateService } from '../../../core/services/user-state.service';
 
                 <div class="py-1">
                   <button type="button" class="dropdown-item">
-                    <app-icon [name]="'folder'" [className]="'text-slate-500'"></app-icon>
-                    <span>Integrations</span>
+                    <app-icon [name]="'user'" [className]="'text-slate-500'"></app-icon>
+                    <span>Meu Perfil</span>
                   </button>
                   <button type="button" class="dropdown-item">
-                    <app-icon [name]="'clock'" [className]="'text-slate-500'"></app-icon>
-                    <span>History</span>
+                    <app-icon [name]="'settings'" [className]="'text-slate-500'"></app-icon>
+                    <span>Configurações</span>
                   </button>
                   <button type="button" class="dropdown-item">
                     <app-icon [name]="'star'" [className]="'text-yellow-500'"></app-icon>
                     <span>Upgrade to Pro</span>
-                  </button>
-                  <button type="button" class="dropdown-item update-app">
-                    <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
-                    <span>Update App</span>
                   </button>
                 </div>
 
@@ -414,14 +408,14 @@ import { UserStateService } from '../../../core/services/user-state.service';
                     class="dropdown-item"
                     (click)="logout.emit(); toggleDropdown()"
                   >
-                    <app-icon [name]="'log-out'" [className]="'text-slate-500'"></app-icon>
+                    <app-icon [name]="'logout'" [className]="'text-slate-500'"></app-icon>
                     <span>Logout</span>
                   </button>
                 </div>
 
                 <div class="h-px bg-slate-200"></div>
 
-                <div class="dropdown-footer">v1.5.69 • Terms & Conditions</div>
+                <div class="dropdown-footer">v0.0.0 • BETA</div>
               </div>
             }
           </div>

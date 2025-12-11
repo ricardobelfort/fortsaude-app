@@ -21,12 +21,12 @@ import { signal } from '@angular/core';
     <div
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
-      <div class="w-full max-w-md">
+      <div class="w-full max-w-sm">
         <!-- Card Container using DaisyUI -->
         <div class="card bg-white shadow-xs">
           <div class="card-body">
             <!-- Logo/Branding -->
-            <div class="text-center ">
+            <div class="mb-6 text-center">
               <img
                 src="assets/images/heartbeat.png"
                 alt="Heartbeat Logo"
@@ -34,164 +34,162 @@ import { signal } from '@angular/core';
                 class="mx-auto mb-2"
               />
               <h1 class="text-4xl font-bold text-gray-600">MultClinic</h1>
-              <p class="text-gray-600 mt-1 text-md">Gestão de Clínica Multidisciplinar</p>
+              <p class="text-gray-600 text-md">Gestão de Clínica Multidisciplinar</p>
             </div>
 
-            <div class="p-8">
-              <!-- Welcome Message -->
-              <h3 class="text-2xl font-bold text-gray-900">Criar Conta</h3>
-              <p class="text-gray-600 mb-8">Preencha os dados para se registrar</p>
+            <!-- Welcome Message -->
+            <h3 class="text-2xl font-bold text-gray-900">Criar Conta</h3>
+            <p class="text-gray-600 mb-4">Preencha os dados para se registrar</p>
 
-              <!-- Signup Form -->
-              <form [formGroup]="signupForm" (ngSubmit)="onSignup()" class="space-y-4">
-                <!-- Full Name Field -->
-                <div>
-                  <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1"
-                    >Nome Completo</label
-                  >
-                  <input
-                    id="fullName"
-                    type="text"
-                    formControlName="fullName"
-                    class="input input-md w-full"
-                    placeholder="Seu nome completo"
-                  />
-                  @if (fullName.invalid && fullName.touched) {
-                    <div class="text-red-600 text-xs mt-1.5 font-medium">
-                      @if (fullName.errors?.['required']) {
-                        <span>Nome é obrigatório</span>
-                      }
-                      @if (fullName.errors?.['minlength']) {
-                        <span>Mínimo de 3 caracteres</span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- Email Field -->
-                <div>
-                  <label for="email" class="block text-sm font-medium text-gray-700 mb-1"
-                    >E-mail</label
-                  >
-                  <div class="relative">
-                    <input
-                      id="email"
-                      type="email"
-                      formControlName="email"
-                      class="input input-md w-full"
-                      placeholder="seu@email.com"
-                    />
-                  </div>
-                  @if (email.invalid && email.touched) {
-                    <div class="text-red-600 text-xs mt-1.5 font-medium'">
-                      @if (email.errors?.['required']) {
-                        <span>E-mail é obrigatório</span>
-                      }
-                      @if (email.errors?.['email']) {
-                        <span>E-mail inválido</span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- Password Field -->
-                <div>
-                  <label for="password" class="block text-sm font-medium text-gray-700 mb-1"
-                    >Senha</label
-                  >
-                  <div class="relative">
-                    <input
-                      id="password"
-                      [type]="showPassword() ? 'text' : 'password'"
-                      formControlName="password"
-                      class="input input-md w-full"
-                      placeholder="Sua senha (mínimo 6 caracteres)"
-                    />
-                    <button
-                      type="button"
-                      (click)="togglePasswordVisibility()"
-                      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
-                    >
-                      <app-icon
-                        [name]="showPassword() ? 'eye-off' : 'eye'"
-                        [size]="16"
-                        [className]="'text-lg'"
-                      ></app-icon>
-                    </button>
-                  </div>
-                  @if (password.invalid && password.touched) {
-                    <div class="text-red-600 text-xs mt-1.5 font-medium'">
-                      @if (password.errors?.['required']) {
-                        <span>Senha é obrigatória</span>
-                      }
-                      @if (password.errors?.['minlength']) {
-                        <span>Mínimo de 6 caracteres</span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- Confirm Password Field -->
-                <div>
-                  <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1"
-                    >Confirmar Senha</label
-                  >
-                  <div class="relative">
-                    <input
-                      id="confirmPassword"
-                      [type]="showConfirmPassword() ? 'text' : 'password'"
-                      formControlName="confirmPassword"
-                      class="input input-md w-full"
-                      placeholder="Confirme sua senha"
-                    />
-                    <button
-                      type="button"
-                      (click)="toggleConfirmPasswordVisibility()"
-                      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
-                    >
-                      <app-icon
-                        [name]="showConfirmPassword() ? 'eye-off' : 'eye'"
-                        [size]="16"
-                        [className]="'text-lg'"
-                      ></app-icon>
-                    </button>
-                  </div>
-                  @if (confirmPassword.invalid && confirmPassword.touched) {
-                    <div class="text-red-600 text-xs mt-1.5 font-medium'">
-                      @if (confirmPassword.errors?.['required']) {
-                        <span>Confirmação de senha é obrigatória</span>
-                      }
-                      @if (confirmPassword.errors?.['passwordMismatch']) {
-                        <span>As senhas não correspondem</span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- Submit Button -->
-                <button
-                  type="submit"
-                  class="btn btn-primary w-full mt-2"
-                  [disabled]="signupForm.invalid || isLoading()"
+            <!-- Signup Form -->
+            <form [formGroup]="signupForm" (ngSubmit)="onSignup()" class="space-y-4">
+              <!-- Full Name Field -->
+              <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1"
+                  >Nome Completo</label
                 >
-                  @if (isLoading()) {
-                    <span class="loading loading-spinner loading-sm"></span>
-                    Criando conta...
-                  } @else {
-                    Criar conta
-                  }
-                </button>
-              </form>
-
-              <!-- Login Link -->
-              <div class="mt-8 pt-8 border-t border-gray-200 text-center">
-                <p class="text-sm text-gray-700">
-                  Já tem conta?
-                  <button type="button" (click)="navigateToLogin()" class="link link-primary">
-                    Fazer login
-                  </button>
-                </p>
+                <input
+                  id="fullName"
+                  type="text"
+                  formControlName="fullName"
+                  class="input input-md w-full"
+                  placeholder="Seu nome completo"
+                />
+                @if (fullName.invalid && fullName.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium">
+                    @if (fullName.errors?.['required']) {
+                      <span>Nome é obrigatório</span>
+                    }
+                    @if (fullName.errors?.['minlength']) {
+                      <span>Mínimo de 3 caracteres</span>
+                    }
+                  </div>
+                }
               </div>
+
+              <!-- Email Field -->
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1"
+                  >E-mail</label
+                >
+                <div class="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    class="input input-md w-full"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+                @if (email.invalid && email.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium'">
+                    @if (email.errors?.['required']) {
+                      <span>E-mail é obrigatório</span>
+                    }
+                    @if (email.errors?.['email']) {
+                      <span>E-mail inválido</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Password Field -->
+              <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1"
+                  >Senha</label
+                >
+                <div class="relative">
+                  <input
+                    id="password"
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    class="input input-md w-full"
+                    placeholder="Sua senha (mínimo 6 caracteres)"
+                  />
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
+                  >
+                    <app-icon
+                      [name]="showPassword() ? 'eye-off' : 'eye'"
+                      [size]="16"
+                      [className]="'text-lg'"
+                    ></app-icon>
+                  </button>
+                </div>
+                @if (password.invalid && password.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium'">
+                    @if (password.errors?.['required']) {
+                      <span>Senha é obrigatória</span>
+                    }
+                    @if (password.errors?.['minlength']) {
+                      <span>Mínimo de 6 caracteres</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Confirm Password Field -->
+              <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1"
+                  >Confirmar Senha</label
+                >
+                <div class="relative">
+                  <input
+                    id="confirmPassword"
+                    [type]="showConfirmPassword() ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    class="input input-md w-full"
+                    placeholder="Confirme sua senha"
+                  />
+                  <button
+                    type="button"
+                    (click)="toggleConfirmPasswordVisibility()"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition cursor-pointer p-1"
+                  >
+                    <app-icon
+                      [name]="showConfirmPassword() ? 'eye-off' : 'eye'"
+                      [size]="16"
+                      [className]="'text-lg'"
+                    ></app-icon>
+                  </button>
+                </div>
+                @if (confirmPassword.invalid && confirmPassword.touched) {
+                  <div class="text-red-600 text-xs mt-1.5 font-medium'">
+                    @if (confirmPassword.errors?.['required']) {
+                      <span>Confirmação de senha é obrigatória</span>
+                    }
+                    @if (confirmPassword.errors?.['passwordMismatch']) {
+                      <span>As senhas não correspondem</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="btn btn-primary w-full mt-2"
+                [disabled]="signupForm.invalid || isLoading()"
+              >
+                @if (isLoading()) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  Criando conta...
+                } @else {
+                  Criar conta
+                }
+              </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="mt-4 pt-5 border-t border-gray-200 text-center">
+              <p class="text-sm text-gray-700">
+                Já tem conta?
+                <button type="button" (click)="navigateToLogin()" class="link link-primary">
+                  Fazer login
+                </button>
+              </p>
             </div>
           </div>
         </div>

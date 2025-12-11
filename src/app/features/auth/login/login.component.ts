@@ -29,7 +29,7 @@ import { signal } from '@angular/core';
                 class="mx-auto mb-2"
               />
               <h1 class="text-4xl font-bold text-gray-600">MultClinic</h1>
-              <p class="text-gray-600 mt-1 text-md">Gestão de Clínica Multidisciplinar</p>
+              <p class="text-gray-600 text-md">Gestão de Clínica Multidisciplinar</p>
             </div>
 
             <!-- Welcome Message -->
@@ -131,7 +131,7 @@ import { signal } from '@angular/core';
             </form>
 
             <!-- Sign Up -->
-            <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+            <div class="mt-4 pt-5 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
                 Não tem conta?
                 <button

@@ -3,36 +3,41 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
-import { IconComponent } from '../../../shared/ui/icon.component';
 import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
-      <div class="w-full max-w-md">
-        <!-- Logo/Branding (Outside Card) -->
-        <div class="mb-8 text-center">
-          <h1 class="text-4xl font-bold text-blue-900">FortSaúde</h1>
-          <p class="text-blue-700 mt-1">Sistema de Gestão Clínica</p>
-        </div>
+      <div class="w-full max-w-sm">
+        <!-- Card Container using DaisyUI -->
+        <div class="card bg-white shadow-xs">
+          <div class="card-body">
+            <!-- Logo/Branding -->
+            <div class="mb-6 text-center">
+              <img
+                src="assets/images/heartbeat.png"
+                alt="Heartbeat Logo"
+                width="80"
+                class="mx-auto mb-2"
+              />
+              <h1 class="text-4xl font-bold text-gray-600">MultClinic</h1>
+              <p class="text-gray-600 text-md">Gestão de Clínica Multidisciplinar</p>
+            </div>
 
-        <!-- Card Container -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-          <div class="p-8">
             <!-- Welcome Message -->
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">Recuperar Senha</h3>
-            <p class="text-gray-600 mb-8">Digite seu e-mail para receber um link de recuperação</p>
+            <h3 class="text-2xl font-bold text-gray-900">Recuperar Senha</h3>
+            <p class="text-gray-600 mb-4">Digite seu e-mail para receber um link de recuperação</p>
 
             <!-- Forgot Password Form -->
             <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()" class="space-y-5">
               <!-- Email Field -->
               <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2"
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1"
                   >E-mail</label
                 >
                 <div class="relative">
@@ -40,12 +45,10 @@ import { signal } from '@angular/core';
                     id="email"
                     type="email"
                     formControlName="email"
-                    class="fs-input pl-10"
+                    class="input input-md w-full"
+                    [class.input-error]="email.invalid && email.touched"
                     placeholder="seu@email.com"
                   />
-                  <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <app-icon [name]="'letter'" [size]="16" [className]="'text-base'"></app-icon>
-                  </div>
                 </div>
                 @if (email.invalid && email.touched) {
                   <div class="text-red-600 text-xs mt-1.5 font-medium'">
@@ -62,11 +65,15 @@ import { signal } from '@angular/core';
               <!-- Submit Button -->
               <button
                 type="submit"
-                class="fs-button-primary w-full"
+                class="btn btn-primary w-full"
                 [disabled]="forgotPasswordForm.invalid || isLoading()"
               >
-                <span *ngIf="isLoading(); else submitLabel">Enviando...</span>
-                <ng-template #submitLabel>Enviar Link de Recuperação</ng-template>
+                @if (isLoading()) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  Enviando...
+                } @else {
+                  Enviar Link de Recuperação
+                }
               </button>
             </form>
 
@@ -81,12 +88,12 @@ import { signal } from '@angular/core';
             }
 
             <!-- Back to Login -->
-            <div class="mt-8 pt-8 border-t border-gray-200 text-center">
+            <div class="mt-4 pt-5 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
                 <button
                   type="button"
                   (click)="navigateToLogin()"
-                  class="text-blue-600 hover:text-blue-700 transition font-medium cursor-pointer"
+                  class="link link-primary link-hover"
                 >
                   Voltar para login
                 </button>

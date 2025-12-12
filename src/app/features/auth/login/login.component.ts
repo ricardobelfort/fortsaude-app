@@ -16,20 +16,18 @@ import { signal } from '@angular/core';
     <div
       class="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 items-center justify-center p-6"
     >
-      <div class="w-full max-w-sm">
+      <div class="w-full max-w-md">
         <!-- Card Container using DaisyUI -->
-        <div class="card bg-white shadow-xs">
-          <div class="card-body">
+        <div class="bg-white shadow-sm rounded-2xl">
+          <div class="card-body p-12">
             <!-- Logo/Branding -->
-            <div class="mb-6 text-center ">
+            <div class="mb-3 text-center ">
               <img
-                src="assets/images/heartbeat.png"
+                src="assets/images/logo-transparent.png"
                 alt="Heartbeat Logo"
-                width="80"
+                width="120"
                 class="mx-auto mb-2"
               />
-              <h1 class="text-4xl font-bold text-gray-600">MultClinic</h1>
-              <p class="text-gray-600 text-md">Gestão de Clínica Multidisciplinar</p>
             </div>
 
             <!-- Welcome Message -->
@@ -104,7 +102,7 @@ import { signal } from '@angular/core';
                     </span>
                   </label>
                 }
-                <div class="flex items-center justify-between mt-2">
+                <div class="flex justify-end mt-2">
                   <button
                     type="button"
                     (click)="navigateToForgotPassword()"
@@ -114,6 +112,34 @@ import { signal } from '@angular/core';
                   </button>
                 </div>
               </div>
+
+              <!-- Terms and Conditions - TODO: Backend ainda não implementou -->
+              <!-- <div class="form-control">
+                <label class="label cursor-pointer justify-start gap-3 mt-3">
+                  <input
+                    type="checkbox"
+                    formControlName="acceptTerms"
+                    class="checkbox checkbox-sm checkbox-primary"
+                  />
+                  <span class="label-text text-gray-700">
+                    Eu concordo com os
+                    <button
+                      type="button"
+                      (click)="navigateToTerms()"
+                      class="link link-primary link-hover font-medium"
+                    >
+                      termos e condições
+                    </button>
+                  </span>
+                </label>
+                @if (acceptTerms.invalid && acceptTerms.touched) {
+                  <label class="label">
+                    <span class="label-text-alt text-error font-medium">
+                      Você deve concordar com os termos e condições
+                    </span>
+                  </label>
+                }
+              </div> -->
 
               <!-- Submit Button -->
               <button
@@ -125,6 +151,11 @@ import { signal } from '@angular/core';
                   <span class="loading loading-spinner loading-sm"></span>
                   Entrando...
                 } @else {
+                  <app-icon
+                    [name]="'login'"
+                    [size]="20"
+                    [className]="'inline-block mr-2 align-middle'"
+                  ></app-icon>
                   Entrar
                 }
               </button>
@@ -133,7 +164,7 @@ import { signal } from '@angular/core';
             <!-- Sign Up -->
             <div class="mt-4 pt-5 border-t border-gray-200 text-center">
               <p class="text-sm text-gray-700">
-                Não tem conta?
+                Não tem uma conta?
                 <button
                   type="button"
                   (click)="navigateToSignup()"
@@ -169,13 +200,16 @@ export class LoginComponent {
   readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    // acceptTerms: [false, [Validators.requiredTrue]], // TODO: Backend ainda não implementou
   });
 
   private readonly emailControl = this.loginForm.get('email');
   private readonly passwordControl = this.loginForm.get('password');
+  // private readonly acceptTermsControl = this.loginForm.get('acceptTerms'); // TODO: Backend ainda não implementou
 
   readonly email = this.emailControl!;
   readonly password = this.passwordControl!;
+  // readonly acceptTerms = this.acceptTermsControl!; // TODO: Backend ainda não implementou
 
   togglePasswordVisibility(): void {
     this.showPassword.update((value) => !value);
@@ -187,6 +221,10 @@ export class LoginComponent {
 
   navigateToForgotPassword(): void {
     this.router.navigate(['/auth/forgot-password']);
+  }
+
+  navigateToTerms(): void {
+    this.router.navigate(['/auth/terms']);
   }
 
   onLogin(): void {

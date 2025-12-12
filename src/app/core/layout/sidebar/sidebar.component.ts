@@ -187,7 +187,7 @@ import { UserStateService } from '@core/services/user-state.service';
         [class.gap-3]="expanded()"
         [class.justify-center]="!expanded()"
       >
-        <img src="assets/images/heartbeat.png" width="42" alt="MultClinic Logo" />
+        <img src="assets/images/logo-transparent.png" width="36" alt="MultClinic Logo" />
         @if (expanded()) {
           <div>
             <p class="text-md uppercase font-semibold tracking-[0.2em] text-gray-800">MultClinic</p>

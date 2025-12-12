@@ -1,16 +1,26 @@
+import { Person, Account, Clinic } from './patient.model';
+
+export interface ProfessionalProfile {
+  id: string;
+  account: Account;
+  clinic: Clinic;
+  role: string; // MEDICO, ENFERMEIRO, etc.
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Professional {
   id: string;
-  clinicId: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  category: string; // PHYSICIAN, PSYCHOLOGIST, etc.
-  mainSpecialty: string;
-  registrationCode: string; // CRM, CRP, etc.
-  color?: string;
+  clinic: Clinic;
+  profile: ProfessionalProfile;
+  crm: string;
+  specialty: string;
+  availableFrom?: string;
+  availableTo?: string;
   active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateProfessionalDto {

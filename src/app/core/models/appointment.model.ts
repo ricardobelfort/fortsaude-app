@@ -18,7 +18,16 @@ export interface Appointment {
   createdAt: Date;
   updatedAt: Date;
   patient?: { fullName: string };
-  professional?: { firstName: string; lastName: string; category: string; color?: string };
+  professional?: {
+    id: string;
+    profile: {
+      account: {
+        person: {
+          fullName: string;
+        };
+      };
+    };
+  };
 }
 
 export interface CreateAppointmentDto {

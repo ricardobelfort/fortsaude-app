@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProfessionalsService } from '../../../core/services/professionals.service';
 import { Professional } from '../../../core/models/professional.model';
-import { PROFESSIONAL_CATEGORY_LABELS } from '../../../core/models';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { AlertService } from '../../../shared/ui/alert.service';
+import { TableComponent, TableColumn } from '../../../shared/ui/table/table.component';
 
 @Component({
   selector: 'app-professionals-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent],
+  imports: [CommonModule, FormsModule, IconComponent, TableComponent],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -27,19 +27,10 @@ import { AlertService } from '../../../shared/ui/alert.service';
 
       <!-- Filters -->
       <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="fs-label">Nome ou Especialidade</label>
             <input [(ngModel)]="searchText" placeholder="Buscar..." class="fs-input" />
-          </div>
-          <div>
-            <label class="fs-label">Categoria</label>
-            <select [(ngModel)]="selectedCategory" class="fs-select">
-              <option [value]="null">Todas as categorias</option>
-              @for (cat of categoryOptions; track cat.value) {
-                <option [value]="cat.value">{{ cat.label }}</option>
-              }
-            </select>
           </div>
           <div class="flex items-end">
             <button type="button" class="btn btn-neutral" (click)="loadProfessionals()">
@@ -51,72 +42,13 @@ import { AlertService } from '../../../shared/ui/alert.service';
       </div>
 
       <div class="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
-        @if (professionals().length > 0) {
-          <table class="min-w-[50rem] w-full text-left">
-            <thead>
-              <tr class="border-b">
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Nome</th>
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Categoria</th>
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Especialidade</th>
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Registro</th>
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Status</th>
-                <th class="px-4 py-3 text-sm font-semibold text-gray-700">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (professional of professionals(); track professional.id) {
-                <tr class="border-b last:border-0">
-                  <td class="px-4 py-3 font-medium">
-                    {{ professional.firstName }} {{ professional.lastName }}
-                  </td>
-                  <td class="px-4 py-3">
-                    <span
-                      class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
-                    >
-                      {{ getCategoryLabel(professional.category) }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">{{ professional.mainSpecialty }}</td>
-                  <td class="px-4 py-3">{{ professional.registrationCode }}</td>
-                  <td class="px-4 py-3">
-                    <span
-                      class="font-medium"
-                      [class.text-green-600]="professional.active"
-                      [class.text-red-600]="!professional.active"
-                    >
-                      {{ professional.active ? 'Ativo' : 'Inativo' }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center gap-3">
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
-                        (click)="editProfessional(professional)"
-                      >
-                        <app-icon [name]="'edit-3'"></app-icon>
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 text-red-600 hover:text-red-800"
-                        (click)="deleteProfessional(professional.id)"
-                      >
-                        <app-icon [name]="'trash-2'"></app-icon>
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        } @else {
-          <div class="text-center py-12 text-gray-500">
-            <p class="text-5xl mb-4">👩‍⚕️</p>
-            <p>Nenhum profissional encontrado</p>
-          </div>
-        }
+        <app-table
+          [data]="tableData()"
+          [columns]="tableColumns()"
+          [isLoading]="isLoading()"
+          emptyMessage="Nenhum profissional encontrado"
+          (action)="handleTableAction($event)"
+        ></app-table>
       </div>
     </div>
 
@@ -155,37 +87,101 @@ export class ProfessionalsListComponent implements OnInit {
   private readonly alertService = inject(AlertService);
 
   professionals = signal<Professional[]>([]);
+  isLoading = signal(false);
   displayDialog = signal(false);
   editingProfessional: Professional | null = null;
   searchText = '';
-  selectedCategory: string | null = null;
 
-  categoryOptions = Object.entries(PROFESSIONAL_CATEGORY_LABELS).map(([key, label]) => ({
-    value: key,
-    label,
-  }));
+  tableColumns = signal<TableColumn[]>([
+    {
+      key: 'name',
+      header: 'Nome',
+      sortable: true,
+    },
+    {
+      key: 'role',
+      header: 'Profissão',
+      sortable: true,
+    },
+    {
+      key: 'specialty',
+      header: 'Especialidade',
+      sortable: true,
+    },
+    {
+      key: 'crm',
+      header: 'CRM',
+      sortable: true,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      badge: (value) => ({
+        text: value ? 'Ativo' : 'Inativo',
+        color: value ? 'success' : 'warning',
+      }),
+    },
+  ]);
+
+  tableData = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.loadProfessionals();
   }
 
   loadProfessionals(): void {
+    this.isLoading.set(true);
     const params: Record<string, string | string[]> = {};
     if (this.searchText) {
       params['search'] = this.searchText;
-    }
-    if (this.selectedCategory) {
-      params['category'] = this.selectedCategory;
     }
 
     this.professionalsService.getAll(params).subscribe({
       next: (data) => {
         this.professionals.set(data);
+        // Mapear dados para o formato da tabela
+        this.tableData.set(
+          data.map((prof) => ({
+            id: prof.id,
+            name: prof.profile.account.person.fullName,
+            role: prof.profile.role,
+            specialty: prof.specialty,
+            crm: prof.crm,
+            status: prof.active,
+            _original: prof,
+          }))
+        );
+        this.isLoading.set(false);
       },
       error: () => {
         this.alertService.error('Falha ao carregar profissionais');
+        this.isLoading.set(false);
       },
     });
+  }
+
+  handleTableAction(event: {
+    action: 'view' | 'edit' | 'delete';
+    row: Record<string, unknown>;
+  }): void {
+    const professional = (event.row as Record<string, unknown>)['_original'] as Professional;
+
+    switch (event.action) {
+      case 'view':
+        this.viewProfessional(professional);
+        break;
+      case 'edit':
+        this.editProfessional(professional);
+        break;
+      case 'delete':
+        this.deleteProfessional(professional.id);
+        break;
+    }
+  }
+
+  viewProfessional(professional: Professional): void {
+    // TODO: Implementar visualização
+    this.alertService.info(`Visualizando: ${professional.profile.account.person.fullName}`);
   }
 
   openDialog(): void {
@@ -215,12 +211,5 @@ export class ProfessionalsListComponent implements OnInit {
         this.alertService.error('Falha ao deletar profissional');
       },
     });
-  }
-
-  getCategoryLabel(category: string): string {
-    return (
-      PROFESSIONAL_CATEGORY_LABELS[category as keyof typeof PROFESSIONAL_CATEGORY_LABELS] ||
-      category
-    );
   }
 }

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AppointmentsService, PatientsService, ProfessionalsService } from '../../core/services';
-import { AppointmentStatus } from '../../core/models';
+import { AppointmentStatus, Professional } from '../../core/models';
 import { AlertService } from '../../shared/ui/alert.service';
 import { IconComponent } from '../../shared/ui/icon.component';
 
@@ -19,12 +19,6 @@ interface AppointmentRecord {
 interface Patient {
   id: string;
   fullName: string;
-}
-
-interface Professional {
-  id: string;
-  firstName: string;
-  lastName: string;
 }
 
 @Component({
@@ -183,7 +177,7 @@ interface Professional {
               <select formControlName="professionalId" class="fs-select">
                 <option value="">Selecione um profissional</option>
                 @for (prof of professionals(); track prof.id) {
-                  <option [value]="prof.id">{{ prof.firstName }} {{ prof.lastName }}</option>
+                  <option [value]="prof.id">{{ prof.profile.account.person.fullName }}</option>
                 }
               </select>
             </div>
@@ -282,9 +276,7 @@ export class AppointmentsComponent {
         const mapped: AppointmentRecord[] = appointments.map((apt) => ({
           id: apt.id,
           patientName: apt.patient?.fullName || 'Sem Nome',
-          professionalName: apt.professional
-            ? `${apt.professional.firstName} ${apt.professional.lastName}`
-            : 'Sem Nome',
+          professionalName: apt.professional?.profile?.account?.person?.fullName || 'Sem Nome',
           startTime: apt.startTime,
           endTime: apt.endTime,
           status: apt.status || 'SCHEDULED',

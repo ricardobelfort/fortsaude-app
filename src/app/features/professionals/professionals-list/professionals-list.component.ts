@@ -2,15 +2,20 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProfessionalsService } from '../../../core/services/professionals.service';
-import { Professional } from '../../../core/models/professional.model';
+import {
+  Professional,
+  CreateProfessionalDto,
+  UpdateProfessionalDto,
+} from '../../../core/models/professional.model';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { AlertService } from '../../../shared/ui/alert.service';
 import { TableComponent, TableColumn } from '../../../shared/ui/table/table.component';
+import { ProfessionalFormComponent } from '../professional-form/professional-form.component';
 
 @Component({
   selector: 'app-professionals-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, TableComponent],
+  imports: [CommonModule, FormsModule, IconComponent, TableComponent, ProfessionalFormComponent],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -19,8 +24,8 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
           <h1 class="text-3xl font-bold text-gray-800">Profissionais</h1>
           <p class="text-gray-600">Gerenciamento de profissionais de saúde</p>
         </div>
-        <button type="button" class="btn btn-neutral" (click)="openDialog()">
-          <app-icon [name]="'user-plus'"></app-icon>
+        <button type="button" class="btn btn-primary" (click)="openCreateDialog()">
+          <app-icon [name]="'plus'"></app-icon>
           Novo Profissional
         </button>
       </div>
@@ -44,30 +49,42 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
       </div>
     </div>
 
-    <!-- Dialog Placeholder -->
-    @if (displayDialog()) {
-      <div class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto">
+    <!-- Modal de Criação/Edição -->
+    @if (showModal()) {
+      <div
+        class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto pt-4"
+        (click)="closeModal()"
+      >
         <div
-          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mt-16 mb-10 p-6 text-center space-y-4"
+          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mb-10 p-6"
+          (click)="$event.stopPropagation()"
         >
-          <div class="flex items-center justify-between">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold text-gray-900">
-              {{ editingProfessional ? 'Editar Profissional' : 'Novo Profissional' }}
+              @if (editingProfessional()) {
+                Editar Profissional
+              } @else {
+                Novo Profissional
+              }
             </h3>
             <button
               type="button"
-              class="text-gray-500 hover:text-gray-700"
-              (click)="displayDialog.set(false)"
+              class="text-gray-500 hover:text-gray-700 p-1"
+              (click)="closeModal()"
+              [disabled]="isSubmitting()"
             >
               <app-icon [name]="'x'"></app-icon>
             </button>
           </div>
-          <p class="text-gray-600">Formulário em desenvolvimento.</p>
-          <div class="flex justify-center gap-3">
-            <button type="button" class="btn btn-outline" (click)="displayDialog.set(false)">
-              Fechar
-            </button>
-          </div>
+
+          <!-- Form -->
+          <app-professional-form
+            [professional]="editingProfessional()"
+            [isSubmitting]="isSubmitting()"
+            (submitted)="onFormSubmitted($event)"
+            (cancelled)="closeModal()"
+          ></app-professional-form>
         </div>
       </div>
     }
@@ -80,19 +97,15 @@ export class ProfessionalsListComponent implements OnInit {
 
   professionals = signal<Professional[]>([]);
   isLoading = signal(false);
-  displayDialog = signal(false);
-  editingProfessional: Professional | null = null;
+  isSubmitting = signal(false);
+  showModal = signal(false);
+  editingProfessional = signal<Professional | null>(null);
   searchText = '';
 
   tableColumns = signal<TableColumn[]>([
     {
       key: 'name',
       header: 'Nome',
-      sortable: true,
-    },
-    {
-      key: 'role',
-      header: 'Profissão',
       sortable: true,
     },
     {
@@ -103,6 +116,11 @@ export class ProfessionalsListComponent implements OnInit {
     {
       key: 'crm',
       header: 'CRM',
+      sortable: true,
+    },
+    {
+      key: 'email',
+      header: 'Email',
       sortable: true,
     },
     {
@@ -131,14 +149,13 @@ export class ProfessionalsListComponent implements OnInit {
     this.professionalsService.getAll(params).subscribe({
       next: (data) => {
         this.professionals.set(data);
-        // Mapear dados para o formato da tabela
         this.tableData.set(
           data.map((prof) => ({
             id: prof.id,
             name: prof.profile.account.person.fullName,
-            role: prof.profile.role,
             specialty: prof.specialty,
             crm: prof.crm,
+            email: prof.profile.account.email,
             status: prof.active,
             _original: prof,
           }))
@@ -160,33 +177,68 @@ export class ProfessionalsListComponent implements OnInit {
 
     switch (event.action) {
       case 'view':
-        this.viewProfessional(professional);
+        window.location.href = `/app/professionals/${professional.id}`;
         break;
       case 'edit':
-        this.editProfessional(professional);
+        this.openEditDialog(professional);
         break;
       case 'delete':
-        this.deleteProfessional(professional.id);
+        this.confirmDelete(professional.id);
         break;
     }
   }
 
-  viewProfessional(professional: Professional): void {
-    // TODO: Implementar visualização
-    this.alertService.info(`Visualizando: ${professional.profile.account.person.fullName}`);
+  openCreateDialog(): void {
+    this.editingProfessional.set(null);
+    this.showModal.set(true);
   }
 
-  openDialog(): void {
-    this.editingProfessional = null;
-    this.displayDialog.set(true);
+  openEditDialog(professional: Professional): void {
+    this.editingProfessional.set(professional);
+    this.showModal.set(true);
   }
 
-  editProfessional(professional: Professional): void {
-    this.editingProfessional = { ...professional };
-    this.displayDialog.set(true);
+  closeModal(): void {
+    this.showModal.set(false);
+    this.editingProfessional.set(null);
   }
 
-  async deleteProfessional(id: string): Promise<void> {
+  onFormSubmitted(dto: CreateProfessionalDto | UpdateProfessionalDto): void {
+    const editing = this.editingProfessional();
+    this.isSubmitting.set(true);
+
+    if (editing && 'id' in editing) {
+      // Update
+      this.professionalsService.update(editing.id, dto as UpdateProfessionalDto).subscribe({
+        next: () => {
+          this.alertService.success('Profissional atualizado com sucesso!');
+          this.closeModal();
+          this.isSubmitting.set(false);
+          this.loadProfessionals();
+        },
+        error: () => {
+          this.alertService.error('Erro ao atualizar profissional');
+          this.isSubmitting.set(false);
+        },
+      });
+    } else {
+      // Create
+      this.professionalsService.create(dto as CreateProfessionalDto).subscribe({
+        next: () => {
+          this.alertService.success('Profissional criado com sucesso!');
+          this.closeModal();
+          this.isSubmitting.set(false);
+          this.loadProfessionals();
+        },
+        error: () => {
+          this.alertService.error('Erro ao criar profissional');
+          this.isSubmitting.set(false);
+        },
+      });
+    }
+  }
+
+  async confirmDelete(id: string): Promise<void> {
     const confirmed = await this.alertService.confirm({
       text: 'Tem certeza que deseja deletar este profissional?',
       confirmButtonText: 'Sim, deletar',

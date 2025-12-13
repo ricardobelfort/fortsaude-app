@@ -24,20 +24,17 @@ export interface Professional {
 }
 
 export interface CreateProfessionalDto {
-  firstName: string;
-  lastName: string;
-  category: string;
-  mainSpecialty: string;
-  registrationCode: string;
-  color?: string;
+  profileId: string;
+  clinicId: string;
+  crm: string;
+  specialty: string;
+  availableFrom?: string;
+  availableTo?: string;
 }
 
 export interface UpdateProfessionalDto {
-  firstName?: string;
-  lastName?: string;
-  category?: string;
-  mainSpecialty?: string;
-  registrationCode?: string;
-  color?: string;
-  active?: boolean;
+  crm?: string;
+  specialty?: string;
+  availableFrom?: string;
+  availableTo?: string;
 }

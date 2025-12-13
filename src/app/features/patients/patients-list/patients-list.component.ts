@@ -39,7 +39,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
       <!-- Tabela -->
       <div class="bg-white rounded-lg shadow-md">
         <!-- Filtro dentro do card -->
-        <div class="border-b border-slate-200 px-6 py-4">
+        <div class="border-b border-slate-200 px-6 py-6">
           <div class="flex items-center justify-end gap-3">
             <div class="w-80">
               <label class="input">

@@ -489,11 +489,16 @@ import { UserStateService } from '@core/services/user-state.service';
             @if (isDropdownOpen()) {
               <div class="dropdown-menu">
                 <div class="py-1">
-                  <button type="button" class="dropdown-item">
+                  <a
+                    [routerLink]="['/app/meu-perfil']"
+                    (click)="toggleDropdown()"
+                    type="button"
+                    class="dropdown-item"
+                  >
                     <app-icon [name]="'user'" [size]="20" [className]="'text-slate-500'"></app-icon>
                     <span>Meu Perfil</span>
-                  </button>
-                  <button type="button" class="dropdown-item">
+                  </a>
+                  <button type="button" class="dropdown-item" disabled>
                     <app-icon
                       [name]="'settings'"
                       [size]="20"
@@ -501,7 +506,7 @@ import { UserStateService } from '@core/services/user-state.service';
                     ></app-icon>
                     <span>Configurações</span>
                   </button>
-                  <button type="button" class="dropdown-item">
+                  <button type="button" class="dropdown-item" disabled>
                     <app-icon
                       [name]="'star'"
                       [size]="20"
@@ -509,19 +514,7 @@ import { UserStateService } from '@core/services/user-state.service';
                     ></app-icon>
                     <span>Upgrade to Pro</span>
                   </button>
-                  <button
-                    type="button"
-                    class="dropdown-item logout"
-                    (click)="logout.emit(); toggleDropdown()"
-                  >
-                    <app-icon [name]="'logout'" [size]="20" [className]="'text-red-500'"></app-icon>
-                    <span>Logout</span>
-                  </button>
                 </div>
-
-                <div class="h-px bg-slate-200"></div>
-
-                <div class="dropdown-footer">v0.0.0 • BETA</div>
               </div>
             }
           </div>

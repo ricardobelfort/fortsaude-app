@@ -70,6 +70,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'meu-perfil',
+        loadComponent: () =>
+          import('./features/profile/my-profile/my-profile.component').then(
+            (m) => m.MyProfileComponent
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [roleGuard([UserRole.CLINIC_ADMIN])],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),

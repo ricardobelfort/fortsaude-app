@@ -48,6 +48,8 @@ import {
   Xls01Icon,
   Download01Icon,
   MoreVerticalIcon,
+  ShieldUserIcon,
+  Notification01Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -98,6 +100,8 @@ const iconMap = {
   xls: Xls01Icon,
   download: Download01Icon,
   more: MoreVerticalIcon,
+  shield: ShieldUserIcon,
+  notification: Notification01Icon,
 } as const;
 
 @Component({

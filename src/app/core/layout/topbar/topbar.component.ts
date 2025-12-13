@@ -42,7 +42,7 @@ import { UserStateService } from '@core/services/user-state.service';
           </div>
           <div class="hidden lg:flex flex-col items-start leading-tight">
             <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
-            <p class="text-xs text-slate-500'">{{ email() }}</p>
+            <p class="text-xs text-slate-500">{{ email() }}</p>
           </div>
         </div>
       </div>

@@ -24,16 +24,16 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
       <!-- Header -->
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800">Agenda de Atendimentos</h1>
-        <p class="text-gray-600">Visualização de agendamentos da clínica</p>
+      <div class="px-0">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Agenda de Atendimentos</h1>
+        <p class="text-sm sm:text-base text-gray-600">Visualização de agendamentos da clínica</p>
       </div>
 
       @if (feedback(); as fb) {
         <div
-          class="px-4 py-3 rounded-lg text-sm"
+          class="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm"
           [class.bg-green-100]="fb.type === 'success'"
           [class.text-green-800]="fb.type === 'success'"
           [class.bg-red-100]="fb.type === 'error'"
@@ -44,33 +44,48 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
       }
 
       <!-- Calendar -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="bg-white rounded-lg shadow-sm p-1 sm:p-2 md:p-6 overflow-x-auto">
         <div #calendarContainer class="fc-custom"></div>
       </div>
 
       <!-- Legend -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Legenda de Status</h3>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background-color: #3b82f6;"></div>
-            <span class="text-sm text-gray-700">Agendado</span>
+      <div class="bg-white rounded-lg shadow-sm p-3 sm:p-6">
+        <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Legenda de Status</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div
+              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+              style="background-color: #3b82f6;"
+            ></div>
+            <span class="text-xs sm:text-sm text-gray-700">Agendado</span>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background-color: #10b981;"></div>
-            <span class="text-sm text-gray-700">Confirmado</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div
+              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+              style="background-color: #10b981;"
+            ></div>
+            <span class="text-xs sm:text-sm text-gray-700">Confirmado</span>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background-color: #6366f1;"></div>
-            <span class="text-sm text-gray-700">Realizado</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div
+              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+              style="background-color: #6366f1;"
+            ></div>
+            <span class="text-xs sm:text-sm text-gray-700">Realizado</span>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background-color: #f59e0b;"></div>
-            <span class="text-sm text-gray-700">Não compareceu</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div
+              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+              style="background-color: #f59e0b;"
+            ></div>
+            <span class="text-xs sm:text-sm text-gray-700">Não compareceu</span>
           </div>
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background-color: #ef4444;"></div>
-            <span class="text-sm text-gray-700">Cancelado</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div
+              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+              style="background-color: #ef4444;"
+            ></div>
+            <span class="text-xs sm:text-sm text-gray-700">Cancelado</span>
           </div>
         </div>
       </div>
@@ -203,29 +218,26 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
           background-color: #f9fafb !important;
           font-weight: 600;
           color: #111827;
-          padding: 12px 4px;
+          border-color: #e5e7eb;
         }
 
         .fc-daygrid-day-number {
           color: #374151;
-          padding: 8px 4px;
+          font-size: 12px;
         }
 
         .fc-event {
           cursor: pointer;
-          border-radius: 4px;
         }
 
         .fc-event-title {
           font-weight: 600;
           color: white;
-          font-size: 13px;
-          padding: 2px 4px;
         }
 
         .fc-event-time {
           color: white;
-          font-size: 11px;
+          font-size: 9px;
         }
 
         .fc-daygrid {
@@ -240,26 +252,120 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
           border-color: #e5e7eb;
         }
 
-        .fc-col-header-cell {
-          border-color: #e5e7eb;
-        }
-
         .fc-button-group {
-          gap: 4px;
+          gap: 2px;
+          flex-wrap: wrap;
         }
 
         .fc-button {
           text-transform: none;
-          font-size: 14px;
-        }
-
-        .fc-button-group > button:not(:first-child) {
-          margin-left: 4px;
+          font-size: 12px;
+          padding: 4px 8px !important;
         }
 
         /* Remove border from button group */
         .fc-button-group > :not(:first-child) {
           border-left: none;
+        }
+
+        /* Desktop defaults - flexible toolbar */
+        .fc-toolbar {
+          margin-bottom: 8px;
+        }
+      }
+
+      /* Mobile responsive adjustments - OUTSIDE ::ng-deep */
+      @media (max-width: 640px) {
+        :host ::ng-deep .fc-toolbar {
+          display: flex !important;
+          gap: 1px !important;
+          margin-bottom: 3px !important;
+          align-items: center !important;
+        }
+
+        :host ::ng-deep .fc-button-group {
+          gap: 0px !important;
+          flex-shrink: 0 !important;
+          display: flex !important;
+        }
+
+        :host ::ng-deep .fc-toolbar-title {
+          font-size: 11px !important;
+          margin: 0 !important;
+          text-align: center !important;
+          padding: 0px 2px !important;
+          white-space: nowrap !important;
+          font-weight: 600 !important;
+        }
+
+        :host ::ng-deep .fc-button {
+          padding: 1px 2px !important;
+          font-size: 8px !important;
+          height: auto !important;
+          line-height: 1.1 !important;
+          min-width: 22px !important;
+        }
+
+        :host ::ng-deep .fc-button-group > button {
+          padding: 1px 2px !important;
+        }
+
+        :host ::ng-deep .fc-button.fc-button-primary {
+          background-color: #374151 !important;
+          border-color: #374151 !important;
+          font-weight: 600 !important;
+        }
+
+        :host ::ng-deep .fc-button.fc-button-primary:hover {
+          background-color: #1f2937 !important;
+          border-color: #1f2937 !important;
+        }
+
+        :host ::ng-deep .fc-button.fc-button-primary:not(.fc-button-active) {
+          background-color: #6b7280 !important;
+          border-color: #6b7280 !important;
+        }
+
+        :host ::ng-deep .fc-col-header-cell {
+          padding: 4px 1px !important;
+          font-size: 9px !important;
+          border-width: 0.5px !important;
+          background-color: #f9fafb !important;
+          font-weight: 600 !important;
+        }
+
+        :host ::ng-deep .fc-daygrid-day-number {
+          padding: 2px 1px !important;
+          font-size: 9px !important;
+          color: #374151 !important;
+        }
+
+        :host ::ng-deep .fc-daygrid-day {
+          border-width: 0.5px !important;
+        }
+
+        :host ::ng-deep .fc-daygrid-day-frame {
+          min-height: 48px !important;
+        }
+
+        :host ::ng-deep .fc-event {
+          margin: 0 0.5px !important;
+          border-radius: 2px !important;
+        }
+
+        :host ::ng-deep .fc-event-title {
+          font-size: 7px !important;
+          padding: 0px 1px !important;
+          line-height: 1 !important;
+          font-weight: 500 !important;
+        }
+
+        :host ::ng-deep .fc-event-time {
+          display: none !important;
+        }
+
+        :host ::ng-deep .fc-toolbar-chunk {
+          display: flex !important;
         }
       }
     `,
@@ -312,19 +418,27 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay',
       },
+      contentHeight: 'auto',
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       locale: ptBrLocale,
       events: this.getCalendarEvents(),
       eventClick: (info) => this.onEventClick(info),
       eventDidMount: (info) => {
-        // Add click cursor style
         info.el.style.cursor = 'pointer';
       },
-      aspectRatio: 1.35,
+      aspectRatio: window.innerWidth < 640 ? 1.1 : 1.35,
+      windowResizeDelay: 100,
     };
 
     this.calendar = new Calendar(calendarEl, options);
     this.calendar.render();
+
+    // Update aspect ratio on resize
+    window.addEventListener('resize', () => {
+      if (this.calendar) {
+        this.calendar.setOption('aspectRatio', window.innerWidth < 640 ? 1.1 : 1.35);
+      }
+    });
   }
 
   private getCalendarEvents() {

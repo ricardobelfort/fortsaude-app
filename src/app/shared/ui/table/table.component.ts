@@ -117,14 +117,18 @@ export interface TableConfig {
         <div class="border border-slate-200 rounded-lg overflow-hidden">
           <!-- Toolbar -->
           @if (showSearch() || showExport() || showDeleteAll()) {
-            <div class="border-b border-slate-200 px-6 py-4 bg-white space-y-4">
-              <div class="flex items-center justify-between gap-4">
+            <div
+              class="border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 bg-white space-y-3 sm:space-y-4"
+            >
+              <div
+                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              >
                 <!-- Search Input -->
                 @if (showSearch()) {
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 w-full sm:w-auto">
                     <label
-                      class="input input-bordered flex items-center gap-2"
-                      style="width: 350px;"
+                      class="input input-bordered input-sm sm:input-md flex items-center gap-2 flex-1 sm:flex-none"
+                      [style.width]="'auto'"
                     >
                       <app-icon [name]="'search'" [size]="18" class="text-slate-400"></app-icon>
                       <input
@@ -133,7 +137,7 @@ export interface TableConfig {
                         [value]="searchTerm()"
                         (change)="onSearchChange($any($event).target.value)"
                         (input)="onSearchChange($any($event).target.value)"
-                        class="grow"
+                        class="grow text-sm"
                       />
                       @if (searchTerm()) {
                         <button
@@ -150,12 +154,17 @@ export interface TableConfig {
                 }
 
                 <!-- Action Buttons -->
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                   <!-- Delete All Button -->
                   @if (showDeleteAll() && selectedRows().size > 0) {
-                    <button type="button" (click)="onDeleteAll()" class="btn btn-secondary">
-                      <app-icon [name]="'delete'" [size]="24"></app-icon>
-                      Excluir ({{ selectedRows().size }})
+                    <button
+                      type="button"
+                      (click)="onDeleteAll()"
+                      class="btn btn-secondary btn-sm sm:btn-md text-xs sm:text-base"
+                    >
+                      <app-icon [name]="'delete'" [size]="20"></app-icon>
+                      <span class="hidden xs:inline">Excluir ({{ selectedRows().size }})</span>
+                      <span class="xs:hidden">{{ selectedRows().size }}</span>
                     </button>
                   }
 

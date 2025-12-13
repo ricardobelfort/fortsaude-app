@@ -11,36 +11,36 @@ import { AlertService } from '../../../shared/ui/alert.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, IconComponent],
   template: `
-    <div class="min-h-screen">
-      <div class="max-w-full mx-auto">
+    <div class="min-h-screen bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-4xl font-bold text-gray-900">Configurações da Conta</h1>
-          <p class="text-gray-600 mt-2">Gerencie suas informações pessoais e de segurança</p>
+        <div class="mb-6 sm:mb-8">
+          <h1 class="text-2xl sm:text-4xl font-bold text-gray-900">Configurações da Conta</h1>
+          <p class="text-sm sm:text-base text-gray-600 mt-2">Gerencie suas informações pessoais e de segurança</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <!-- Sidebar - Menu -->
           <div class="lg:col-span-1">
-            <nav class="bg-white rounded-lg shadow-sm p-6 sticky top-8 space-y-2">
+            <nav class="bg-white rounded-lg shadow-sm p-4 sm:p-6 sticky top-8 space-y-2">
               <button
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left font-medium bg-primary text-white cursor-pointer transition"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm sm:text-base font-medium bg-primary text-white transition"
               >
                 <app-icon [name]="'user'" [size]="20"></app-icon>
                 <span>Meu Perfil</span>
               </button>
               <button
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm sm:text-base text-gray-700 hover:bg-gray-100 transition"
                 disabled
               >
-                <app-icon [name]="'shield'" [size]="20"></app-icon>
+                <app-icon [name]="'shield-01'" [size]="20"></app-icon>
                 <span>Segurança</span>
               </button>
               <button
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm sm:text-base text-gray-700 hover:bg-gray-100 transition"
                 disabled
               >
-                <app-icon [name]="'notification'" [size]="20"></app-icon>
+                <app-icon [name]="'notification-02'" [size]="20"></app-icon>
                 <span>Notificações</span>
               </button>
             </nav>
@@ -50,12 +50,12 @@ import { AlertService } from '../../../shared/ui/alert.service';
           <div class="lg:col-span-3 space-y-6">
             @if (profile(); as p) {
               <!-- Profile Header Card -->
-              <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div class="flex items-center gap-4">
                     <div class="avatar placeholder">
                       <div
-                        class="w-16 h-16 rounded-full bg-black text-white font-bold text-xl flex items-center justify-center"
+                        class="w-16 h-16 rounded-full bg-black text-white font-bold text-xl flex items-center justify-center flex-shrink-0"
                       >
                         <span>{{ p.account.person.fullName.charAt(0).toUpperCase() }}</span>
                       </div>

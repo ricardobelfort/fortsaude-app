@@ -19,18 +19,19 @@ import { ProfessionalFormComponent } from '../professional-form/professional-for
   template: `
     <div class="space-y-6">
       <!-- Header -->
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-gray-800">Profissionais</h1>
-          <p class="text-gray-600">Gerenciamento de profissionais de saúde</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Profissionais</h1>
+          <p class="text-sm sm:text-base text-gray-600">Gerenciamento de profissionais de saúde</p>
         </div>
-        <button type="button" class="btn btn-primary" (click)="openCreateDialog()">
+        <button type="button" class="btn btn-primary btn-sm sm:btn-md" (click)="openCreateDialog()">
           <app-icon [name]="'plus'"></app-icon>
-          Novo Profissional
+          <span class="hidden xs:inline">Novo Profissional</span>
+          <span class="xs:hidden">Novo</span>
         </button>
       </div>
 
-      <div class="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
+      <div class="bg-white rounded-lg shadow-sm p-2 sm:p-4 overflow-x-auto">
         <app-table
           [data]="tableData()"
           [columns]="tableColumns()"

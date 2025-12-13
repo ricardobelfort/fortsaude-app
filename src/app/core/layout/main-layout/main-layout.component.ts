@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { CurrentUserService } from '@core/services/current-user.service';
@@ -25,7 +25,7 @@ import { TopbarComponent } from '@core/layout/topbar/topbar.component';
 
         <!-- Content Area -->
         <main class="flex-1 overflow-y-auto overflow-x-hidden">
-          <div class="w-full px-8 py-8 min-h-full">
+          <div class="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-h-full">
             <router-outlet></router-outlet>
           </div>
         </main>
@@ -39,7 +39,7 @@ export class MainLayoutComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  sidebarExpanded = signal(true);
+  sidebarExpanded = signal(this.isMobile() ? false : true);
 
   isSidebarExpanded(): boolean {
     return this.sidebarExpanded();
@@ -56,5 +56,19 @@ export class MainLayoutComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  private isMobile(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth < 768;
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile && this.sidebarExpanded()) {
+        this.sidebarExpanded.set(false);
+      }
+    }
   }
 }

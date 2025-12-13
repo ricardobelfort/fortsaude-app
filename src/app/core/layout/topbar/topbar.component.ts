@@ -9,40 +9,40 @@ import { UserStateService } from '@core/services/user-state.service';
   imports: [CommonModule, IconComponent],
   template: `
     <header
-      class="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between relative"
+      class="h-14 bg-white border-b border-slate-200 px-2 sm:px-4 md:px-6 flex items-center justify-between relative"
     >
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="absolute left-2 flex items-center justify-center w-10 h-10 rounded-sm text-slate-600 hover:bg-slate-100 cursor-pointer transition"
-          (click)="toggleSidebar.emit()"
-          [attr.aria-expanded]="expanded()"
-          aria-label="Alternar sidebar"
-        >
-          <app-icon [size]="20" [name]="expanded() ? 'menu' : 'chevron-right'"></app-icon>
-        </button>
-      </div>
+      <!-- Left: Toggle Button -->
+      <button
+        type="button"
+        class="flex items-center justify-center w-9 sm:w-10 h-9 sm:h-10 rounded-sm text-slate-600 hover:bg-slate-100 cursor-pointer transition"
+        (click)="toggleSidebar.emit()"
+        [attr.aria-expanded]="expanded()"
+        aria-label="Alternar sidebar"
+      >
+        <app-icon [size]="18" [name]="expanded() ? 'menu' : 'chevron-right'"></app-icon>
+      </button>
 
-      <div class="flex items-center gap-3">
+      <!-- Right: User and Notifications -->
+      <div class="flex items-center gap-1 sm:gap-2 md:gap-3">
         <button
           type="button"
-          class="flex items-center justify-center w-10 h-10 rounded-full text-slate-500 hover:bg-slate-100 cursor-pointer transition"
+          class="flex items-center justify-center w-8 sm:w-9 md:w-10 h-8 sm:h-9 md:h-10 rounded-full text-slate-500 hover:bg-slate-100 cursor-pointer transition"
           title="Notificações"
         >
-          <app-icon [name]="'bell-sleep'" [size]="20" [className]="'text-lg'"></app-icon>
+          <app-icon [name]="'bell-sleep'" [size]="18" [className]="'text-lg'"></app-icon>
         </button>
         <div
-          class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+          class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-slate-50 transition cursor-pointer"
           aria-label="Perfil do usuário"
         >
           <div
-            class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm"
+            class="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs flex-shrink-0"
           >
             {{ initial() }}
           </div>
-          <div class="hidden lg:flex flex-col items-start leading-tight">
-            <p class="text-sm font-semibold text-slate-900">{{ fullName() }}</p>
-            <p class="text-xs text-slate-500">{{ email() }}</p>
+          <div class="hidden lg:flex flex-col items-start leading-tight min-w-0">
+            <p class="text-xs font-semibold text-slate-900 truncate">{{ fullName() }}</p>
+            <p class="text-xs text-slate-500 truncate">{{ email() }}</p>
           </div>
         </div>
       </div>

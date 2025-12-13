@@ -34,20 +34,22 @@ interface CalendarDay {
       <ul class="steps w-full">
         @for (step of [1, 2, 3, 4]; track step) {
           <li class="step" [class.step-primary]="step <= currentStep()">
-            @switch (step) {
-              @case (1) {
-                Dados Pessoais
+            <span class="text-xs sm:text-sm">
+              @switch (step) {
+                @case (1) {
+                  Dados Pessoais
+                }
+                @case (2) {
+                  Saúde
+                }
+                @case (3) {
+                  Endereço
+                }
+                @case (4) {
+                  Observações
+                }
               }
-              @case (2) {
-                Saúde
-              }
-              @case (3) {
-                Endereço
-              }
-              @case (4) {
-                Observações
-              }
-            }
+            </span>
           </li>
         }
       </ul>
@@ -58,9 +60,9 @@ interface CalendarDay {
         @if (currentStep() === 1) {
           <div class="space-y-4">
             <h3 class="text-lg font-bold text-gray-900">Dados Pessoais</h3>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Full Name -->
-              <div class="col-span-2">
+              <div class="sm:col-span-2">
                 <label class="form-control w-full">
                   <div class="label">
                     <span class="label-text font-semibold">

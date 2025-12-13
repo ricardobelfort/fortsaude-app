@@ -8,13 +8,13 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="modal modal-open">
-      <div class="modal-box w-11/12 max-w-2xl max-h-[90vh] flex flex-col">
+      <div class="modal-box w-11/12 sm:w-full max-w-2xl max-h-[90vh] flex flex-col">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-4 flex-shrink-0">
-          <h3 class="font-bold text-lg">{{ title() }}</h3>
+        <div class="flex items-center justify-between mb-4 flex-shrink-0 gap-2">
+          <h3 class="font-bold text-base sm:text-lg break-words">{{ title() }}</h3>
           <button
             type="button"
-            class="btn btn-sm btn-circle btn-ghost"
+            class="btn btn-sm btn-circle btn-ghost flex-shrink-0"
             (click)="cancelled.emit()"
             aria-label="Fechar modal"
           >
@@ -41,15 +41,15 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <!-- Footer -->
-        <div class="modal-action mt-6 flex-shrink-0">
-          <button type="button" class="btn btn-outline" (click)="cancelled.emit()">
+        <div class="modal-action mt-6 flex-shrink-0 flex gap-2">
+          <button type="button" class="btn btn-outline btn-sm sm:btn-md" (click)="cancelled.emit()">
             {{ cancelButtonText() }}
           </button>
           <button
             type="button"
             [attr.form]="formId()"
             [disabled]="isLoading() || !isFormValid()"
-            class="btn btn-primary gap-2"
+            class="btn btn-primary btn-sm sm:btn-md gap-2"
           >
             @if (isLoading()) {
               <span class="loading loading-spinner loading-sm"></span>

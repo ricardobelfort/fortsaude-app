@@ -24,33 +24,92 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
   template: `
     <div class="space-y-6">
       <!-- Header -->
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 class="text-3xl font-bold text-gray-800">Pacientes</h1>
-          <p class="text-gray-600">Gestão completa dos pacientes da clínica</p>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Pacientes</h1>
+          <p class="text-sm sm:text-base text-gray-600">Gestão completa dos pacientes da clínica</p>
         </div>
-        <button type="button" class="btn btn-neutral" (click)="openDialog()">
+        <button type="button" class="btn btn-neutral btn-sm sm:btn-md" (click)="openDialog()">
           <app-icon [name]="'user-plus'"></app-icon>
-          Novo Paciente
+          <span class="hidden xs:inline">Novo Paciente</span>
+          <span class="xs:hidden">Novo</span>
         </button>
       </div>
 
-      <!-- Tabela -->
-      <div class="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
-        <app-table
-          [data]="tableData()"
-          [columns]="tableColumns()"
-          [showSearch]="true"
-          [showExport]="true"
-          [showDeleteAll]="true"
-          [searchableFields]="['fullName', 'email']"
-          [entityName]="'pacientes'"
-          (export)="onExport($event)"
-          (deleteAll)="onDeleteAll($event)"
-          [isLoading]="isLoading()"
-          emptyMessage="Nenhum paciente encontrado"
-          (action)="handleTableAction($event)"
-        ></app-table>
+      <!-- Tabela/Cards Mobile -->
+      <div class="card bg-white shadow-sm p-2 sm:p-4">
+        <!-- Mobile: Cards Layout -->
+        <div class="block sm:hidden space-y-3">
+          @for (patient of tableData(); track patient['id']) {
+            <div class="card bg-base-100 border border-base-300 p-3 space-y-3">
+              <!-- Header: Nome e Data -->
+              <div>
+                <p class="text-sm font-semibold text-base-content">{{ patient['fullName'] }}</p>
+                <p class="text-xs text-base-content/60">{{ formatDate(patient['createdAt']) }}</p>
+              </div>
+
+              <!-- Details Grid -->
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <p class="text-base-content/70 font-medium">Idade</p>
+                  <p class="text-base-content font-semibold">
+                    {{ calculateAge(patient['dateOfBirth']) }} anos
+                  </p>
+                </div>
+                <div>
+                  <p class="text-base-content/70 font-medium">Telefone</p>
+                  <p class="text-base-content font-semibold truncate">
+                    {{ patient['phone'] || 'N/A' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="text-xs">
+                <p class="text-base-content/70 font-medium">E-mail</p>
+                <p class="text-base-content font-semibold truncate">{{ patient['email'] }}</p>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-1.5 pt-2">
+                <button
+                  type="button"
+                  class="btn btn-xs btn-ghost flex-1"
+                  (click)="handleTableAction({ action: 'view', row: patient })"
+                >
+                  <app-icon [name]="'eye'" [size]="16"></app-icon>
+                  Ver
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs btn-ghost flex-1"
+                  (click)="openEditDialog(patient)"
+                >
+                  <app-icon [name]="'edit'" [size]="16"></app-icon>
+                  Editar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Desktop: Table Layout -->
+        <div class="hidden sm:block overflow-x-auto">
+          <app-table
+            [data]="tableData()"
+            [columns]="tableColumns()"
+            [showSearch]="true"
+            [showExport]="true"
+            [showDeleteAll]="true"
+            [searchableFields]="['fullName', 'email']"
+            [entityName]="'pacientes'"
+            (export)="onExport($event)"
+            (deleteAll)="onDeleteAll($event)"
+            [isLoading]="isLoading()"
+            emptyMessage="Nenhum paciente encontrado"
+            (action)="handleTableAction($event)"
+          ></app-table>
+        </div>
       </div>
 
       <!-- Dialog -->
@@ -90,6 +149,29 @@ export class PatientsListComponent implements OnInit {
   readonly isFormValid = signal(false);
 
   editingPatient: Patient | null = null;
+  readonly tableData = signal<Record<string, unknown>[]>([]);
+
+  calculateAge(dateOfBirth: string | Date | unknown): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth as string | Date);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  formatDate(date: unknown): string {
+    if (!date) return 'N/A';
+    const d = new Date(date as string | Date);
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  openEditDialog(patientData: Record<string, unknown>): void {
+    const patient = patientData as unknown as Patient;
+    this.editPatient(patient);
+  }
 
   readonly tableColumns = () =>
     [
@@ -266,6 +348,4 @@ export class PatientsListComponent implements OnInit {
 
     this.loadPatients();
   }
-
-  tableData = signal<Record<string, unknown>[]>([]);
 }

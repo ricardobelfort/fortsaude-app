@@ -53,6 +53,8 @@ import {
   Task01Icon,
   CloudUploadIcon,
   TradeUpIcon,
+  Upload05Icon,
+  Files02Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -108,6 +110,8 @@ const iconMap = {
   resume: Task01Icon,
   documents: CloudUploadIcon,
   trending: TradeUpIcon,
+  upload: Upload05Icon,
+  files: Files02Icon,
 } as const;
 
 @Component({

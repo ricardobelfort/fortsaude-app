@@ -76,12 +76,12 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
               type="button"
               (click)="isEditing.set(!isEditing())"
               title="{{ isEditing() ? 'Cancelar' : 'Editar' }}"
-              class="btn btn-sm"
+              class="btn btn-md"
             >
               <app-icon [name]="'edit'" [size]="16"></app-icon>
               <span class="hidden sm:inline">Editar</span>
             </button>
-            <a [routerLink]="['/app/patients']" title="Voltar" class="btn btn-sm">
+            <a [routerLink]="['/app/patients']" title="Voltar" class="btn btn-md">
               <app-icon [name]="'arrow-left'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Voltar</span>
             </a>

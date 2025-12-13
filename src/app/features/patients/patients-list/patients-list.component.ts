@@ -59,6 +59,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
           [title]="editingPatient ? 'Editar Paciente' : 'Novo Paciente'"
           [submitButtonText]="editingPatient ? 'Atualizar Paciente' : 'Criar Paciente'"
           [isLoading]="isSaving()"
+          [isFormValid]="isFormValid()"
           formId="patient-edit-form"
           (cancelled)="displayDialog.set(false)"
         >
@@ -68,6 +69,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
               [isSubmitting]="isSaving()"
               (submitted)="savePatient($event)"
               (cancelled)="displayDialog.set(false)"
+              (formValidChange)="onFormValidChange($event)"
             ></app-patient-form>
           </div>
         </app-modal>
@@ -85,6 +87,7 @@ export class PatientsListComponent implements OnInit {
   readonly displayDialog = signal(false);
   readonly isSaving = signal(false);
   readonly isLoading = signal(false);
+  readonly isFormValid = signal(false);
 
   editingPatient: Patient | null = null;
 
@@ -230,6 +233,11 @@ export class PatientsListComponent implements OnInit {
     this.errorHandler.showSuccess(
       `${exportEvent.data.length} paciente(s) exportado(s) em ${exportEvent.format.toUpperCase()}`
     );
+  }
+
+  onFormValidChange(isValid: boolean): void {
+    console.log('Form valid changed:', isValid);
+    this.isFormValid.set(isValid);
   }
 
   async onDeleteAll(selectedRows: Set<unknown>): Promise<void> {

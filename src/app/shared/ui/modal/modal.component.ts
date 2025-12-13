@@ -1,58 +1,64 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IconComponent } from '../icon.component';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule],
   template: `
-    <div
-      class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-y-auto pt-8"
-    >
-      <div class="bg-white shadow-2xl w-full max-w-2xl mb-8 flex flex-col h-[calc(100vh-160px)]">
+    <div class="modal modal-open">
+      <div class="modal-box w-11/12 max-w-2xl max-h-[90vh] flex flex-col">
         <!-- Header -->
-        <div
-          class="border-b border-slate-200 bg-white px-6 py-4 flex-shrink-0 flex items-center justify-between"
-        >
-          <h3 class="text-lg font-semibold text-gray-900">{{ title() }}</h3>
+        <div class="flex items-center justify-between mb-4 flex-shrink-0">
+          <h3 class="font-bold text-lg">{{ title() }}</h3>
           <button
             type="button"
-            class="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-2 transition-colors cursor-pointer"
+            class="btn btn-sm btn-circle btn-ghost"
             (click)="cancelled.emit()"
             aria-label="Fechar modal"
           >
-            <app-icon [name]="'x'" [size]="22" [className]="'text-gray-500'"></app-icon>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
-        <!-- Content -->
-        <div class="flex-1 overflow-y-auto px-6 py-6">
+        <!-- Content with scrollbar -->
+        <div class="flex-1 overflow-y-auto py-4">
           <ng-content select="[modal-content]"></ng-content>
         </div>
 
         <!-- Footer -->
-        <div
-          class="border-t border-slate-200 bg-white px-6 py-4 flex-shrink-0 flex justify-end gap-3"
-        >
-          <button
-            type="button"
-            class="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium transition-colors"
-            (click)="cancelled.emit()"
-          >
+        <div class="modal-action mt-6 flex-shrink-0">
+          <button type="button" class="btn btn-outline" (click)="cancelled.emit()">
             {{ cancelButtonText() }}
           </button>
           <button
             type="button"
             [attr.form]="formId()"
-            [disabled]="isLoading()"
-            class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium disabled:opacity-50 transition-colors"
+            [disabled]="isLoading() || !isFormValid()"
+            class="btn btn-primary gap-2"
           >
+            @if (isLoading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
             {{ isLoading() ? loadingText() : submitButtonText() }}
           </button>
         </div>
       </div>
+      <div class="modal-backdrop" (click)="cancelled.emit()"></div>
     </div>
   `,
 })
@@ -62,6 +68,7 @@ export class ModalComponent {
   readonly cancelButtonText = input<string>('Cancelar');
   readonly loadingText = input<string>('Salvando...');
   readonly isLoading = input<boolean>(false);
+  readonly isFormValid = input<boolean>(true);
   readonly formId = input<string>('');
 
   readonly cancelled = output<void>();

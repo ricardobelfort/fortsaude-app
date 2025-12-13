@@ -74,17 +74,13 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
               <div class="flex gap-1.5 pt-2">
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost flex-1"
+                  class="btn flex-1"
                   (click)="handleTableAction({ action: 'view', row: patient })"
                 >
                   <app-icon [name]="'eye'" [size]="16"></app-icon>
                   Ver
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-xs btn-ghost flex-1"
-                  (click)="openEditDialog(patient)"
-                >
+                <button type="button" class="btn flex-1" (click)="openEditDialog(patient)">
                   <app-icon [name]="'edit'" [size]="16"></app-icon>
                   Editar
                 </button>

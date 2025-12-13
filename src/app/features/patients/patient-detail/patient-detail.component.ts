@@ -58,7 +58,7 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
 
       <!-- Header com título e botões -->
       <div class="flex flex-col gap-1">
-        <div class="flex items-start justify-between gap-2">
+        <div class="flex items-end justify-between gap-2">
           <div class="flex-1 min-w-0">
             <h1
               class="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight break-words"
@@ -76,13 +76,13 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
               type="button"
               (click)="isEditing.set(!isEditing())"
               title="{{ isEditing() ? 'Cancelar' : 'Editar' }}"
-              class="btn btn-sm btn-ghost"
+              class="btn btn-sm"
             >
               <app-icon [name]="'edit'" [size]="16"></app-icon>
               <span class="hidden sm:inline">Editar</span>
             </button>
-            <a [routerLink]="['/app/patients']" title="Voltar" class="btn btn-sm btn-ghost">
-              <app-icon [name]="'arrow-left'" class="w-4 h-4"></app-icon>
+            <a [routerLink]="['/app/patients']" title="Voltar" class="btn btn-sm">
+              <app-icon [name]="'arrow-left'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Voltar</span>
             </a>
           </div>

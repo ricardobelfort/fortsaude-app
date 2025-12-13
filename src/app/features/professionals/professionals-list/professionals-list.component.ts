@@ -25,26 +25,18 @@ import { TableComponent, TableColumn } from '../../../shared/ui/table/table.comp
         </button>
       </div>
 
-      <!-- Filters -->
-      <div class="bg-white rounded-lg shadow-sm p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="fs-label">Nome ou Especialidade</label>
-            <input [(ngModel)]="searchText" placeholder="Buscar..." class="fs-input" />
-          </div>
-          <div class="flex items-end">
-            <button type="button" class="btn btn-neutral" (click)="loadProfessionals()">
-              <app-icon [name]="'search'"></app-icon>
-              Buscar
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div class="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
         <app-table
           [data]="tableData()"
           [columns]="tableColumns()"
+          [showSearch]="true"
+          [showExport]="true"
+          [showDeleteAll]="true"
+          [searchableFields]="['name', 'email']"
+          [entityName]="'profissionais'"
+          (search)="onSearch($event)"
+          (export)="onExport($event)"
+          (deleteAll)="onDeleteAll($event)"
           [isLoading]="isLoading()"
           emptyMessage="Nenhum profissional encontrado"
           (action)="handleTableAction($event)"
@@ -210,6 +202,72 @@ export class ProfessionalsListComponent implements OnInit {
       error: () => {
         this.alertService.error('Falha ao deletar profissional');
       },
+    });
+  }
+
+  onSearch(searchTerm: string): void {
+    this.searchText = searchTerm;
+    if (searchTerm.trim()) {
+      this.loadProfessionals();
+    }
+  }
+
+  onExport(exportEvent: { format: 'xlsx' | 'pdf'; data: Record<string, unknown>[] }): void {
+    if (exportEvent.data.length === 0) {
+      this.alertService.info('Selecione pelo menos um profissional para exportar');
+      return;
+    }
+
+    this.alertService.success(
+      `${exportEvent.data.length} profissional(is) exportado(s) em ${exportEvent.format.toUpperCase()}`
+    );
+  }
+
+  async onDeleteAll(selectedRows: Set<unknown>): Promise<void> {
+    if (selectedRows.size === 0) {
+      this.alertService.info('Selecione pelo menos um profissional');
+      return;
+    }
+
+    const confirmed = await this.alertService.confirm({
+      text: `Tem certeza que deseja deletar ${selectedRows.size} profissional(is)?`,
+      confirmButtonText: 'Sim, deletar tudo',
+    });
+
+    if (!confirmed) return;
+
+    const selectedData = this.tableData().filter((row) => selectedRows.has(row['id']));
+    const professionalIds = selectedData
+      .map((row) => ((row as Record<string, unknown>)['_original'] as Professional).id)
+      .filter(Boolean) as string[];
+
+    this.isLoading.set(true);
+    let deletedCount = 0;
+    let failedCount = 0;
+
+    Promise.all(
+      professionalIds.map((id) =>
+        this.professionalsService
+          .delete(id)
+          .toPromise()
+          .then(
+            () => {
+              deletedCount++;
+            },
+            () => {
+              failedCount++;
+            }
+          )
+      )
+    ).then(() => {
+      this.isLoading.set(false);
+      if (deletedCount > 0) {
+        this.alertService.success(`${deletedCount} profissional(is) deletado(s)`);
+      }
+      if (failedCount > 0) {
+        this.alertService.error(`Falha ao deletar ${failedCount} profissional(is)`);
+      }
+      this.loadProfessionals();
     });
   }
 }

@@ -44,6 +44,10 @@ import {
   LocationStar02Icon,
   Login01Icon,
   Tick01Icon,
+  Pdf01Icon,
+  Xls01Icon,
+  Download01Icon,
+  MoreVerticalIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -90,6 +94,10 @@ const iconMap = {
   logout: Logout02Icon,
   star: LocationStar02Icon,
   tick: Tick01Icon,
+  pdf: Pdf01Icon,
+  xls: Xls01Icon,
+  download: Download01Icon,
+  more: MoreVerticalIcon,
 } as const;
 
 @Component({

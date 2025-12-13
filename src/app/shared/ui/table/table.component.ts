@@ -1,7 +1,20 @@
-import { Component, ChangeDetectionStrategy, input, output, signal, computed } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../icon.component';
 import { SpinnerComponent } from '../spinner.component';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export interface TableColumn {
   key: string;
@@ -54,6 +67,51 @@ export interface TableConfig {
             <p class="text-gray-500">{{ emptyMessage() }}</p>
           </div>
         </div>
+      } @else if (searchTerm() && filteredData().length === 0) {
+        <!-- No search results -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <!-- Toolbar with search -->
+          @if (showSearch() || showExport() || showDeleteAll()) {
+            <div class="border-b border-slate-200 px-6 py-4 bg-white space-y-4">
+              <div class="flex items-center justify-between gap-4">
+                <!-- Search Input -->
+                @if (showSearch()) {
+                  <div class="flex items-center gap-2">
+                    <label
+                      class="input input-bordered flex items-center gap-2"
+                      style="width: 350px;"
+                    >
+                      <app-icon [name]="'search'" [size]="18" class="text-slate-400"></app-icon>
+                      <input
+                        type="text"
+                        placeholder="Buscar..."
+                        [value]="searchTerm()"
+                        (change)="onSearchChange($any($event).target.value)"
+                        (input)="onSearchChange($any($event).target.value)"
+                        class="grow"
+                      />
+                      @if (searchTerm()) {
+                        <button
+                          type="button"
+                          (click)="clearSearch()"
+                          class="btn btn-ghost btn-xs"
+                          title="Limpar busca"
+                        >
+                          <app-icon [name]="'x'" [size]="16"></app-icon>
+                        </button>
+                      }
+                    </label>
+                  </div>
+                }
+                <div></div>
+              </div>
+            </div>
+          }
+          <!-- Empty content -->
+          <div class="flex items-center justify-center py-8">
+            <p class="text-gray-500 text-sm">Nenhum resultado encontrado</p>
+          </div>
+        </div>
       } @else {
         <!-- Table Container -->
         <div class="border border-slate-200 rounded-lg overflow-hidden">
@@ -63,53 +121,68 @@ export interface TableConfig {
               <div class="flex items-center justify-between gap-4">
                 <!-- Search Input -->
                 @if (showSearch()) {
-                  <div class="flex-1">
-                    <input
-                      type="text"
-                      placeholder="Buscar..."
-                      [value]="searchTerm()"
-                      (change)="onSearchChange($any($event).target.value)"
-                      (input)="onSearchChange($any($event).target.value)"
-                      class="w-full px-4 py-2 rounded border border-slate-300 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                  <div class="flex items-center gap-2">
+                    <label
+                      class="input input-bordered flex items-center gap-2"
+                      style="width: 350px;"
+                    >
+                      <app-icon [name]="'search'" [size]="18" class="text-slate-400"></app-icon>
+                      <input
+                        type="text"
+                        placeholder="Buscar..."
+                        [value]="searchTerm()"
+                        (change)="onSearchChange($any($event).target.value)"
+                        (input)="onSearchChange($any($event).target.value)"
+                        class="grow"
+                      />
+                      @if (searchTerm()) {
+                        <button
+                          type="button"
+                          (click)="clearSearch()"
+                          class="btn btn-ghost btn-xs"
+                          title="Limpar busca"
+                        >
+                          <app-icon [name]="'x'" [size]="16"></app-icon>
+                        </button>
+                      }
+                    </label>
                   </div>
                 }
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-2">
-                  <!-- Clear Button -->
-                  @if (showSearch() && searchTerm()) {
-                    <button
-                      type="button"
-                      (click)="clearSearch()"
-                      class="px-4 py-2 rounded border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors"
-                    >
-                      Limpar
+                  <!-- Delete All Button -->
+                  @if (showDeleteAll() && selectedRows().size > 0) {
+                    <button type="button" (click)="onDeleteAll()" class="btn btn-secondary">
+                      <app-icon [name]="'delete'" [size]="24"></app-icon>
+                      Excluir ({{ selectedRows().size }})
                     </button>
                   }
 
                   <!-- Export Button -->
                   @if (showExport()) {
-                    <button
-                      type="button"
-                      (click)="onExport()"
-                      class="px-4 py-2 rounded border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2"
-                    >
-                      <app-icon [name]="'download'" [size]="16"></app-icon>
-                      Exportar
-                    </button>
-                  }
-
-                  <!-- Delete All Button -->
-                  @if (showDeleteAll() && selectedRows().size > 0) {
-                    <button
-                      type="button"
-                      (click)="onDeleteAll()"
-                      class="px-4 py-2 rounded bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
-                    >
-                      <app-icon [name]="'delete'" [size]="16"></app-icon>
-                      Excluir ({{ selectedRows().size }})
-                    </button>
+                    <div class="dropdown dropdown-end">
+                      <button type="button" class="btn btn-square" tabindex="0">
+                        <app-icon [name]="'more'" [size]="24"></app-icon>
+                      </button>
+                      <ul
+                        tabindex="0"
+                        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                      >
+                        <li>
+                          <a (click)="exportToFormat('xlsx')">
+                            <app-icon [name]="'xls'" [size]="24"></app-icon>
+                            Exportar Excel
+                          </a>
+                        </li>
+                        <li>
+                          <a (click)="exportToFormat('pdf')">
+                            <app-icon [name]="'pdf'" [size]="24"></app-icon>
+                            Exportar PDF
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   }
                 </div>
               </div>
@@ -335,12 +408,13 @@ export class TableComponent {
   readonly showExport = input(false);
   readonly showDeleteAll = input(false);
   readonly searchableFields = input<string[]>([]);
+  readonly entityName = input('dados');
 
   // Outputs
   readonly action = output<{ action: 'view' | 'edit' | 'delete'; row: Record<string, unknown> }>();
   readonly selectionChange = output<Set<unknown>>();
   readonly search = output<string>();
-  readonly export = output<Set<unknown>>();
+  readonly export = output<{ format: 'xlsx' | 'pdf'; data: Record<string, unknown>[] }>();
   readonly deleteAll = output<Set<unknown>>();
 
   // State
@@ -350,6 +424,7 @@ export class TableComponent {
   private readonly selectedRowsSignal = signal<Set<unknown>>(new Set());
   private readonly pageSizeSignal = signal<number>(10);
   private readonly searchTermSignal = signal<string>('');
+  private readonly searchSubject = new Subject<string>();
 
   // Computed
   readonly currentPage = this.currentPageSignal.asReadonly();
@@ -431,6 +506,28 @@ export class TableComponent {
     return end < total - 1;
   });
 
+  constructor() {
+    effect(() => {
+      this.searchSubject.pipe(debounceTime(300), distinctUntilChanged()).subscribe((term) => {
+        this.searchTermSignal.set(term);
+        this.currentPageSignal.set(1);
+        this.search.emit(term);
+      });
+    });
+  }
+
+  private generateFileName(format: 'xlsx' | 'pdf'): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `${this.entityName()}-${year}${month}${day}-${hours}${minutes}${seconds}.${format}`;
+  }
+
   // Methods
   sort(column: string): void {
     if (this.sortBy() === column) {
@@ -471,9 +568,7 @@ export class TableComponent {
   }
 
   onSearchChange(term: string): void {
-    this.searchTermSignal.set(term);
-    this.currentPageSignal.set(1);
-    this.search.emit(term);
+    this.searchSubject.next(term);
   }
 
   clearSearch(): void {
@@ -483,7 +578,133 @@ export class TableComponent {
   }
 
   onExport(): void {
-    this.export.emit(this.selectedRows());
+    this.export.emit({
+      format: 'xlsx',
+      data: this.selectedRows().size > 0 ? this.getSelectedData() : this.sortedData(),
+    });
+  }
+
+  exportToFormat(format: 'xlsx' | 'pdf'): void {
+    const selectedData = this.selectedRows().size > 0 ? this.getSelectedData() : this.sortedData();
+
+    if (selectedData.length === 0) {
+      return;
+    }
+
+    if (format === 'xlsx') {
+      this.exportToXLSX(selectedData);
+    } else if (format === 'pdf') {
+      this.exportToPDF(selectedData);
+    }
+
+    this.export.emit({ format, data: selectedData });
+  }
+
+  private getSelectedData(): Record<string, unknown>[] {
+    return this.sortedData().filter((row) => this.selectedRows().has(this.trackByFn(row)));
+  }
+
+  private exportToXLSX(data: Record<string, unknown>[]): void {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR');
+    const timeStr = now.toLocaleTimeString('pt-BR');
+
+    const columnHeaders = this.columns().map((col) => col.header);
+    const columns = this.columns();
+
+    const rows = data.map((row) =>
+      columns.map((col) => {
+        const value = row[col.key];
+        if (col.badge) {
+          return col.badge(value).text;
+        }
+        if (col.format) {
+          return col.format(value);
+        }
+        if (typeof value === 'object') {
+          return JSON.stringify(value);
+        }
+        return value;
+      })
+    );
+
+    // Create header rows
+    const headerRows = [
+      [this.entityName().toUpperCase()],
+      [`Exportado em: ${dateStr} às ${timeStr}`],
+      [`Total de registros: ${data.length}`],
+      [], // Empty row for spacing
+    ];
+
+    const worksheetData = [...headerRows, columnHeaders, ...rows];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Dados');
+
+    // Auto-adjust column widths
+    const colWidths = columnHeaders.map((header) => ({
+      wch: Math.max(header.length, 15),
+    }));
+    worksheet['!cols'] = colWidths;
+
+    XLSX.writeFile(workbook, this.generateFileName('xlsx'));
+  }
+
+  private exportToPDF(data: Record<string, unknown>[]): void {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR');
+    const timeStr = now.toLocaleTimeString('pt-BR');
+
+    const columnHeaders = this.columns().map((col) => col.header);
+    const columns = this.columns();
+
+    const rows: string[][] = data.map((row) =>
+      columns.map((col) => {
+        const value = row[col.key];
+        if (value === null || value === undefined) {
+          return '';
+        }
+        if (col.badge) {
+          return col.badge(value).text;
+        }
+        if (col.format) {
+          return col.format(value);
+        }
+        if (typeof value === 'object') {
+          return JSON.stringify(value);
+        }
+        return String(value);
+      })
+    );
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Add header
+    doc.setFontSize(14);
+    doc.text(this.entityName().toUpperCase(), 10, 10);
+    doc.setFontSize(10);
+    doc.text(`Exportado em: ${dateStr} às ${timeStr}`, 10, 18);
+    doc.text(`Total de registros: ${data.length}`, 10, 24);
+
+    // Add table with margin to accommodate header
+    autoTable(doc, {
+      head: [columnHeaders],
+      body: rows,
+      margin: { top: 30, right: 10, bottom: 15, left: 10 },
+    });
+
+    // Add page numbers and footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(9);
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+    }
+
+    doc.save(this.generateFileName('pdf'));
   }
 
   onDeleteAll(): void {

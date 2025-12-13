@@ -69,7 +69,7 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                 <div class="w-[300px] h-7 bg-gray-200 animate-pulse rounded"></div>
               }
             </h1>
-            <p class="text-xs text-gray-600 line-clamp-1">Detalhes e histórico do paciente</p>
+            <p class="text-md text-gray-600 line-clamp-1">Detalhes e histórico do paciente</p>
           </div>
           <div class="flex gap-1 flex-shrink-0">
             <button
@@ -93,52 +93,55 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
         <!-- Card com abas -->
         <div class="card bg-white shadow-sm overflow-hidden flex flex-col h-[calc(100vh-220px)]">
           <!-- Abas no topo -->
-          <div class="tabs tabs-bordered tabs-sm sm:tabs-md flex-shrink-0 px-0">
+          <div class="tabs tabs-bordered tabs-sm sm:tabs-md w-full border-base-300">
             <button
               type="button"
               [class.tab-active]="activeTab() === 'resumo'"
-              class="tab flex items-center gap-1.5 flex-1 sm:flex-initial"
+              [class]="activeTab() === 'resumo' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('resumo')"
               title="Resumo"
             >
-              <app-icon [name]="'document'" class="w-4 h-4"></app-icon>
+              <app-icon [name]="'resume'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Resumo</span>
             </button>
             <button
               type="button"
               [class.tab-active]="activeTab() === 'prontuario'"
-              class="tab flex items-center gap-1.5 flex-1 sm:flex-initial"
+              [class]="activeTab() === 'prontuario' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('prontuario')"
               title="Prontuário"
             >
-              <app-icon [name]="'file-text'" class="w-4 h-4"></app-icon>
+              <app-icon [name]="'file-text'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Prontuário</span>
             </button>
             <button
               type="button"
               [class.tab-active]="activeTab() === 'evolucoes'"
-              class="tab flex items-center gap-1.5 flex-1 sm:flex-initial"
+              [class]="activeTab() === 'evolucoes' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('evolucoes')"
               title="Evoluções"
             >
-              <app-icon [name]="'trending-up'" class="w-4 h-4"></app-icon>
+              <app-icon [name]="'trending'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Evoluções</span>
             </button>
             <button
               type="button"
               [class.tab-active]="activeTab() === 'documentos'"
-              class="tab flex items-center gap-1.5 flex-1 sm:flex-initial"
+              [class]="activeTab() === 'documentos' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('documentos')"
               title="Documentos"
             >
-              <app-icon [name]="'upload-cloud'" class="w-4 h-4"></app-icon>
+              <app-icon [name]="'documents'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Documentos</span>
             </button>
           </div>
 
           <!-- Conteúdo das abas -->
           <div class="card-body p-2 sm:p-3 md:p-4 lg:p-6 overflow-y-auto flex-1">
-            <!-- Resumo Tab -->
             @if (activeTab() === 'resumo') {
               @if (!isEditing()) {
                 <!-- Visualização -->
@@ -156,7 +159,9 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                           class="text-xs sm:text-sm font-bold text-gray-900 block mb-0.5 sm:mb-1"
                           >Nome Completo</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">{{ p.fullName }}</p>
+                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          {{ p.fullName }}
+                        </p>
                       </div>
                       <div>
                         <label

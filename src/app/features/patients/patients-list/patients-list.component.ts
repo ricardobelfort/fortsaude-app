@@ -24,7 +24,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
   template: `
     <div class="space-y-6">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Pacientes</h1>
           <p class="text-sm sm:text-base text-gray-600">Gestão completa dos pacientes da clínica</p>

@@ -50,6 +50,9 @@ import {
   MoreVerticalIcon,
   ShieldUserIcon,
   Notification01Icon,
+  Task01Icon,
+  CloudUploadIcon,
+  TradeUpIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -102,6 +105,9 @@ const iconMap = {
   more: MoreVerticalIcon,
   shield: ShieldUserIcon,
   notification: Notification01Icon,
+  resume: Task01Icon,
+  documents: CloudUploadIcon,
+  trending: TradeUpIcon,
 } as const;
 
 @Component({

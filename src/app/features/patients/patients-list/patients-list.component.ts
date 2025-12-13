@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PatientsService } from '../../../core/services/patients.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Patient, CreatePatientDto, UpdatePatientDto } from '../../../core/models';
@@ -37,56 +36,21 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
       </div>
 
       <!-- Tabela -->
-      <div class="bg-white rounded-lg shadow-md">
-        <!-- Filtro dentro do card -->
-        <div class="border-b border-slate-200 px-6 py-6">
-          <div class="flex items-center justify-end gap-3">
-            <div class="w-80">
-              <label class="input">
-                <svg
-                  class="h-[1em] opacity-50"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                >
-                  <g
-                    stroke-linejoin="round"
-                    stroke-linecap="round"
-                    stroke-width="2.5"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                  </g>
-                </svg>
-                <input
-                  [(ngModel)]="searchText"
-                  (input)="onSearchInput($event)"
-                  placeholder="Nome, email..."
-                  class="grow"
-                />
-              </label>
-            </div>
-            <button type="button" class="btn btn-neutral" (click)="loadPatients()">
-              <app-icon [name]="'search'"></app-icon>
-              Buscar
-            </button>
-            <button type="button" class="btn btn-outline" (click)="clearFilters()">
-              <app-icon [name]="'filter-remove'"></app-icon>
-              Limpar
-            </button>
-          </div>
-        </div>
-
-        <!-- Tabela -->
-        <div class="px-6 py-4">
-          <app-table
-            [data]="getTableData()"
-            [columns]="tableColumns()"
-            [isLoading]="isLoading()"
-            (action)="handleTableAction($event)"
-          ></app-table>
-        </div>
+      <div class="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
+        <app-table
+          [data]="tableData()"
+          [columns]="tableColumns()"
+          [showSearch]="true"
+          [showExport]="true"
+          [showDeleteAll]="true"
+          [searchableFields]="['fullName', 'email']"
+          [entityName]="'pacientes'"
+          (export)="onExport($event)"
+          (deleteAll)="onDeleteAll($event)"
+          [isLoading]="isLoading()"
+          emptyMessage="Nenhum paciente encontrado"
+          (action)="handleTableAction($event)"
+        ></app-table>
       </div>
 
       <!-- Dialog -->
@@ -122,18 +86,7 @@ export class PatientsListComponent implements OnInit {
   readonly isSaving = signal(false);
   readonly isLoading = signal(false);
 
-  searchText = '';
   editingPatient: Patient | null = null;
-
-  private allPatients: Patient[] = [];
-  private readonly searchSubject = new Subject<string>();
-
-  constructor() {
-    // Setup debounced search
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((searchTerm) => {
-      this.performSearch(searchTerm);
-    });
-  }
 
   readonly tableColumns = () =>
     [
@@ -171,38 +124,13 @@ export class PatientsListComponent implements OnInit {
     this.loadPatients();
   }
 
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchSubject.next(target.value);
-  }
-
-  private performSearch(searchTerm: string): void {
-    if (!searchTerm.trim()) {
-      // Se vazio, mostra todos
-      this.patients.set(this.allPatients);
-      return;
-    }
-
-    // Filtra localmente
-    const term = searchTerm.toLowerCase();
-    const filtered = this.allPatients.filter((patient) => {
-      return (
-        patient.fullName.toLowerCase().includes(term) ||
-        patient.email.toLowerCase().includes(term) ||
-        patient.phone.includes(term)
-      );
-    });
-
-    this.patients.set(filtered);
-  }
-
   loadPatients(): void {
     this.isLoading.set(true);
 
     this.patientsService.getAll({}).subscribe({
       next: (data) => {
-        this.allPatients = data;
         this.patients.set(data);
+        this.tableData.set(data as unknown as Record<string, unknown>[]);
         this.isLoading.set(false);
       },
       error: () => {
@@ -212,7 +140,6 @@ export class PatientsListComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.searchText = '';
     this.loadPatients();
   }
 
@@ -235,7 +162,7 @@ export class PatientsListComponent implements OnInit {
         next: () => {
           this.displayDialog.set(false);
           this.isSaving.set(false);
-          this.performSearch(this.searchText);
+          this.loadPatients();
         },
         error: () => {
           this.isSaving.set(false);
@@ -247,7 +174,7 @@ export class PatientsListComponent implements OnInit {
         next: () => {
           this.displayDialog.set(false);
           this.isSaving.set(false);
-          this.performSearch(this.searchText);
+          this.loadPatients();
         },
         error: () => {
           this.isSaving.set(false);
@@ -288,13 +215,49 @@ export class PatientsListComponent implements OnInit {
 
         this.patientsService.delete(id).subscribe({
           next: () => {
-            this.performSearch(this.searchText);
+            this.loadPatients();
           },
         });
       });
   }
 
-  getTableData(): Record<string, unknown>[] {
-    return this.patients() as unknown as Record<string, unknown>[];
+  onExport(exportEvent: { format: 'xlsx' | 'pdf'; data: Record<string, unknown>[] }): void {
+    if (exportEvent.data.length === 0) {
+      this.errorHandler.showInfo('Selecione pelo menos um paciente para exportar');
+      return;
+    }
+
+    this.errorHandler.showSuccess(
+      `${exportEvent.data.length} paciente(s) exportado(s) em ${exportEvent.format.toUpperCase()}`
+    );
   }
+
+  async onDeleteAll(selectedRows: Set<unknown>): Promise<void> {
+    if (selectedRows.size === 0) {
+      this.errorHandler.showInfo('Selecione pelo menos um paciente');
+      return;
+    }
+
+    const confirmed = await this.errorHandler.showConfirmation(
+      'Deletar Pacientes',
+      `Tem certeza que deseja deletar ${selectedRows.size} paciente(s)?`,
+      'Sim, deletar',
+      'Cancelar'
+    );
+
+    if (!confirmed) return;
+
+    const selectedIds = Array.from(selectedRows) as string[];
+    for (const id of selectedIds) {
+      this.patientsService.delete(id).subscribe({
+        next: () => {
+          // Reload after each deletion
+        },
+      });
+    }
+
+    this.loadPatients();
+  }
+
+  tableData = signal<Record<string, unknown>[]>([]);
 }

@@ -169,19 +169,21 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                     >
                       Dados Pessoais
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-6">
+                    <div
+                      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
+                    >
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-bold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Nome Completo</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.fullName }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Status</label
                         >
                         <p [ngClass]="(p.active | statusBadge).className">
@@ -190,238 +192,239 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >CPF</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.documentId | formatCpf | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >RG</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.rg | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Data de Nascimento</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.dateOfBirth | date: 'dd/MM/yyyy' | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Gênero</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.gender | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Tipo Sanguíneo</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.bloodType | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Email</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.email | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Telefone</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.phone | formatPhone | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Telefone de Emergência</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.emergencyPhone | formatPhone | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Responsável 1 (Nome)</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.emergencyContactName | emptyValue }}
                         </p>
                       </div>
                       <div class="sm:col-span-2">
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Grau de Parentesco</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.emergencyContactDegree | emptyValue }}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Informações de Saúde -->
                   <div class="pt-3 sm:pt-4 md:pt-6 border-t border-slate-200">
                     <h3
                       class="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4"
                     >
                       Informações de Saúde
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-6">
+                    <div
+                      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
+                    >
                       <div class="sm:col-span-2">
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Nome do Médico</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.medicalDoctor | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Faz tratamento de saúde?</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ (p.healthTreatment ? 'Sim' : 'Não') | emptyValue }}
                         </p>
                       </div>
                       @if (p.healthTreatment) {
                         <div>
                           <label
-                            class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                            class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                             >Qual tratamento?</label
                           >
-                          <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          <p class="text-xs sm:text-sm text-base-content font-semibold">
                             {{ p.healthTreatmentDetails | emptyValue }}
                           </p>
                         </div>
                       }
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Usa medicações?</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ (p.medications ? 'Sim' : 'Não') | emptyValue }}
                         </p>
                       </div>
                       @if (p.medications) {
                         <div>
                           <label
-                            class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                            class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                             >Qual medicação?</label
                           >
-                          <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          <p class="text-xs sm:text-sm text-base-content font-semibold">
                             {{ p.medicationsDetails | emptyValue }}
                           </p>
                         </div>
                       }
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Possui Plano de Saúde?</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ (p.healthPlan ? 'Sim' : 'Não') | emptyValue }}
                         </p>
                       </div>
                       @if (p.healthPlan) {
                         <div>
                           <label
-                            class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                            class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                             >Qual plano?</label
                           >
-                          <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          <p class="text-xs sm:text-sm text-base-content font-semibold">
                             {{ p.healthPlanDetails | emptyValue }}
                           </p>
                         </div>
                       }
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Faz acompanhamento Odontológico?</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ (p.dentalTreatment ? 'Sim' : 'Não') | emptyValue }}
                         </p>
                       </div>
                       @if (p.dentalTreatment) {
                         <div>
                           <label
-                            class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                            class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                             >Qual acompanhamento?</label
                           >
-                          <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          <p class="text-xs sm:text-sm text-base-content font-semibold">
                             {{ p.dentalTreatmentDetails | emptyValue }}
                           </p>
                         </div>
                       }
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Necessita de atendimento especial?</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ (p.specialCareNeeded ? 'Sim' : 'Não') | emptyValue }}
                         </p>
                       </div>
                       @if (p.specialCareNeeded) {
                         <div class="sm:col-span-2">
                           <label
-                            class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                            class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                             >Em caso afirmativo, qual?</label
                           >
-                          <p class="text-xs sm:text-sm text-gray-500 font-light">
+                          <p class="text-xs sm:text-sm text-base-content font-semibold">
                             {{ p.specialCareDetails | emptyValue }}
                           </p>
                         </div>
                       }
                       <div class="sm:col-span-2">
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Será atendido pelas especialidades</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.specialties | emptyValue }}
                         </p>
                       </div>
                       <div class="sm:col-span-2">
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Preferência de horário de atendimento</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.preferredSchedule | emptyValue }}
                         </p>
                       </div>
                       <div class="sm:col-span-2">
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Qual Convênio</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.agreement | emptyValue }}
                         </p>
                       </div>
@@ -436,77 +439,77 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                       Endereço
                     </h3>
                     <div
-                      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-6"
+                      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6"
                     >
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Rua</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.street | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Número</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.number | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Tipo</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.type | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Complemento</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.complement | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Bairro</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.neighborhood | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >CEP</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.zipCode | formatZipCode | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Cidade</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.city | emptyValue }}
                         </p>
                       </div>
                       <div>
                         <label
-                          class="text-xs sm:text-sm font-semibold text-gray-900 block mb-0.5 sm:mb-1"
+                          class="text-xs sm:text-sm font-semibold text-base-content/60 block mb-0.5 sm:mb-1"
                           >Estado</label
                         >
-                        <p class="text-xs sm:text-sm text-gray-500 font-light">
+                        <p class="text-xs sm:text-sm text-base-content font-semibold">
                           {{ p.address?.state | emptyValue }}
                         </p>
                       </div>
@@ -520,7 +523,7 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
                     >
                       Observações
                     </h3>
-                    <p class="text-xs sm:text-sm text-gray-500 font-light">
+                    <p class="text-xs sm:text-sm text-base-content font-semibold">
                       {{ p.notes | emptyValue }}
                     </p>
                   </div>

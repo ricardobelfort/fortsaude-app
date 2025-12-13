@@ -48,6 +48,33 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
         <div #calendarContainer class="fc-custom"></div>
       </div>
 
+      <!-- Legend -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Legenda de Status</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full" style="background-color: #3b82f6;"></div>
+            <span class="text-sm text-gray-700">Agendado</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full" style="background-color: #10b981;"></div>
+            <span class="text-sm text-gray-700">Confirmado</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full" style="background-color: #6366f1;"></div>
+            <span class="text-sm text-gray-700">Realizado</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full" style="background-color: #f59e0b;"></div>
+            <span class="text-sm text-gray-700">Não compareceu</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full" style="background-color: #ef4444;"></div>
+            <span class="text-sm text-gray-700">Cancelado</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Appointment Details Modal -->
       @if (showModal() && selectedAppointment(); as apt) {
         <div class="modal modal-open">

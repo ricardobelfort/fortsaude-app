@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'https://72.60.150.221:8443/api',
+  apiUrl: 'https://fortsaude-api.cloud/api',
   production: true,
 };

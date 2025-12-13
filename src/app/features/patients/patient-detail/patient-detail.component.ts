@@ -97,7 +97,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             <button
               type="button"
               [class.tab-active]="activeTab() === 'resumo'"
-              [class]="activeTab() === 'resumo' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              [class]="
+                activeTab() === 'resumo'
+                  ? 'text-primary border-primary bg-primary/10'
+                  : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'
+              "
               class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('resumo')"
               title="Resumo"
@@ -108,7 +112,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             <button
               type="button"
               [class.tab-active]="activeTab() === 'prontuario'"
-              [class]="activeTab() === 'prontuario' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              [class]="
+                activeTab() === 'prontuario'
+                  ? 'text-primary border-primary bg-primary/10'
+                  : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'
+              "
               class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('prontuario')"
               title="Prontuário"
@@ -119,7 +127,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             <button
               type="button"
               [class.tab-active]="activeTab() === 'evolucoes'"
-              [class]="activeTab() === 'evolucoes' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              [class]="
+                activeTab() === 'evolucoes'
+                  ? 'text-primary border-primary bg-primary/10'
+                  : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'
+              "
               class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('evolucoes')"
               title="Evoluções"
@@ -130,7 +142,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             <button
               type="button"
               [class.tab-active]="activeTab() === 'documentos'"
-              [class]="activeTab() === 'documentos' ? 'text-primary border-primary bg-primary/10' : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'"
+              [class]="
+                activeTab() === 'documentos'
+                  ? 'text-primary border-primary bg-primary/10'
+                  : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'
+              "
               class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
               (click)="setActiveTab('documentos')"
               title="Documentos"

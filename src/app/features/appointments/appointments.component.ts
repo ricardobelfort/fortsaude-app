@@ -432,6 +432,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
       },
       aspectRatio: window.innerWidth < 640 ? 1.1 : 1.35,
       windowResizeDelay: 100,
+      // Ocultar sábado (6) e domingo (0)
+      hiddenDays: [0, 6],
       // Configurações de horário
       slotLabelFormat: {
         hour: 'numeric',
@@ -449,6 +451,21 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
         meridiem: undefined,
         omitZeroMinute: true,
       },
+      // Intervalo de almoço de 12:00 às 14:00
+      businessHours: [
+        {
+          daysOfWeek: [1, 2, 3, 4, 5], // segunda a sexta
+          startTime: '08:00',
+          endTime: '12:00',
+        },
+        {
+          daysOfWeek: [1, 2, 3, 4, 5], // segunda a sexta
+          startTime: '14:00',
+          endTime: '20:00',
+        },
+      ],
+      // Remove o slot de "dia inteiro"
+      allDaySlot: false,
     };
 
     this.calendar = new Calendar(calendarEl, options);

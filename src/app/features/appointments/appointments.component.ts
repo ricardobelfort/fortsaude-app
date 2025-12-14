@@ -1,28 +1,14 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  signal,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppointmentsService } from '../../core/services';
 import { Appointment } from '../../core/models';
 import { AlertService } from '../../shared/ui/alert.service';
-
-import { Calendar, CalendarOptions } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import ptBrLocale from '@fullcalendar/core/locales/pt-br';
+import { CustomAgendaComponent } from './custom-agenda/custom-agenda.component';
 
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CustomAgendaComponent],
   template: `
     <div class="space-y-4 sm:space-y-6">
       <!-- Header -->
@@ -43,147 +29,8 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
         </div>
       }
 
-      <!-- Legend -->
-      <div class="bg-white rounded-lg shadow-sm p-3 sm:p-6">
-        <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Legenda de Status</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
-              style="background-color: #3b82f6;"
-            ></div>
-            <span class="text-xs sm:text-sm text-gray-700">Agendado</span>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
-              style="background-color: #10b981;"
-            ></div>
-            <span class="text-xs sm:text-sm text-gray-700">Confirmado</span>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
-              style="background-color: #6366f1;"
-            ></div>
-            <span class="text-xs sm:text-sm text-gray-700">Realizado</span>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
-              style="background-color: #f59e0b;"
-            ></div>
-            <span class="text-xs sm:text-sm text-gray-700">Não compareceu</span>
-          </div>
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
-              style="background-color: #ef4444;"
-            ></div>
-            <span class="text-xs sm:text-sm text-gray-700">Cancelado</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Calendar -->
-      <div class="bg-white rounded-lg shadow-sm p-1 sm:p-2 md:p-6 overflow-x-auto">
-        <div #calendarContainer class="fc-custom"></div>
-      </div>
-
-      <!-- Appointment Details Modal -->
-      @if (showModal() && selectedAppointment(); as apt) {
-        <div class="modal modal-open">
-          <div class="modal-box w-11/12 max-w-md">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold text-lg">Detalhes do Agendamento</h3>
-              <button
-                type="button"
-                class="btn btn-sm btn-circle btn-ghost"
-                (click)="closeModal()"
-                aria-label="Fechar modal"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-4 py-4">
-              <!-- Patient Info -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700">Paciente</label>
-                <p class="text-gray-900">{{ apt.patient.fullName || 'N/A' }}</p>
-              </div>
-
-              <!-- Professional Info -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700">Profissional</label>
-                <p class="text-gray-900">
-                  {{ apt.professional.profile.account.person.fullName || 'N/A' }}
-                </p>
-              </div>
-
-              <!-- Clinic Info -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700">Clínica</label>
-                <p class="text-gray-900">{{ apt.clinic.name || 'N/A' }}</p>
-              </div>
-
-              <!-- Date and Time -->
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700">Data</label>
-                  <p class="text-gray-900">
-                    {{ apt.startsAt | date: 'dd/MM/yyyy' }}
-                  </p>
-                </div>
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700">Horário</label>
-                  <p class="text-gray-900">
-                    {{ apt.startsAt | date: 'HH:mm' }} - {{ apt.endsAt | date: 'HH:mm' }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Status -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700">Status</label>
-                <span
-                  class="inline-block px-3 py-1 rounded-full text-sm font-medium text-white"
-                  [style.background-color]="getStatusColor_(apt.status)"
-                >
-                  {{ getStatusLabel(apt.status) }}
-                </span>
-              </div>
-
-              <!-- Notes -->
-              @if (apt.notes) {
-                <div>
-                  <label class="block text-sm font-semibold text-gray-700">Observações</label>
-                  <p class="text-gray-900 text-sm">{{ apt.notes }}</p>
-                </div>
-              }
-            </div>
-
-            <!-- Modal Actions -->
-            <div class="modal-action">
-              <button type="button" class="btn btn-outline" (click)="closeModal()">Fechar</button>
-            </div>
-          </div>
-          <div class="modal-backdrop" (click)="closeModal()"></div>
-        </div>
-      }
+      <!-- Custom Agenda -->
+      <app-custom-agenda [appointments]="appointments()"></app-custom-agenda>
     </div>
   `,
   styles: [
@@ -371,178 +218,26 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppointmentsComponent implements OnInit, AfterViewInit {
-  @ViewChild('calendarContainer') calendarContainer!: ElementRef;
-
+export class AppointmentsComponent implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly alertService = inject(AlertService);
 
   appointments = signal<Appointment[]>([]);
   feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
-  showModal = signal(false);
-  selectedAppointment = signal<Appointment | null>(null);
-
-  private calendar: Calendar | null = null;
 
   ngOnInit() {
     this.loadAppointments();
-  }
-
-  ngAfterViewInit() {
-    this.initializeCalendar();
   }
 
   private loadAppointments(): void {
     this.appointmentsService.getAll().subscribe({
       next: (appointments) => {
         this.appointments.set(appointments);
-        if (this.calendar) {
-          this.updateCalendarEvents();
-        }
       },
       error: () => {
         this.alertService.error('Erro ao carregar agendamentos');
         this.feedback.set({ type: 'error', message: 'Erro ao carregar agendamentos' });
       },
     });
-  }
-
-  private initializeCalendar(): void {
-    const calendarEl = this.calendarContainer.nativeElement;
-
-    const options: CalendarOptions = {
-      initialView: 'timeGridWeek',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay',
-      },
-      contentHeight: 'auto',
-      plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-      locale: ptBrLocale,
-      events: this.getCalendarEvents(),
-      eventClick: (info) => this.onEventClick(info),
-      eventDidMount: (info) => {
-        info.el.style.cursor = 'pointer';
-        // Remove data e horário, mantém apenas o título
-        const timeEl = info.el.querySelector('.fc-event-time');
-        if (timeEl) {
-          timeEl.remove();
-        }
-      },
-      aspectRatio: window.innerWidth < 640 ? 1.1 : 1.35,
-      windowResizeDelay: 100,
-      // Ocultar sábado (6) e domingo (0)
-      hiddenDays: [0, 6],
-      // Configurações de horário
-      slotLabelFormat: {
-        hour: 'numeric',
-        minute: '2-digit',
-        meridiem: 'short',
-        omitZeroMinute: false,
-      },
-      slotDuration: '00:40:00',
-      slotLabelInterval: '00:40:00',
-      slotMinTime: '08:00:00',
-      slotMaxTime: '20:00:00',
-      eventTimeFormat: {
-        hour: undefined,
-        minute: undefined,
-        meridiem: undefined,
-        omitZeroMinute: true,
-      },
-      // Intervalo de almoço de 12:00 às 14:00
-      businessHours: [
-        {
-          daysOfWeek: [1, 2, 3, 4, 5], // segunda a sexta
-          startTime: '08:00',
-          endTime: '12:00',
-        },
-        {
-          daysOfWeek: [1, 2, 3, 4, 5], // segunda a sexta
-          startTime: '14:00',
-          endTime: '20:00',
-        },
-      ],
-      // Remove o slot de "dia inteiro"
-      allDaySlot: false,
-    };
-
-    this.calendar = new Calendar(calendarEl, options);
-    this.calendar.render();
-
-    // Update aspect ratio on resize
-    window.addEventListener('resize', () => {
-      if (this.calendar) {
-        this.calendar.setOption('aspectRatio', window.innerWidth < 640 ? 1.1 : 1.35);
-      }
-    });
-  }
-
-  private getCalendarEvents() {
-    return this.appointments().map((apt) => {
-      const color = this.getStatusColor_(apt.status);
-      return {
-        id: apt.id,
-        title: `${apt.patient?.fullName || 'Sem nome'}`,
-        start: apt.startsAt,
-        end: apt.endsAt,
-        backgroundColor: color,
-        borderColor: color,
-        textColor: '#fff',
-        extendedProps: {
-          status: apt.status,
-          notes: apt.notes,
-        },
-      };
-    });
-  }
-
-  getStatusColor_(status: string): string {
-    switch (status) {
-      case 'SCHEDULED':
-        return '#3b82f6'; // blue
-      case 'CONFIRMED':
-        return '#10b981'; // green
-      case 'COMPLETED':
-        return '#6366f1'; // indigo
-      case 'NO_SHOW':
-        return '#f59e0b'; // amber
-      case 'CANCELLED':
-        return '#ef4444'; // red
-      default:
-        return '#6b7280'; // gray
-    }
-  }
-
-  private updateCalendarEvents(): void {
-    if (this.calendar) {
-      this.calendar.removeAllEvents();
-      this.calendar.addEventSource(this.getCalendarEvents());
-    }
-  }
-
-  private onEventClick(info: { event: { id: string } }): void {
-    const appointment = this.appointments().find((apt) => apt.id === info.event.id);
-    if (appointment) {
-      this.selectedAppointment.set(appointment);
-      this.showModal.set(true);
-    }
-  }
-
-  closeModal(): void {
-    this.showModal.set(false);
-    this.selectedAppointment.set(null);
-  }
-
-  getStatusLabel(status: string): string {
-    const labels: { [key: string]: string } = {
-      SCHEDULED: 'Agendado',
-      CONFIRMED: 'Confirmado',
-      COMPLETED: 'Realizado',
-      NO_SHOW: 'Não compareceu',
-      CANCELLED: 'Cancelado',
-    };
-    return labels[status] || status;
   }
 }

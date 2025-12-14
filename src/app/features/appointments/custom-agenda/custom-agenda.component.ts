@@ -63,14 +63,20 @@ interface AgendaEvent {
           <!-- Table Header -->
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200">
-              <th class="p-4 text-left font-semibold text-sm text-gray-700 border-r border-gray-200 w-20">Horário</th>
+              <th
+                class="p-4 text-left font-semibold text-sm text-gray-700 border-r border-gray-200 w-20"
+              >
+                Horário
+              </th>
               @for (day of days; track day.dayIndex) {
-                <th 
+                <th
                   class="p-4 text-center font-semibold text-sm text-gray-900 border-gray-200"
                   [class.border-r]="day.dayIndex !== 4"
                 >
                   <div>{{ day.dayName }}</div>
-                  <div class="text-xs text-gray-500 font-normal mt-1">{{ getDayDate(day.dayIndex) }}</div>
+                  <div class="text-xs text-gray-500 font-normal mt-1">
+                    {{ getDayDate(day.dayIndex) }}
+                  </div>
                 </th>
               }
             </tr>
@@ -81,7 +87,7 @@ interface AgendaEvent {
             @for (slot of timeSlots; track slot.time) {
               <tr class="border-b border-gray-200">
                 <!-- Time Cell -->
-                <td 
+                <td
                   class="p-3 text-xs font-medium text-gray-600 text-center border-r border-gray-200"
                   [class.bg-orange-100]="slot.isLunch"
                 >
@@ -94,7 +100,7 @@ interface AgendaEvent {
 
                 <!-- Day Cells -->
                 @for (day of days; track day.dayIndex) {
-                  <td 
+                  <td
                     class="min-h-24 p-2 align-middle border-gray-200"
                     [class.bg-orange-50]="slot.isLunch"
                     [class.border-r]="day.dayIndex !== 4"
@@ -108,8 +114,10 @@ interface AgendaEvent {
                               [style.borderLeftColor]="event.color"
                               (click)="onEventClick(event)"
                             >
-                              <div class="font-bold text-gray-900 text-xs mb-2">{{ event.startTime }}</div>
-                              
+                              <div class="font-bold text-gray-900 text-xs mb-2">
+                                {{ event.startTime }}
+                              </div>
+
                               <div class="flex items-start gap-2 mb-2">
                                 <div
                                   class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
@@ -118,12 +126,21 @@ interface AgendaEvent {
                                   {{ getInitial(event.patientName) }}
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                  <div class="font-semibold text-gray-900 text-xs truncate">{{ event.patientName }}</div>
-                                  <div class="text-gray-500 text-xs truncate">{{ getAppointmentDetail(event.appointmentId)?.notes || 'Consulta' }}</div>
+                                  <div class="font-semibold text-gray-900 text-xs truncate">
+                                    {{ event.patientName }}
+                                  </div>
+                                  <div class="text-gray-500 text-xs truncate">
+                                    {{
+                                      getAppointmentDetail(event.appointmentId)?.notes || 'Consulta'
+                                    }}
+                                  </div>
                                 </div>
                               </div>
 
-                              <span class="inline-block text-xs font-medium px-2 py-1 rounded-full" [ngClass]="getStatusBadgeClass(event.status)">
+                              <span
+                                class="inline-block text-xs font-medium px-2 py-1 rounded-full"
+                                [ngClass]="getStatusBadgeClass(event.status)"
+                              >
                                 {{ getStatusLabel(event.status) }}
                               </span>
                             </div>

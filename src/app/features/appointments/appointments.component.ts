@@ -43,11 +43,6 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
         </div>
       }
 
-      <!-- Calendar -->
-      <div class="bg-white rounded-lg shadow-sm p-1 sm:p-2 md:p-6 overflow-x-auto">
-        <div #calendarContainer class="fc-custom"></div>
-      </div>
-
       <!-- Legend -->
       <div class="bg-white rounded-lg shadow-sm p-3 sm:p-6">
         <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Legenda de Status</h3>
@@ -88,6 +83,11 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
             <span class="text-xs sm:text-sm text-gray-700">Cancelado</span>
           </div>
         </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="bg-white rounded-lg shadow-sm p-1 sm:p-2 md:p-6 overflow-x-auto">
+        <div #calendarContainer class="fc-custom"></div>
       </div>
 
       <!-- Appointment Details Modal -->
@@ -236,8 +236,7 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
         }
 
         .fc-event-time {
-          color: white;
-          font-size: 9px;
+          display: none;
         }
 
         .fc-daygrid {
@@ -412,7 +411,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
     const calendarEl = this.calendarContainer.nativeElement;
 
     const options: CalendarOptions = {
-      initialView: 'dayGridMonth',
+      initialView: 'timeGridWeek',
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
@@ -425,9 +424,31 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
       eventClick: (info) => this.onEventClick(info),
       eventDidMount: (info) => {
         info.el.style.cursor = 'pointer';
+        // Remove data e horário, mantém apenas o título
+        const timeEl = info.el.querySelector('.fc-event-time');
+        if (timeEl) {
+          timeEl.remove();
+        }
       },
       aspectRatio: window.innerWidth < 640 ? 1.1 : 1.35,
       windowResizeDelay: 100,
+      // Configurações de horário
+      slotLabelFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        meridiem: 'short',
+        omitZeroMinute: false,
+      },
+      slotDuration: '00:40:00',
+      slotLabelInterval: '00:40:00',
+      slotMinTime: '08:00:00',
+      slotMaxTime: '20:00:00',
+      eventTimeFormat: {
+        hour: undefined,
+        minute: undefined,
+        meridiem: undefined,
+        omitZeroMinute: true,
+      },
     };
 
     this.calendar = new Calendar(calendarEl, options);
@@ -446,7 +467,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit {
       const color = this.getStatusColor_(apt.status);
       return {
         id: apt.id,
-        title: `${apt.patient?.fullName || 'Sem nome'} - ${apt.professional?.profile?.account?.person?.fullName || 'Sem profissional'}`,
+        title: `${apt.patient?.fullName || 'Sem nome'}`,
         start: apt.startsAt,
         end: apt.endsAt,
         backgroundColor: color,

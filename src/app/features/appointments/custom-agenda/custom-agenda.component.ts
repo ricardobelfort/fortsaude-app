@@ -59,12 +59,13 @@ interface AgendaEvent {
 
       <!-- Agenda Table -->
       <div class="bg-white rounded-lg shadow-sm overflow-x-auto">
-        <table class="w-full border-collapse">
+        <table class="w-full border-collapse" style="table-layout: fixed;">
           <!-- Table Header -->
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200">
               <th
-                class="p-4 text-left font-semibold text-sm text-gray-700 border-r border-gray-200 w-20"
+                class="p-4 text-left font-semibold text-sm text-gray-700 border-r border-gray-200"
+                style="width: 80px;"
               >
                 Horário
               </th>
@@ -110,11 +111,14 @@ interface AgendaEvent {
                         @if (getEventsForSlot(day.dayIndex, slot.time); as events) {
                           @for (event of events; track event.appointmentId) {
                             <div
-                              class="bg-white rounded-lg border-l-4 p-3 cursor-pointer hover:shadow-md transition-shadow"
-                              [style.borderLeftColor]="event.color"
+                              class="bg-white rounded-lg border border-gray-200 p-3 cursor-pointer hover:shadow-md transition-shadow"
+                              [style.borderColor]="event.color"
                               (click)="onEventClick(event)"
                             >
-                              <div class="font-bold text-gray-900 text-xs mb-2">
+                              <div
+                                class="font-bold text-slate-700 text-xs mb-2 flex items-center gap-1"
+                              >
+                                <app-icon [name]="'clock'" [size]="16"></app-icon>
                                 {{ event.startTime }}
                               </div>
 

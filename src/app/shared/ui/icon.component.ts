@@ -55,6 +55,7 @@ import {
   TradeUpIcon,
   Upload05Icon,
   Files02Icon,
+  AlarmClockIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -112,6 +113,7 @@ const iconMap = {
   trending: TradeUpIcon,
   upload: Upload05Icon,
   files: Files02Icon,
+  clock: AlarmClockIcon,
 } as const;
 
 @Component({

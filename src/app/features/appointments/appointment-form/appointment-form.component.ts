@@ -22,6 +22,7 @@ import {
   AppointmentsService,
   CurrentUserService,
   ServiceTypesService,
+  ClinicAgendaConfigService,
 } from '../../../core/services';
 import {
   Patient,
@@ -32,13 +33,7 @@ import {
 } from '../../../core/models';
 import { AlertService } from '../../../shared/ui/alert.service';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
-
-interface TimeSlot {
-  time: string;
-  hour: number;
-  minute: number;
-  available: boolean;
-}
+import { TimeSlot } from '../../../core/services/clinic-agenda-config.service';
 
 @Component({
   selector: 'app-appointment-form',
@@ -198,7 +193,7 @@ interface TimeSlot {
                   (click)="selectTimeSlot(slot)"
                   [class.btn-primary]="appointmentForm.get('appointmentTime')?.value === slot.time"
                   [class.btn-outline]="appointmentForm.get('appointmentTime')?.value !== slot.time"
-                  [disabled]="!slot.available"
+                  [disabled]="slot.isLunch"
                   class="btn btn-sm"
                 >
                   {{ slot.time }}
@@ -240,6 +235,7 @@ export class AppointmentFormComponent implements OnInit {
   private alertService = inject(AlertService);
   private currentUserService = inject(CurrentUserService);
   private serviceTypesService = inject(ServiceTypesService);
+  private clinicAgendaConfigService = inject(ClinicAgendaConfigService);
 
   clinicId = input<string>('');
   onClose = output<{ saved: boolean; appointment?: Appointment }>();
@@ -374,18 +370,25 @@ export class AppointmentFormComponent implements OnInit {
 
     this.isLoadingSlots.set(true);
 
-    // TODO: Chamar serviço para obter slots disponíveis do profissional
-    // Por enquanto, gerar slots genéricos (8:00 - 18:30, intervalos de 30 min)
-    const slots = this.generateDefaultSlots();
+    const clinicId = this.currentUserService.getClinicId() || this.clinicId();
 
-    // Simular delay de carregamento
-    setTimeout(() => {
-      this.availableSlots.set(slots);
-      this.isLoadingSlots.set(false);
-    }, 300);
+    this.clinicAgendaConfigService.getClinicAgendaConfig(clinicId).subscribe({
+      next: (config) => {
+        const slots = this.clinicAgendaConfigService.generateTimeSlots(config);
+        this.availableSlots.set(slots);
+        this.isLoadingSlots.set(false);
+      },
+      error: () => {
+        // Se falhar, usa slots padrão
+        const defaultSlots = this.generateDefaultSlots();
+        this.availableSlots.set(defaultSlots);
+        this.isLoadingSlots.set(false);
+      },
+    });
   }
 
   private generateDefaultSlots(): TimeSlot[] {
+    // Fallback para slots padrão (30 min) se a API falhar
     const slots: TimeSlot[] = [];
     const startHour = 8;
     const endHour = 18;
@@ -404,7 +407,7 @@ export class AppointmentFormComponent implements OnInit {
           time: timeString,
           hour,
           minute,
-          available: Math.random() > 0.3, // 70% de chance de estar disponível
+          isLunch: false,
         });
       }
     }
@@ -413,20 +416,15 @@ export class AppointmentFormComponent implements OnInit {
   }
 
   selectTimeSlot(slot: TimeSlot) {
-    console.log(
-      '⏰ [AppointmentForm] Selecionando horário:',
-      slot.time,
-      'Disponível:',
-      slot.available
-    );
-    if (slot.available) {
+    console.log('⏰ [AppointmentForm] Selecionando horário:', slot.time, 'Almoço:', slot.isLunch);
+    if (!slot.isLunch) {
       this.appointmentForm.patchValue({
         appointmentTime: slot.time,
       });
       console.log('✅ [AppointmentForm] Horário atualizado no formulário:', slot.time);
       console.log('📋 [AppointmentForm] Form value após horário:', this.appointmentForm.value);
     } else {
-      console.warn('❌ [AppointmentForm] Horário indisponível:', slot.time);
+      console.warn('❌ [AppointmentForm] Horário em período de almoço:', slot.time);
     }
   }
 

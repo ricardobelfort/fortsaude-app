@@ -47,7 +47,7 @@ import { CommonModule } from '@angular/common';
           </button>
           <button
             type="button"
-            [attr.form]="formId()"
+            (click)="submitted.emit()"
             [disabled]="isLoading() || !isFormValid()"
             class="btn btn-primary btn-sm sm:btn-md gap-2"
           >
@@ -72,4 +72,5 @@ export class ModalComponent {
   readonly formId = input<string>('');
 
   readonly cancelled = output<void>();
+  readonly submitted = output<void>();
 }

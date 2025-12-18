@@ -1,20 +1,41 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppointmentsService } from '../../core/services';
+import { AppointmentsService, CurrentUserService } from '../../core/services';
 import { Appointment } from '../../core/models';
 import { AlertService } from '../../shared/ui/alert.service';
 import { CustomAgendaComponent } from './custom-agenda/custom-agenda.component';
+import { AppointmentFormComponent } from './appointment-form/appointment-form.component';
 
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule, CustomAgendaComponent],
+  imports: [CommonModule, CustomAgendaComponent, AppointmentFormComponent],
   template: `
     <div class="space-y-4 sm:space-y-6">
       <!-- Header -->
-      <div class="px-0">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Agenda de Atendimentos</h1>
-        <p class="text-sm sm:text-base text-gray-600">Visualização de agendamentos da clínica</p>
+      <div class="flex items-center justify-between px-0">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Agenda de Atendimentos</h1>
+          <p class="text-sm sm:text-base text-gray-600">Visualização de agendamentos da clínica</p>
+        </div>
+        <button (click)="openAppointmentForm()" class="btn btn-primary btn-sm sm:btn-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            ></path>
+          </svg>
+          Nova Consulta
+        </button>
       </div>
 
       @if (feedback(); as fb) {
@@ -30,7 +51,18 @@ import { CustomAgendaComponent } from './custom-agenda/custom-agenda.component';
       }
 
       <!-- Custom Agenda -->
-      <app-custom-agenda [appointments]="appointments()"></app-custom-agenda>
+      <app-custom-agenda
+        [appointments]="appointments()"
+        [clinicId]="clinicId()"
+      ></app-custom-agenda>
+
+      <!-- Modal de Agendamento -->
+      @if (showAppointmentForm()) {
+        <app-appointment-form
+          [clinicId]="clinicId()"
+          (onClose)="onAppointmentFormClose($event)"
+        ></app-appointment-form>
+      }
     </div>
   `,
   styles: [
@@ -220,12 +252,21 @@ import { CustomAgendaComponent } from './custom-agenda/custom-agenda.component';
 })
 export class AppointmentsComponent implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
+  private readonly currentUserService = inject(CurrentUserService);
   private readonly alertService = inject(AlertService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   appointments = signal<Appointment[]>([]);
+  clinicId = signal<string>('');
   feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+  showAppointmentForm = signal(false);
 
   ngOnInit() {
+    // Obter clínica do usuário logado
+    const clinicId = this.currentUserService.getClinicId();
+    if (clinicId) {
+      this.clinicId.set(clinicId);
+    }
     this.loadAppointments();
   }
 
@@ -239,5 +280,28 @@ export class AppointmentsComponent implements OnInit {
         this.feedback.set({ type: 'error', message: 'Erro ao carregar agendamentos' });
       },
     });
+  }
+
+  openAppointmentForm(): void {
+    console.log('Abrindo formulário de agendamento');
+    this.showAppointmentForm.set(true);
+    console.log('Estado do sinal:', this.showAppointmentForm());
+    this.cdr.markForCheck();
+  }
+
+  onAppointmentFormClose(event: { saved: boolean; appointment?: any }): void {
+    this.showAppointmentForm.set(false);
+    if (event.saved) {
+      this.feedback.set({
+        type: 'success',
+        message: 'Consulta agendada com sucesso!',
+      });
+      // Recarregar agendamentos
+      this.loadAppointments();
+      // Limpar feedback após 5 segundos
+      setTimeout(() => {
+        this.feedback.set(null);
+      }, 5000);
+    }
   }
 }

@@ -9,3 +9,5 @@ export * from '@core/services/medical-records.service';
 export * from '@core/services/evolutions.service';
 export * from '@core/services/documents.service';
 export * from '@core/services/error-handler.service';
+export * from '@core/services/clinic-agenda-config.service';
+export * from '@core/services/service-types.service';

@@ -44,11 +44,12 @@ export interface AppointmentRecord {
 }
 
 export interface CreateAppointmentDto {
+  clinicId: string;
   patientId: string;
   professionalId: string;
+  serviceProvidedId: string;
   startsAt: string;
   endsAt: string;
-  status?: AppointmentStatus;
   notes?: string;
 }
 

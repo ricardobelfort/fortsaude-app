@@ -20,6 +20,7 @@ import {
   ArrowLeftIcon,
   ArrowRightDoubleIcon,
   ArrowLeft02Icon,
+  ArrowRight01Icon,
   Search01Icon,
   NotificationSnooze01Icon,
   Notification02Icon,
@@ -61,6 +62,8 @@ import {
   Clock01Icon,
   Timer01Icon,
   SpoonAndForkIcon,
+  DashboardSquare01Icon,
+  AccessIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -91,6 +94,7 @@ const iconMap = {
   'chevron-left': ArrowLeftIcon,
   'chevron-right': ArrowRightDoubleIcon,
   'arrow-left': ArrowLeft02Icon,
+  'arrow-right': ArrowRight01Icon,
   search: Search01Icon,
   'bell-sleep': NotificationSnooze01Icon,
   bell: Notification02Icon,
@@ -127,6 +131,8 @@ const iconMap = {
   'timer-01': Timer01Icon,
   'spoon-and-fork': SpoonAndForkIcon,
   stethoscope: Stethoscope02Icon,
+  dashboard: DashboardSquare01Icon,
+  access: AccessIcon,
 } as const;
 
 @Component({

@@ -70,11 +70,9 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'meu-perfil',
+        path: 'account',
         loadComponent: () =>
-          import('./features/profile/my-profile/my-profile.component').then(
-            (m) => m.MyProfileComponent
-          ),
+          import('./features/account/account.component').then((m) => m.AccountComponent),
       },
       {
         path: 'admin',

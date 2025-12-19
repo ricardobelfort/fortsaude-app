@@ -5,7 +5,6 @@ import {
   input,
   output,
   signal,
-  HostListener,
   ElementRef,
   inject,
   computed,
@@ -372,33 +371,6 @@ import { UserStateService } from '@core/services/user-state.service';
                 >
               }
             </a>
-            <a
-              routerLink="/app/meu-perfil"
-              class="nav-link tooltip-wrapper"
-              routerLinkActive="nav-active"
-              [routerLinkActiveOptions]="{ exact: false }"
-              [class.justify-center]="!expanded()"
-              [class.px-2]="!expanded()"
-              (mouseenter)="onTooltipMouseEnter($event, 'admin-settings')"
-              (mouseleave)="onTooltipMouseLeave()"
-            >
-              <app-icon
-                [name]="'settings'"
-                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
-              ></app-icon>
-              @if (expanded()) {
-                <span>Configurações</span>
-              }
-              @if (!expanded()) {
-                <span
-                  class="tooltip"
-                  [class.visible]="activeTooltipId() === 'admin-settings'"
-                  [style.top.px]="tooltipPosition()?.top"
-                  [style.left.px]="tooltipPosition()?.left"
-                  >Configurações</span
-                >
-              }
-            </a>
           }
           <div
             class="nav-link nav-disabled tooltip-wrapper"
@@ -507,7 +479,7 @@ import { UserStateService } from '@core/services/user-state.service';
         <!-- User Avatar Card -->
         @if (expanded()) {
           <div class="relative">
-            <button type="button" class="user-profile-btn" (click)="toggleDropdown()">
+            <button type="button" class="user-profile-btn">
               <div class="rounded-md p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
                 <div class="flex items-center gap-3">
                   <div>
@@ -531,54 +503,9 @@ import { UserStateService } from '@core/services/user-state.service';
                     }}</span>
                     <span class="text-xs text-slate-500 text-left truncate">{{ email() }}</span>
                   </div>
-                  <app-icon
-                    [size]="16"
-                    [name]="isDropdownOpen() ? 'unfold-less' : 'unfold-more'"
-                    [className]="'text-slate-400 text-sm flex-shrink-0'"
-                  ></app-icon>
                 </div>
               </div>
             </button>
-
-            @if (isDropdownOpen()) {
-              <div class="dropdown-menu">
-                <div class="py-1">
-                  <a
-                    [routerLink]="['/app/meu-perfil']"
-                    (click)="toggleDropdown()"
-                    type="button"
-                    class="dropdown-item"
-                  >
-                    <app-icon [name]="'user'" [size]="20" [className]="'text-slate-500'"></app-icon>
-                    <span>Meu Perfil</span>
-                  </a>
-                  <button type="button" class="dropdown-item" disabled>
-                    <app-icon
-                      [name]="'settings'"
-                      [size]="20"
-                      [className]="'text-slate-500'"
-                    ></app-icon>
-                    <span>Configurações</span>
-                  </button>
-                  <button type="button" class="dropdown-item" disabled>
-                    <app-icon
-                      [name]="'star'"
-                      [size]="20"
-                      [className]="'text-yellow-500'"
-                    ></app-icon>
-                    <span>Upgrade to Pro</span>
-                  </button>
-                  <button
-                    type="button"
-                    (click)="logout.emit(); toggleDropdown()"
-                    class="dropdown-item logout"
-                  >
-                    <app-icon [name]="'logout'" [size]="20" [className]="'text-error'"></app-icon>
-                    <span>Sair</span>
-                  </button>
-                </div>
-              </div>
-            }
           </div>
         } @else {
           <div class="flex justify-center">
@@ -612,7 +539,6 @@ export class SidebarComponent {
   readonly logout = output<void>();
 
   private elementRef = inject(ElementRef);
-  protected isDropdownOpen = signal(false);
   protected tooltipPosition = signal<{ top: number; left: number } | null>(null);
   protected activeTooltipId = signal<string | null>(null);
 
@@ -633,14 +559,6 @@ export class SidebarComponent {
     return '';
   });
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const clickedInside = this.elementRef.nativeElement.contains(event.target);
-    if (!clickedInside && this.isDropdownOpen()) {
-      this.isDropdownOpen.set(false);
-    }
-  }
-
   protected onTooltipMouseEnter(event: MouseEvent, tooltipId: string): void {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
@@ -657,9 +575,5 @@ export class SidebarComponent {
   protected onTooltipMouseLeave(): void {
     this.activeTooltipId.set(null);
     this.tooltipPosition.set(null);
-  }
-
-  protected toggleDropdown(): void {
-    this.isDropdownOpen.update((value) => !value);
   }
 }

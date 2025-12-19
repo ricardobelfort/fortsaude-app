@@ -373,7 +373,7 @@ import { UserStateService } from '@core/services/user-state.service';
               }
             </a>
             <a
-              routerLink="/app/admin/clinic-settings"
+              routerLink="/app/meu-perfil"
               class="nav-link tooltip-wrapper"
               routerLinkActive="nav-active"
               [routerLinkActiveOptions]="{ exact: false }"

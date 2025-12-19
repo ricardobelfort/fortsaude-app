@@ -12,9 +12,4 @@ export const ADMIN_ROUTES: Routes = [
         (m) => m.ProfessionalsAdminComponent
       ),
   },
-  {
-    path: 'clinic-settings',
-    loadComponent: () =>
-      import('./clinic-settings/clinic-settings.component').then((m) => m.ClinicSettingsComponent),
-  },
 ];

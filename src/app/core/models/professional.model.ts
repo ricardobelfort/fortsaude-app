@@ -1,4 +1,4 @@
-import { Person, Account, Clinic } from './patient.model';
+import { Account, Clinic } from './patient.model';
 
 export interface ProfessionalProfile {
   id: string;

@@ -56,6 +56,10 @@ import {
   Upload05Icon,
   Files02Icon,
   AlarmClockIcon,
+  Stethoscope02Icon,
+  Clock01Icon,
+  Timer01Icon,
+  SpoonAndForkIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -114,6 +118,10 @@ const iconMap = {
   upload: Upload05Icon,
   files: Files02Icon,
   clock: AlarmClockIcon,
+  'clock-01': Clock01Icon,
+  'timer-01': Timer01Icon,
+  'spoon-and-fork': SpoonAndForkIcon,
+  stethoscope: Stethoscope02Icon,
 } as const;
 
 @Component({

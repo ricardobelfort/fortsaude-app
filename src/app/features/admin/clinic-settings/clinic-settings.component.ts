@@ -18,7 +18,7 @@ import { IconComponent } from '../../../shared/ui/icon.component';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, IconComponent],
   template: `
-    <div class="min-h-screen bg-base-200 p-6">
+    <div class="min-h-screen">
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
         <div class="mb-8">
@@ -33,13 +33,14 @@ import { IconComponent } from '../../../shared/ui/icon.component';
             <span class="loading loading-spinner loading-lg"></span>
           </div>
         } @else if (form) {
-          <div class="card bg-white shadow-lg">
+          <div class="card bg-white shadow-sm">
             <div class="card-body">
               <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
                 <!-- Seção de Horários -->
                 <div>
                   <h2 class="text-xl font-semibold text-base-900 mb-4 flex items-center gap-2">
-                    <span class="text-2xl">🕐</span> Horários de Funcionamento
+                    <app-icon [name]="'clock'" [size]="24" [className]="'text-primary'"></app-icon>
+                    Horários de Funcionamento
                   </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control w-full">
@@ -81,7 +82,12 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                 <!-- Seção de Intervalo -->
                 <div>
                   <h2 class="text-xl font-semibold text-base-900 mb-4 flex items-center gap-2">
-                    <span class="text-2xl">⏱️</span> Intervalo de Agendamento
+                    <app-icon
+                      [name]="'timer-01'"
+                      [size]="24"
+                      [className]="'text-primary'"
+                    ></app-icon>
+                    Intervalo de Agendamento
                   </h2>
                   <div class="form-control w-full">
                     <label class="label">
@@ -91,11 +97,11 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                       formControlName="appointmentIntervalMinutes"
                       class="select select-bordered select-sm w-full"
                     >
-                      <option [value]="30">30 minutos</option>
-                      <option [value]="40">40 minutos</option>
-                      <option [value]="60">1 hora</option>
-                      <option [value]="90">1.5 horas</option>
-                      <option [value]="120">2 horas</option>
+                      <option [ngValue]="30">30 minutos</option>
+                      <option [ngValue]="40">40 minutos</option>
+                      <option [ngValue]="60">1 hora</option>
+                      <option [ngValue]="90">1.5 horas</option>
+                      <option [ngValue]="120">2 horas</option>
                     </select>
                     @if (form.get('appointmentIntervalMinutes')?.hasError('required')) {
                       <label class="label">
@@ -110,7 +116,12 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                 <!-- Seção de Almoço -->
                 <div>
                   <h2 class="text-xl font-semibold text-base-900 mb-4 flex items-center gap-2">
-                    <span class="text-2xl">🍽️</span> Horário de Almoço
+                    <app-icon
+                      [name]="'spoon-and-fork'"
+                      [size]="24"
+                      [className]="'text-primary'"
+                    ></app-icon>
+                    Horário de Almoço
                   </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control w-full">
@@ -142,7 +153,12 @@ import { IconComponent } from '../../../shared/ui/icon.component';
                 <!-- Seção de Dias Ativos -->
                 <div>
                   <h2 class="text-xl font-semibold text-base-900 mb-4 flex items-center gap-2">
-                    <span class="text-2xl">📅</span> Dias da Semana
+                    <app-icon
+                      [name]="'calendar'"
+                      [size]="24"
+                      [className]="'text-primary'"
+                    ></app-icon>
+                    Dias da Semana
                   </h2>
                   <div class="flex flex-wrap gap-3">
                     @for (day of weekDays; track day.value) {
@@ -193,6 +209,8 @@ export class ClinicSettingsComponent implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
   activeDays = signal<number[]>([]);
+  private originalConfig: ClinicAgendaConfig | null = null;
+  private originalActiveDays: number[] = [];
 
   weekDays = [
     { label: 'Segunda', value: 1 },
@@ -248,6 +266,10 @@ export class ClinicSettingsComponent implements OnInit {
       lunchEndTime: config.lunchEndTime || '',
     });
     this.activeDays.set(config.activeDays);
+
+    // Armazenar a configuração original para detecção de mudanças
+    this.originalConfig = { ...config };
+    this.originalActiveDays = [...config.activeDays];
   }
 
   toggleDay(day: number): void {
@@ -280,10 +302,22 @@ export class ClinicSettingsComponent implements OnInit {
       activeDays: this.activeDays(),
     };
 
-    this.configService.saveClinicAgendaConfig(config).subscribe({
+    // Detectar apenas mudanças
+    const changedFields = this.getChangedFields(config);
+
+    if (changedFields.length === 0) {
+      this.alertService.success('Nenhuma alteração foi realizada');
+      this.isSaving.set(false);
+      return;
+    }
+
+    this.configService.saveClinicAgendaConfig(config, changedFields).subscribe({
       next: () => {
         this.alertService.success('Configurações salvas com sucesso');
         this.isSaving.set(false);
+        // Atualizar o original após salvar
+        this.originalConfig = { ...config };
+        this.originalActiveDays = [...config.activeDays];
         this.configService.clearCache(clinicId);
         this.cdr.markForCheck();
       },
@@ -294,5 +328,35 @@ export class ClinicSettingsComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  private getChangedFields(newConfig: ClinicAgendaConfig): string[] {
+    const changed: string[] = [];
+
+    if (!this.originalConfig)
+      return [
+        'workStartTime',
+        'workEndTime',
+        'appointmentIntervalMinutes',
+        'lunchStartTime',
+        'lunchEndTime',
+        'activeDays',
+      ];
+
+    if (this.originalConfig.workStartTime !== newConfig.workStartTime)
+      changed.push('workStartTime');
+    if (this.originalConfig.workEndTime !== newConfig.workEndTime) changed.push('workEndTime');
+    if (this.originalConfig.appointmentIntervalMinutes !== newConfig.appointmentIntervalMinutes)
+      changed.push('appointmentIntervalMinutes');
+    if (this.originalConfig.lunchStartTime !== newConfig.lunchStartTime)
+      changed.push('lunchStartTime');
+    if (this.originalConfig.lunchEndTime !== newConfig.lunchEndTime) changed.push('lunchEndTime');
+
+    // Comparar arrays
+    if (JSON.stringify(this.originalActiveDays) !== JSON.stringify(newConfig.activeDays)) {
+      changed.push('activeDays');
+    }
+
+    return changed;
   }
 }

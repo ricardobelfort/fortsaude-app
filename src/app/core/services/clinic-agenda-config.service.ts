@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiClient } from '@core/services/api.client';
 import { ClinicAgendaConfig } from '@core/models';
-import { Observable, map, catchError, of } from 'rxjs';
+import { Observable, map, catchError, of, forkJoin } from 'rxjs';
 
 interface ClinicSettingResponse {
   id: string;
@@ -26,6 +26,11 @@ export class ClinicAgendaConfigService {
   private configCache = signal<Map<string, ClinicAgendaConfig>>(new Map());
 
   /**
+   * Cache de IDs das configurações para atualização
+   */
+  private settingIdsCache = signal<Map<string, Map<string, string>>>(new Map());
+
+  /**
    * Busca a configuração de agenda de uma clínica
    * Tenta chamar a API primeiro; se falhar, usa configuração padrão
    */
@@ -41,7 +46,18 @@ export class ClinicAgendaConfigService {
     return this.api
       .get<ClinicSettingResponse[]>(`/clinic-settings/clinic/${clinicId}`)
       .pipe(
-        map((settings) => this.parseSettings(clinicId, settings)),
+        map((settings) => {
+          // Guardar os IDs das configurações para atualização posterior
+          const idsMap = new Map<string, string>();
+          settings.forEach((s) => {
+            idsMap.set(s.key, s.id);
+          });
+          const cache = this.settingIdsCache();
+          cache.set(clinicId, idsMap);
+          this.settingIdsCache.set(cache);
+
+          return this.parseSettings(clinicId, settings);
+        }),
         catchError(() => {
           // Se a API falhar, retorna configuração padrão
           return of(this.getDefaultConfig(clinicId));
@@ -57,35 +73,42 @@ export class ClinicAgendaConfigService {
 
   /**
    * Salva configurações de agenda de uma clínica
+   * Utiliza forkJoin para paralelizar as requisições com PUT
+   * Permite enviar apenas campos específicos (apenas os alterados)
    */
-  saveClinicAgendaConfig(config: ClinicAgendaConfig): Observable<void> {
-    const settings = this.configToSettings(config);
-    const requests = settings.map((setting) =>
-      this.api.post<ClinicSettingResponse>('/clinic-settings', setting)
-    );
+  saveClinicAgendaConfig(config: ClinicAgendaConfig, changedFields?: string[]): Observable<void> {
+    const allSettings = this.configToSettings(config);
 
-    return new Observable((observer) => {
-      if (requests.length === 0) {
-        observer.next();
-        observer.complete();
-        return;
+    // Se há campos específicos, filtrar apenas os alterados
+    const settings =
+      changedFields && changedFields.length > 0
+        ? allSettings.filter((s) => changedFields.includes(s.key))
+        : allSettings;
+
+    const idsMap = this.settingIdsCache().get(config.clinicId);
+
+    const requests = settings.map((setting) => {
+      const settingId = idsMap?.get(setting.key);
+
+      if (settingId) {
+        // Atualizar configuração existente com PUT
+        return this.api.put<ClinicSettingResponse>(`/clinic-settings/${settingId}`, setting);
+      } else {
+        // Criar nova configuração com POST
+        return this.api.post<ClinicSettingResponse>('/clinic-settings', setting);
       }
-
-      let completed = 0;
-      requests.forEach((request) => {
-        request.subscribe({
-          next: () => {
-            completed++;
-            if (completed === requests.length) {
-              this.clearCache(config.clinicId);
-              observer.next();
-              observer.complete();
-            }
-          },
-          error: (err) => observer.error(err),
-        });
-      });
     });
+
+    // Usar forkJoin para fazer todas as requisições em paralelo
+    return forkJoin(requests).pipe(
+      map(() => {
+        this.clearCache(config.clinicId);
+      }),
+      catchError((error) => {
+        console.error('Erro ao salvar configurações de agenda:', error);
+        throw error;
+      })
+    );
   }
 
   /**
@@ -253,8 +276,10 @@ export class ClinicAgendaConfigService {
   clearCache(clinicId?: string): void {
     if (clinicId) {
       this.configCache().delete(clinicId);
+      this.settingIdsCache().delete(clinicId);
     } else {
       this.configCache.set(new Map());
+      this.settingIdsCache.set(new Map());
     }
   }
 }

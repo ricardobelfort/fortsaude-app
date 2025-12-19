@@ -317,6 +317,89 @@ import { UserStateService } from '@core/services/user-state.service';
               ADMIN & OUTROS
             </p>
           }
+          @if (canAccessAdmin()) {
+            <a
+              routerLink="/app/admin/users"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'admin-users')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'user-plus'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Usuários</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'admin-users'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Usuários</span
+                >
+              }
+            </a>
+            <a
+              routerLink="/app/admin/professionals"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'admin-professionals')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'stethoscope'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Profissionais</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'admin-professionals'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Profissionais</span
+                >
+              }
+            </a>
+            <a
+              routerLink="/app/admin/clinic-settings"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'admin-settings')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'settings'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Configurações</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'admin-settings'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Configurações</span
+                >
+              }
+            </a>
+          }
           <div
             class="nav-link nav-disabled tooltip-wrapper"
             [class.justify-center]="!expanded()"
@@ -413,35 +496,6 @@ import { UserStateService } from '@core/services/user-state.service';
               >
             }
           </div>
-
-          @if (canAccessAdmin()) {
-            <a
-              routerLink="/app/admin/users"
-              class="nav-link tooltip-wrapper"
-              routerLinkActive="nav-active"
-              [class.justify-center]="!expanded()"
-              [class.px-2]="!expanded()"
-              (mouseenter)="onTooltipMouseEnter($event, 'admin')"
-              (mouseleave)="onTooltipMouseLeave()"
-            >
-              <app-icon
-                [name]="'shield'"
-                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
-              ></app-icon>
-              @if (expanded()) {
-                <span>Administração</span>
-              }
-              @if (!expanded()) {
-                <span
-                  class="tooltip"
-                  [class.visible]="activeTooltipId() === 'admin'"
-                  [style.top.px]="tooltipPosition()?.top"
-                  [style.left.px]="tooltipPosition()?.left"
-                  >Administração</span
-                >
-              }
-            </a>
-          }
         </div>
       </nav>
 
@@ -513,6 +567,14 @@ import { UserStateService } from '@core/services/user-state.service';
                       [className]="'text-yellow-500'"
                     ></app-icon>
                     <span>Upgrade to Pro</span>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="logout.emit(); toggleDropdown()"
+                    class="dropdown-item logout"
+                  >
+                    <app-icon [name]="'logout'" [size]="20" [className]="'text-error'"></app-icon>
+                    <span>Sair</span>
                   </button>
                 </div>
               </div>

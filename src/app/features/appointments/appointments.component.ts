@@ -289,7 +289,7 @@ export class AppointmentsComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  onAppointmentFormClose(event: { saved: boolean; appointment?: any }): void {
+  onAppointmentFormClose(event: { saved: boolean; appointment?: Appointment }): void {
     this.showAppointmentForm.set(false);
     if (event.saved) {
       this.feedback.set({

@@ -447,16 +447,18 @@ export class TableComponent {
   readonly filteredData = computed(() => {
     const searchTerm = this.searchTermSignal().toLowerCase();
     const data = [...this.data()];
-
     if (!searchTerm) return data;
 
-    const searchableFields = this.searchableFields();
-    if (searchableFields.length === 0) return data;
+    // Se não houver searchableFields definido, usa todas as colunas
+    let searchableFields = this.searchableFields();
+    if (searchableFields.length === 0) {
+      searchableFields = this.columns().map((col) => col.key);
+    }
 
     return data.filter((row) => {
       return searchableFields.some((field) => {
-        const value = row[field] as string;
-        return value && value.toLowerCase().includes(searchTerm);
+        const value = this.getRowValue(row, field) as string;
+        return value && (value as string).toLowerCase().includes(searchTerm);
       });
     });
   });
@@ -469,8 +471,8 @@ export class TableComponent {
     if (!sortBy) return data;
 
     return data.sort((a, b) => {
-      const aVal = a[sortBy] as string | number;
-      const bVal = b[sortBy] as string | number;
+      const aVal = this.getRowValue(a, sortBy) as string | number;
+      const bVal = this.getRowValue(b, sortBy) as string | number;
 
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
@@ -623,7 +625,7 @@ export class TableComponent {
 
     const rows = data.map((row) =>
       columns.map((col) => {
-        const value = row[col.key];
+        const value = this.getRowValue(row, col.key);
         if (col.badge) {
           return col.badge(value).text;
         }
@@ -669,8 +671,8 @@ export class TableComponent {
 
     const rows: string[][] = data.map((row) =>
       columns.map((col) => {
-        const value = row[col.key];
-        if (value === null || value === undefined) {
+        const value = this.getRowValue(row, col.key);
+        if (value === null || value === undefined || value === '') {
           return '';
         }
         if (col.badge) {
@@ -725,7 +727,21 @@ export class TableComponent {
   }
 
   getRowValue(row: Record<string, unknown>, key: string): unknown {
-    return row[key];
+    if (!key || !row) return '';
+
+    // Suporta dot notation (ex: person.fullName, profile.account.person.fullName)
+    const keys = key.split('.');
+    let value: unknown = row;
+
+    for (const k of keys) {
+      if (value && typeof value === 'object') {
+        value = (value as Record<string, unknown>)[k];
+      } else {
+        return '';
+      }
+    }
+
+    return value || '';
   }
 
   getBadgeClass(color: string): string {

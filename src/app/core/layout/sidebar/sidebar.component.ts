@@ -12,6 +12,7 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IconComponent } from '@shared/ui/icon.component';
 import { UserStateService } from '@core/services/user-state.service';
+import { CurrentUserService } from '@core/services/current-user.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -230,88 +231,94 @@ import { UserStateService } from '@core/services/user-state.service';
               >
             }
           </a>
-          <a
-            routerLink="/app/appointments"
-            class="nav-link tooltip-wrapper"
-            routerLinkActive="nav-active"
-            [class.justify-center]="!expanded()"
-            [class.px-2]="!expanded()"
-            (mouseenter)="onTooltipMouseEnter($event, 'agenda')"
-            (mouseleave)="onTooltipMouseLeave()"
-          >
-            <app-icon
-              [name]="'calendar'"
-              [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
-            ></app-icon>
-            @if (expanded()) {
-              <span>Agenda</span>
-            }
-            @if (!expanded()) {
-              <span
-                class="tooltip"
-                [class.visible]="activeTooltipId() === 'agenda'"
-                [style.top.px]="tooltipPosition()?.top"
-                [style.left.px]="tooltipPosition()?.left"
-                >Agenda</span
-              >
-            }
-          </a>
-          <a
-            routerLink="/app/patients"
-            class="nav-link tooltip-wrapper"
-            routerLinkActive="nav-active"
-            [class.justify-center]="!expanded()"
-            [class.px-2]="!expanded()"
-            (mouseenter)="onTooltipMouseEnter($event, 'patients')"
-            (mouseleave)="onTooltipMouseLeave()"
-          >
-            <app-icon
-              [name]="'users'"
-              [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
-            ></app-icon>
-            @if (expanded()) {
-              <span>Pacientes</span>
-            }
-            @if (!expanded()) {
-              <span
-                class="tooltip"
-                [class.visible]="activeTooltipId() === 'patients'"
-                [style.top.px]="tooltipPosition()?.top"
-                [style.left.px]="tooltipPosition()?.left"
-                >Pacientes</span
-              >
-            }
-          </a>
-          <a
-            routerLink="/app/professionals"
-            class="nav-link tooltip-wrapper"
-            routerLinkActive="nav-active"
-            [class.justify-center]="!expanded()"
-            [class.px-2]="!expanded()"
-            (mouseenter)="onTooltipMouseEnter($event, 'professionals')"
-            (mouseleave)="onTooltipMouseLeave()"
-          >
-            <app-icon
-              [name]="'groups'"
-              [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
-            ></app-icon>
-            @if (expanded()) {
-              <span>Profissionais</span>
-            }
-            @if (!expanded()) {
-              <span
-                class="tooltip"
-                [class.visible]="activeTooltipId() === 'professionals'"
-                [style.top.px]="tooltipPosition()?.top"
-                [style.left.px]="tooltipPosition()?.left"
-                >Profissionais</span
-              >
-            }
-          </a>
+          @if (canAccessAppointments()) {
+            <a
+              routerLink="/app/appointments"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'agenda')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'calendar'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Agenda</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'agenda'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Agenda</span
+                >
+              }
+            </a>
+          }
+          @if (canAccessPatients()) {
+            <a
+              routerLink="/app/patients"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'patients')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'users'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Pacientes</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'patients'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Pacientes</span
+                >
+              }
+            </a>
+          }
+          @if (canAccessProfessionals()) {
+            <a
+              routerLink="/app/professionals"
+              class="nav-link tooltip-wrapper"
+              routerLinkActive="nav-active"
+              [class.justify-center]="!expanded()"
+              [class.px-2]="!expanded()"
+              (mouseenter)="onTooltipMouseEnter($event, 'professionals')"
+              (mouseleave)="onTooltipMouseLeave()"
+            >
+              <app-icon
+                [name]="'groups'"
+                [className]="expanded() ? 'shrink-0 text-base' : 'text-lg'"
+              ></app-icon>
+              @if (expanded()) {
+                <span>Profissionais</span>
+              }
+              @if (!expanded()) {
+                <span
+                  class="tooltip"
+                  [class.visible]="activeTooltipId() === 'professionals'"
+                  [style.top.px]="tooltipPosition()?.top"
+                  [style.left.px]="tooltipPosition()?.left"
+                  >Profissionais</span
+                >
+              }
+            </a>
+          }
         </div>
 
         <div class="space-y-1.5">
-          @if (expanded()) {
+          @if (canAccessAdmin() && expanded()) {
             <p class="text-[11px] font-semibold tracking-[0.14em] text-slate-400 px-2">
               ADMIN & OUTROS
             </p>
@@ -533,9 +540,9 @@ import { UserStateService } from '@core/services/user-state.service';
 })
 export class SidebarComponent {
   private readonly userStateService = inject(UserStateService);
+  private readonly currentUserService = inject(CurrentUserService);
 
   readonly expanded = input.required<boolean>();
-  readonly canAccessAdmin = input<boolean>(false);
   readonly logout = output<void>();
 
   private elementRef = inject(ElementRef);
@@ -558,6 +565,15 @@ export class SidebarComponent {
     // For now, we'll use an empty string and it will show the initial letter
     return '';
   });
+
+  // Role-based access control computed properties
+  readonly canAccessAdmin = computed(() => this.currentUserService.canAccessAdmin());
+  readonly canAccessPatients = computed(() => this.currentUserService.canAccessPatients());
+  readonly canAccessAppointments = computed(() => this.currentUserService.canAccessAppointments());
+  readonly canAccessProfessionals = computed(() =>
+    this.currentUserService.canAccessProfessionals()
+  );
+  readonly canAccessFinance = computed(() => this.currentUserService.canAccessFinance());
 
   protected onTooltipMouseEnter(event: MouseEvent, tooltipId: string): void {
     const target = event.currentTarget as HTMLElement;

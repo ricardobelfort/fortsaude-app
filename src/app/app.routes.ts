@@ -52,11 +52,27 @@ export const routes: Routes = [
       },
       {
         path: 'patients',
+        canActivate: [
+          roleGuard([
+            UserRole.SYSTEM_ADMIN,
+            UserRole.CLINIC_ADMIN,
+            UserRole.RECEPTIONIST,
+            UserRole.PROFESSIONAL,
+          ]),
+        ],
         loadChildren: () =>
           import('./features/patients/patients.routes').then((m) => m.PATIENTS_ROUTES),
       },
       {
         path: 'professionals',
+        canActivate: [
+          roleGuard([
+            UserRole.SYSTEM_ADMIN,
+            UserRole.CLINIC_ADMIN,
+            UserRole.PATIENT,
+            UserRole.RECEPTIONIST,
+          ]),
+        ],
         loadChildren: () =>
           import('./features/professionals/professionals.routes').then(
             (m) => m.PROFESSIONALS_ROUTES
@@ -64,6 +80,15 @@ export const routes: Routes = [
       },
       {
         path: 'appointments',
+        canActivate: [
+          roleGuard([
+            UserRole.SYSTEM_ADMIN,
+            UserRole.CLINIC_ADMIN,
+            UserRole.RECEPTIONIST,
+            UserRole.PROFESSIONAL,
+            UserRole.PATIENT,
+          ]),
+        ],
         loadComponent: () =>
           import('./features/appointments/appointments.component').then(
             (m) => m.AppointmentsComponent
@@ -76,7 +101,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin',
-        canActivate: [roleGuard([UserRole.CLINIC_ADMIN])],
+        canActivate: [roleGuard([UserRole.SYSTEM_ADMIN, UserRole.CLINIC_ADMIN])],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
     ],

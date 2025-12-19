@@ -13,11 +13,7 @@ import { TopbarComponent } from '@core/layout/topbar/topbar.component';
   imports: [CommonModule, RouterOutlet, SidebarComponent, TopbarComponent],
   template: `
     <div class="min-h-screen bg-[#f5f7fb] text-slate-900 flex">
-      <app-sidebar
-        [expanded]="isSidebarExpanded()"
-        [canAccessAdmin]="canAccessAdmin()"
-        (logout)="logout()"
-      ></app-sidebar>
+      <app-sidebar [expanded]="isSidebarExpanded()" (logout)="logout()"></app-sidebar>
 
       <!-- Main Content -->
       <div class="flex-1 flex flex-col h-screen">
@@ -47,10 +43,6 @@ export class MainLayoutComponent {
 
   toggleSidebar(): void {
     this.sidebarExpanded.update((value) => !value);
-  }
-
-  canAccessAdmin(): boolean {
-    return this.currentUserService.hasRole(UserRole.CLINIC_ADMIN);
   }
 
   logout(): void {

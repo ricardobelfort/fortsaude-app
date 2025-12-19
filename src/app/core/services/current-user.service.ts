@@ -28,7 +28,39 @@ export class CurrentUserService {
   }
 
   canAccessAdmin(): boolean {
-    return this.hasRole(UserRole.CLINIC_ADMIN);
+    return this.hasRole([UserRole.SYSTEM_ADMIN, UserRole.CLINIC_ADMIN]);
+  }
+
+  canAccessPatients(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.RECEPTIONIST,
+      UserRole.PROFESSIONAL,
+    ]);
+  }
+
+  canAccessFinance(): boolean {
+    return this.hasRole([UserRole.SYSTEM_ADMIN, UserRole.CLINIC_ADMIN, UserRole.FINANCE]);
+  }
+
+  canAccessAppointments(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.RECEPTIONIST,
+      UserRole.PROFESSIONAL,
+      UserRole.PATIENT,
+    ]);
+  }
+
+  canAccessProfessionals(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PATIENT,
+      UserRole.RECEPTIONIST,
+    ]);
   }
 
   canViewProfessionals(): boolean {

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, input, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { EvolutionsService } from '../../../../core/services';
@@ -16,6 +16,7 @@ export interface EvolutionRecord {
   selector: 'app-evolutions-list',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, IconComponent, SpinnerComponent],
+  styleUrls: ['./evolutions-list.component.css'],
   template: `
     <div class="space-y-6">
       @if (isLoading()) {
@@ -26,52 +27,53 @@ export interface EvolutionRecord {
           </div>
         </div>
       } @else if (evolutions().length > 0) {
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-900">Evoluções</h2>
-          <button
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
-            (click)="openDialog()"
-          >
-            <app-icon [name]="'plus'"></app-icon>
-            Nova Evolução
-          </button>
-        </div>
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-900">Timeline de Evoluções</h2>
+            <button type="button" class="btn btn-primary" (click)="openDialog()">
+              <app-icon [name]="'plus'"></app-icon>
+              Nova Evolução
+            </button>
+          </div>
 
-        <div class="space-y-4">
-          @for (evolution of evolutions(); track evolution.id) {
-            <div class="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition">
-              <div class="flex justify-between items-start mb-3">
-                <div>
-                  <p class="text-sm text-gray-500">
-                    {{ evolution.dateTime | date: 'dd/MM/yyyy HH:mm' }}
-                  </p>
-                  <p class="text-gray-900 font-semibold">Evolução</p>
-                </div>
-                <div class="flex gap-2">
+          <!-- Custom Timeline -->
+          <div class="timeline-container">
+            <!-- Vertical line -->
+            <div class="timeline-line"></div>
+
+            <!-- Timeline items -->
+            @for (evolution of evolutions(); track evolution.id) {
+              <div class="timeline-item">
+                <!-- Dot -->
+                <div class="timeline-dot"></div>
+
+                <!-- Card -->
+                <div class="timeline-content">
+                  <span class="timeline-time">{{ evolution.dateTime | date: 'HH:mm' }}</span>
+                  <div class="timeline-date">{{ evolution.dateTime | date: 'dd/MM/yyyy' }}</div>
+                  <p class="timeline-notes">{{ evolution.notes }}</p>
                   <button
-                    type="button"
-                    class="inline-flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
+                    class="timeline-delete-btn"
                     (click)="deleteEvolution(evolution.id)"
+                    type="button"
+                    title="Deletar evolução"
                   >
-                    <app-icon [name]="'trash-2'"></app-icon>
+                    <app-icon [name]="'delete'" [size]="20"></app-icon>
                     Remover
                   </button>
                 </div>
               </div>
-              <p class="text-gray-700">{{ evolution.notes }}</p>
-            </div>
-          }
+            }
+          </div>
         </div>
       } @else {
-        <div class="flex flex-col items-center justify-center py-24 text-gray-400">
-          <app-icon [name]="'file-add'" [size]="64" class="mb-4"></app-icon>
-          <p class="text-lg text-gray-500 mb-6">Nenhuma evolução registrada</p>
-          <button
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors cursor-pointer"
-            (click)="openDialog()"
-          >
+        <div class="timeline-empty">
+          <div class="timeline-empty-icon">
+            <app-icon [name]="'file-text'" [size]="32" [className]="'text-gray-400'"></app-icon>
+          </div>
+          <p class="timeline-empty-title">Nenhuma evolução registrada</p>
+          <p class="timeline-empty-text">Comece a registrar o progresso do paciente</p>
+          <button class="btn btn-neutral" (click)="openDialog()">
             <app-icon [name]="'plus'"></app-icon>
             Nova Evolução
           </button>
@@ -136,23 +138,44 @@ export class EvolutionsListComponent {
     notes: ['', Validators.required],
   });
 
-  ngOnInit() {
-    this.loadEvolutions();
+  constructor() {
+    effect(() => {
+      // Re-load evolutions whenever patientId changes
+      this.patientId();
+      this.loadEvolutions();
+    });
   }
 
   private loadEvolutions(): void {
-    this.evolutionsService.getByPatientId(this.patientId()).subscribe({
-      next: (evolutions) => {
-        this.evolutions.set(evolutions);
+    this.isLoading.set(true);
+
+    // Mock data for testing while API is down
+    const mockEvolutions: EvolutionRecord[] = [
+      {
+        id: '1',
+        dateTime: new Date('2025-12-19T14:30:00'),
+        notes:
+          'Paciente apresenta melhora significativa nos sintomas. Inflamação reduzida em 40%. Recomenda-se continuar com tratamento atual por mais 2 semanas.',
       },
-      error: (error) => {
-        console.error('Erro ao carregar evoluções:', error);
-        this.alertService.error(
-          'Não foi possível carregar as evoluções. Por favor, tente novamente.'
-        );
-        this.evolutions.set([]);
+      {
+        id: '2',
+        dateTime: new Date('2025-12-15T10:15:00'),
+        notes:
+          'Primeira consulta. Paciente relata dores nas costas que iniciaram há 1 semana. Realizado exame físico completo. Prescrito anti-inflamatório e fisioterapia.',
       },
-    });
+      {
+        id: '3',
+        dateTime: new Date('2025-12-12T16:45:00'),
+        notes:
+          'Resultado dos exames de sangue dentro dos limites normais. Pressão arterial estável. Paciente orientado sobre hábitos alimentares e atividade física.',
+      },
+    ];
+
+    // Simulate API delay
+    setTimeout(() => {
+      this.evolutions.set(mockEvolutions);
+      this.isLoading.set(false);
+    }, 500);
   }
 
   openDialog(): void {

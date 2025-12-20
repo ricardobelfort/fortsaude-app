@@ -1,4 +1,12 @@
-import { Component, ChangeDetectionStrategy, input, signal, effect, inject } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  signal,
+  effect,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Appointment, ClinicAgendaConfig } from '../../../core/models';
@@ -318,6 +326,7 @@ interface AgendaEvent {
 export class CustomAgendaComponent {
   appointments = input<Appointment[]>([]);
   clinicId = input<string>(''); // Clínica ID para buscar configurações
+  onAppointmentSelect = output<Appointment>();
 
   private readonly agendaConfigService = inject(ClinicAgendaConfigService);
 
@@ -551,6 +560,11 @@ export class CustomAgendaComponent {
 
   onEventClick(event: AgendaEvent): void {
     this.selectedEvent.set(event);
+    // Encontrar o appointment completo
+    const appointment = this.appointments().find((a) => a.id === event.appointmentId);
+    if (appointment) {
+      this.onAppointmentSelect.emit(appointment);
+    }
   }
 
   closeModal(): void {

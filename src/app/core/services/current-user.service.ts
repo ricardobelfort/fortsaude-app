@@ -75,7 +75,81 @@ export class CurrentUserService {
     return this.authService.currentUser()?.id ?? null;
   }
 
+  getUserRole(): string {
+    return this.getRole() ?? 'PATIENT';
+  }
+
   getEmail(): string | null {
     return this.authService.currentUser()?.email ?? null;
+  }
+
+  // Prescrições
+  canCreatePrescriptions(): boolean {
+    return this.hasRole([UserRole.SYSTEM_ADMIN, UserRole.CLINIC_ADMIN, UserRole.PROFESSIONAL]);
+  }
+
+  canEditPrescriptions(): boolean {
+    return this.hasRole([UserRole.SYSTEM_ADMIN, UserRole.CLINIC_ADMIN, UserRole.PROFESSIONAL]);
+  }
+
+  canViewPrescriptions(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PATIENT,
+      UserRole.PROFESSIONAL,
+      UserRole.RECEPTIONIST,
+    ]);
+  }
+
+  // Check-in/Check-out
+  canPerformCheckInOut(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PROFESSIONAL,
+      UserRole.RECEPTIONIST,
+    ]);
+  }
+
+  // Status de Agendamento
+  canChangeAppointmentStatus(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PROFESSIONAL,
+      UserRole.RECEPTIONIST,
+    ]);
+  }
+
+  canViewAppointmentStatus(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PATIENT,
+      UserRole.PROFESSIONAL,
+      UserRole.RECEPTIONIST,
+    ]);
+  }
+
+  // Remarcar Consulta
+  canRescheduleAppointment(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PATIENT,
+      UserRole.RECEPTIONIST,
+    ]);
+  }
+
+  // Modal de Detalhes
+  canViewAppointmentDetails(): boolean {
+    return this.hasRole([
+      UserRole.SYSTEM_ADMIN,
+      UserRole.CLINIC_ADMIN,
+      UserRole.PATIENT,
+      UserRole.PROFESSIONAL,
+      UserRole.RECEPTIONIST,
+    ]);
   }
 }

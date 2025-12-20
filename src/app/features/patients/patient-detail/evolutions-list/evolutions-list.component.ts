@@ -145,6 +145,13 @@ export class EvolutionsListComponent {
       next: (evolutions) => {
         this.evolutions.set(evolutions);
       },
+      error: (error) => {
+        console.error('Erro ao carregar evoluções:', error);
+        this.alertService.error(
+          'Não foi possível carregar as evoluções. Por favor, tente novamente.'
+        );
+        this.evolutions.set([]);
+      },
     });
   }
 

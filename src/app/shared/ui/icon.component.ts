@@ -64,6 +64,8 @@ import {
   SpoonAndForkIcon,
   DashboardSquare01Icon,
   AccessIcon,
+  Medicine02Icon,
+  AlertSquareIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -133,6 +135,8 @@ const iconMap = {
   stethoscope: Stethoscope02Icon,
   dashboard: DashboardSquare01Icon,
   access: AccessIcon,
+  prescriptions: Medicine02Icon,
+  'alert-circle': AlertSquareIcon,
 } as const;
 
 @Component({

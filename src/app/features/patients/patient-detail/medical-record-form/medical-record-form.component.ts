@@ -138,14 +138,10 @@ interface DocumentFile {
 
       @if (feedback(); as fb) {
         <div
-          class="alert"
+          class="alert alert-soft"
           [class.alert-success]="fb.type === 'success'"
           [class.alert-error]="fb.type === 'error'"
         >
-          <app-icon
-            [name]="fb.type === 'success' ? 'check-circle' : 'alert-circle'"
-            class="w-5 h-5"
-          ></app-icon>
           <span>{{ fb.message }}</span>
         </div>
       }
@@ -207,6 +203,13 @@ export class MedicalRecordFormComponent {
             });
           }
         }
+      },
+      error: (error) => {
+        console.error('Erro ao carregar prontuário:', error);
+        this.alertService.error(
+          'Não foi possível carregar o prontuário. Por favor, tente novamente.'
+        );
+        this.feedback.set({ type: 'error', message: 'Não foi possível carregar o prontuário' });
       },
     });
   }

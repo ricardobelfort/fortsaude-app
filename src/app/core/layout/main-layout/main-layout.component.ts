@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { CurrentUserService } from '@core/services/current-user.service';
 import { AuthService } from '@core/services/auth.service';
-import { UserRole } from '@core/models/role.model';
 import { SidebarComponent } from '@core/layout/sidebar/sidebar.component';
 import { TopbarComponent } from '@core/layout/topbar/topbar.component';
 

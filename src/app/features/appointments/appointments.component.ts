@@ -12,11 +12,17 @@ import { Appointment } from '../../core/models';
 import { AlertService } from '../../shared/ui/alert.service';
 import { CustomAgendaComponent } from './custom-agenda/custom-agenda.component';
 import { AppointmentFormComponent } from './appointment-form/appointment-form.component';
+import { AppointmentDetailModalComponent } from './appointment-detail-modal/appointment-detail-modal.component';
 
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule, CustomAgendaComponent, AppointmentFormComponent],
+  imports: [
+    CommonModule,
+    CustomAgendaComponent,
+    AppointmentFormComponent,
+    AppointmentDetailModalComponent,
+  ],
   template: `
     <div class="space-y-4 sm:space-y-6">
       <!-- Header -->
@@ -25,17 +31,19 @@ import { AppointmentFormComponent } from './appointment-form/appointment-form.co
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Agenda de Atendimentos</h1>
           <p class="text-sm sm:text-base text-gray-600">Visualização de agendamentos da clínica</p>
         </div>
-        <button (click)="openAppointmentForm()" class="btn btn-primary btn-sm sm:btn-md">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            ></path>
-          </svg>
-          Nova Consulta
-        </button>
+        @if (canCreateAppointment()) {
+          <button (click)="openAppointmentForm()" class="btn btn-primary btn-sm sm:btn-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              ></path>
+            </svg>
+            Nova Consulta
+          </button>
+        }
       </div>
 
       @if (feedback(); as fb) {
@@ -54,6 +62,7 @@ import { AppointmentFormComponent } from './appointment-form/appointment-form.co
       <app-custom-agenda
         [appointments]="appointments()"
         [clinicId]="clinicId()"
+        (onAppointmentSelect)="onSelectAppointment($event)"
       ></app-custom-agenda>
 
       <!-- Modal de Agendamento -->
@@ -62,6 +71,15 @@ import { AppointmentFormComponent } from './appointment-form/appointment-form.co
           [clinicId]="clinicId()"
           (onClose)="onAppointmentFormClose($event)"
         ></app-appointment-form>
+      }
+
+      <!-- Modal de Detalhes -->
+      @if (selectedAppointment(); as appointment) {
+        <app-appointment-detail-modal
+          [appointment]="appointment"
+          (onClose)="selectedAppointment.set(null)"
+          (onRefresh)="onRefreshAppointments()"
+        ></app-appointment-detail-modal>
       }
     </div>
   `,
@@ -260,6 +278,7 @@ export class AppointmentsComponent implements OnInit {
   clinicId = signal<string>('');
   feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
   showAppointmentForm = signal(false);
+  selectedAppointment = signal<Appointment | null>(null);
 
   ngOnInit() {
     // Obter clínica do usuário logado
@@ -273,13 +292,51 @@ export class AppointmentsComponent implements OnInit {
   private loadAppointments(): void {
     this.appointmentsService.getAll().subscribe({
       next: (appointments) => {
-        this.appointments.set(appointments);
+        // Filtrar consultas baseado na role do usuário
+        const filteredAppointments = this.filterAppointmentsByRole(appointments);
+        this.appointments.set(filteredAppointments);
       },
       error: () => {
         this.alertService.error('Erro ao carregar agendamentos');
         this.feedback.set({ type: 'error', message: 'Erro ao carregar agendamentos' });
       },
     });
+  }
+
+  private filterAppointmentsByRole(appointments: Appointment[]): Appointment[] {
+    const userRole = this.currentUserService.getUserRole();
+    const userId = this.currentUserService.getUserId();
+
+    switch (userRole) {
+      case 'PATIENT':
+        // Pacientes veem apenas suas próprias consultas
+        return appointments.filter((app) => app.patient.id === userId);
+      case 'PROFESSIONAL':
+        // Profissionais veem apenas suas consultas
+        return appointments.filter((app) => app.professional?.id === userId);
+      case 'RECEPTIONIST':
+      case 'CLINIC_ADMIN': {
+        // Recepcionista e admin veem consultas da clínica
+        const clinicId = this.currentUserService.getClinicId();
+        return appointments.filter((app) => app.patient.clinic?.id === clinicId);
+      }
+      case 'SYSTEM_ADMIN':
+        // Admin do sistema vê todas as consultas
+        return appointments;
+      case 'FINANCE':
+        // Finanças não devem ver consultas
+        return [];
+      default:
+        return [];
+    }
+  }
+
+  onSelectAppointment(appointment: Appointment): void {
+    this.selectedAppointment.set(appointment);
+  }
+
+  onRefreshAppointments(): void {
+    this.loadAppointments();
   }
 
   openAppointmentForm(): void {
@@ -303,5 +360,11 @@ export class AppointmentsComponent implements OnInit {
         this.feedback.set(null);
       }, 5000);
     }
+  }
+
+  canCreateAppointment(): boolean {
+    const userRole = this.currentUserService.getUserRole();
+    // Apenas RECEPTIONIST, CLINIC_ADMIN e SYSTEM_ADMIN podem criar consultas
+    return ['RECEPTIONIST', 'CLINIC_ADMIN', 'SYSTEM_ADMIN'].includes(userRole);
   }
 }

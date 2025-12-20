@@ -7,5 +7,6 @@ export * from './appointment.model';
 export * from './medical-record.model';
 export * from './evolution.model';
 export * from './document.model';
+export * from './prescription.model';
 export * from './clinic-config.model';
 export * from './service-type.model';

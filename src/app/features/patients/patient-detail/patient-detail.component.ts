@@ -6,6 +6,7 @@ import { PatientFormComponent } from '../patient-form/patient-form.component';
 import { MedicalRecordFormComponent } from './medical-record-form/medical-record-form.component';
 import { EvolutionsListComponent } from './evolutions-list/evolutions-list.component';
 import { DocumentsListComponent } from './documents-list/documents-list.component';
+import { PrescriptionsListComponent } from './prescriptions-list/prescriptions-list.component';
 import { ModalComponent } from '../../../shared/ui/modal/modal.component';
 import { IconComponent } from '../../../shared/ui/icon.component';
 import { EmptyValuePipe } from '../../../shared/pipes/empty-value.pipe';
@@ -26,6 +27,7 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
     MedicalRecordFormComponent,
     EvolutionsListComponent,
     DocumentsListComponent,
+    PrescriptionsListComponent,
     ModalComponent,
     IconComponent,
     EmptyValuePipe,
@@ -153,6 +155,21 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             >
               <app-icon [name]="'documents'" [size]="20"></app-icon>
               <span class="hidden sm:inline">Documentos</span>
+            </button>
+            <button
+              type="button"
+              [class.tab-active]="activeTab() === 'prescricoes'"
+              [class]="
+                activeTab() === 'prescricoes'
+                  ? 'text-primary border-primary bg-primary/10'
+                  : 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80'
+              "
+              class="tab flex items-center gap-1.5 flex-1 justify-center transition-all duration-200"
+              (click)="setActiveTab('prescricoes')"
+              title="Prescrições"
+            >
+              <app-icon [name]="'prescriptions'" [size]="20"></app-icon>
+              <span class="hidden sm:inline">Prescrições</span>
             </button>
           </div>
 
@@ -545,6 +562,11 @@ import { PatientInfo, UpdatePatientDto } from '../../../core/models/patient.mode
             @if (activeTab() === 'documentos') {
               <app-documents-list [patientId]="p.id"></app-documents-list>
             }
+
+            <!-- Prescrições Tab -->
+            @if (activeTab() === 'prescricoes') {
+              <app-prescriptions-list [patientId]="p.id"></app-prescriptions-list>
+            }
           </div>
         </div>
       } @else {
@@ -563,7 +585,9 @@ export class PatientDetailComponent {
   isLoading = signal(false);
   isSaving = signal(false);
   isEditing = signal(false);
-  activeTab = signal<'resumo' | 'prontuario' | 'evolucoes' | 'documentos'>('resumo');
+  activeTab = signal<'resumo' | 'prontuario' | 'evolucoes' | 'documentos' | 'prescricoes'>(
+    'resumo'
+  );
 
   ngOnInit() {
     this.loadPatient();
@@ -616,7 +640,7 @@ export class PatientDetailComponent {
     return age;
   }
 
-  setActiveTab(tab: 'resumo' | 'prontuario' | 'evolucoes' | 'documentos'): void {
+  setActiveTab(tab: 'resumo' | 'prontuario' | 'evolucoes' | 'documentos' | 'prescricoes'): void {
     this.activeTab.set(tab);
   }
 }

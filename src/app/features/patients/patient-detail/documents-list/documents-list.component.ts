@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentsService } from '../../../../core/services';
+import { AlertService } from '../../../../shared/ui/alert.service';
 import { IconComponent } from '../../../../shared/ui/icon.component';
 import { SpinnerComponent } from '../../../../shared/ui/spinner.component';
 
@@ -65,7 +66,7 @@ interface DocumentRecord {
           </div>
         } @else {
           <div class="flex flex-col items-center justify-center py-24">
-            <app-icon [name]="'file'" class="w-16 h-16 mb-4 text-base-content/20"></app-icon>
+            <app-icon [name]="'files'" [size]="64" class="text-gray-400"></app-icon>
             <p class="text-lg font-semibold text-base-content/60">Nenhum documento enviado</p>
             <p class="text-sm text-base-content/40 mt-1">
               Os documentos serão adicionados na aba de Prontuário
@@ -81,6 +82,7 @@ export class DocumentsListComponent {
   readonly patientId = input.required<string>();
 
   private readonly documentsService = inject(DocumentsService);
+  private readonly alertService = inject(AlertService);
 
   documents = signal<DocumentRecord[]>([]);
   isLoading = signal(false);
@@ -104,6 +106,13 @@ export class DocumentsListComponent {
           } as DocumentRecord;
         });
         this.documents.set(mapped);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar documentos:', error);
+        this.alertService.error(
+          'Não foi possível carregar os documentos. Por favor, tente novamente.'
+        );
+        this.documents.set([]);
       },
     });
   }

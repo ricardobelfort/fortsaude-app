@@ -28,6 +28,8 @@ export interface Appointment {
   endsAt: string;
   status: AppointmentStatus;
   notes?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
@@ -60,4 +62,6 @@ export interface UpdateAppointmentDto {
   endsAt?: string;
   status?: AppointmentStatus;
   notes?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
 }

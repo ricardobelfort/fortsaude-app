@@ -1,5 +1,6 @@
 import { inject, Injectable, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { User, UserRole } from '@core/models';
 import { environment } from '@environments/environment';
@@ -33,6 +34,7 @@ interface JwtPayload {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly baseUrl = environment.apiUrl;
 
   // Signals
@@ -185,6 +187,7 @@ export class AuthService {
     this.accessTokenSignal.set(null);
     this.refreshTokenSignal.set(null);
     this.userSignal.set(null);
+    this.router.navigate(['/auth/login']);
   }
 
   /**

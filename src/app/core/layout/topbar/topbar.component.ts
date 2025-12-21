@@ -7,6 +7,7 @@ import {
   output,
   computed,
   signal,
+  HostListener,
 } from '@angular/core';
 import { IconComponent } from '@shared/ui/icon.component';
 import { UserStateService } from '@core/services/user-state.service';
@@ -122,6 +123,18 @@ export class TopbarComponent {
 
   closeDropdown(): void {
     this.isDropdownOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    // Fechar dropdown quando clicar fora
+    const target = event.target as HTMLElement;
+    const isClickInsideDropdown = target.closest('[role="menu"]');
+    const isClickOnButton = target.closest('button[aria-label="Menu do usuário"]');
+
+    if (!isClickInsideDropdown && !isClickOnButton && this.isDropdownOpen()) {
+      this.closeDropdown();
+    }
   }
 
   logout(): void {

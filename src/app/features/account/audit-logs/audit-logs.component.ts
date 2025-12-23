@@ -11,6 +11,12 @@ import { SpinnerComponent } from '@shared/ui/spinner.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, IconComponent, SpinnerComponent],
   template: `
+    <style>
+      :host ::ng-deep .audit-input::placeholder {
+        color: #9ca3af;
+        opacity: 1;
+      }
+    </style>
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">
@@ -19,7 +25,7 @@ import { SpinnerComponent } from '@shared/ui/spinner.component';
           <p class="text-sm text-base-content/60">Histórico de operações e acessos</p>
         </div>
         <button (click)="loadLogs()" [disabled]="isLoading()" class="btn btn-sm btn-outline gap-2">
-          <app-icon [name]="'refresh-cw'" [size]="16"></app-icon>
+          <app-icon [name]="'refresh'" [size]="16"></app-icon>
           Atualizar
         </button>
       </div>
@@ -34,7 +40,7 @@ import { SpinnerComponent } from '@shared/ui/spinner.component';
                 type="text"
                 [(ngModel)]="entityTypeFilter"
                 placeholder="ex: Patient, MedicalRecord"
-                class="input input-sm w-full"
+                class="input input-sm w-full audit-input"
               />
             </fieldset>
             <fieldset class="fieldset">
@@ -53,7 +59,7 @@ import { SpinnerComponent } from '@shared/ui/spinner.component';
                 type="text"
                 [(ngModel)]="userNameFilter"
                 placeholder="Nome do usuário"
-                class="input input-sm w-full"
+                class="input input-sm w-full audit-input"
               />
             </fieldset>
           </div>
@@ -73,118 +79,122 @@ import { SpinnerComponent } from '@shared/ui/spinner.component';
       <!-- Logs Table -->
       @if (!isLoading()) {
         @if (filteredLogs().length > 0) {
-          <div class="overflow-x-auto">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Data/Hora</th>
-                  <th>Ação</th>
-                  <th>Entidade</th>
-                  <th>Usuário</th>
-                  <th>Clínica</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (log of filteredLogs(); track log.id) {
-                  <tr class="hover">
-                    <td class="whitespace-nowrap">
-                      <div class="text-sm">
-                        {{ formatDate(log.createdAt) }}
-                      </div>
-                      <div class="text-xs text-base-content/60">
-                        {{ formatTime(log.createdAt) }}
-                      </div>
-                    </td>
-                    <td>
-                      <span [class]="getActionBadgeClass(log.action)">
-                        {{ formatAction(log.action) }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="flex flex-col gap-1">
-                        <span class="font-medium">{{ log.entityType }}</span>
-                        <span class="text-xs text-base-content/60 font-mono">
-                          {{ log.entityId.substring(0, 8) }}...
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex flex-col gap-1">
-                        <span class="font-medium">
-                          {{ getUserName(log) }}
-                        </span>
-                        <span class="text-xs text-base-content/60">
-                          {{ log.user.role }}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="text-sm">{{ log.clinic.name }}</span>
-                    </td>
-                    <td>
-                      <button (click)="toggleDetails(log.id)" class="btn btn-xs btn-ghost gap-1">
-                        <app-icon
-                          [name]="expandedLog() === log.id ? 'chevron-up' : 'chevron-down'"
-                          [size]="16"
-                        ></app-icon>
-                      </button>
-                    </td>
+          <div class="card bg-white shadow-md border border-base-200">
+            <div class="overflow-x-auto">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Data/Hora</th>
+                    <th>Ação</th>
+                    <th>Entidade</th>
+                    <th>Usuário</th>
+                    <th>Clínica</th>
+                    <th></th>
                   </tr>
-
-                  <!-- Details Row -->
-                  @if (expandedLog() === log.id) {
-                    <tr class="bg-base-200/50">
-                      <td colspan="6">
-                        <div class="p-4 space-y-3">
-                          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <p class="text-xs font-semibold text-base-content/60">
-                                ID da Entidade
-                              </p>
-                              <p class="text-sm font-mono break-all">
-                                {{ log.entityId }}
-                              </p>
-                            </div>
-                            <div>
-                              <p class="text-xs font-semibold text-base-content/60">
-                                ID do Usuário
-                              </p>
-                              <p class="text-sm font-mono break-all">
-                                {{ log.user.id }}
-                              </p>
-                            </div>
-                          </div>
-
-                          @if (Object.keys(log.details).length > 0) {
-                            <div>
-                              <p class="text-xs font-semibold text-base-content/60 mb-2">
-                                Detalhes da Mudança
-                              </p>
-                              <div class="bg-base-100 p-3 rounded-lg">
-                                @for (key of Object.keys(log.details); track key) {
-                                  <div class="flex justify-between py-1 text-sm">
-                                    <span class="font-medium">{{ key }}:</span>
-                                    <span class="text-base-content/70">
-                                      {{ log.details[key] }}
-                                    </span>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          }
+                </thead>
+                <tbody>
+                  @for (log of filteredLogs(); track log.id) {
+                    <tr class="hover">
+                      <td class="whitespace-nowrap">
+                        <div class="text-sm">
+                          {{ formatDate(log.createdAt) }}
+                        </div>
+                        <div class="text-xs text-base-content/60">
+                          {{ formatTime(log.createdAt) }}
                         </div>
                       </td>
+                      <td>
+                        <span [class]="getActionBadgeClass(log.action)">
+                          {{ formatAction(log.action) }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="flex flex-col gap-1">
+                          <span class="font-medium">{{ log.entityType }}</span>
+                          <span class="text-xs text-base-content/60 font-mono">
+                            {{ log.entityId.substring(0, 8) }}...
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flex flex-col gap-1">
+                          <span class="font-medium">
+                            {{ getUserName(log) }}
+                          </span>
+                          <span class="text-xs text-base-content/60">
+                            {{ log.user.role }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="text-sm">{{ log.clinic.name }}</span>
+                      </td>
+                      <td class="text-right">
+                        <button (click)="toggleDetails(log.id)" class="btn btn-square btn-sm">
+                          <app-icon
+                            [name]="expandedLog() === log.id ? 'arrow-up' : 'arrow-down'"
+                            [size]="16"
+                          ></app-icon>
+                        </button>
+                      </td>
                     </tr>
-                  }
-                }
-              </tbody>
-            </table>
-          </div>
 
-          <!-- Pagination Info -->
-          <div class="text-sm text-base-content/60 text-center">
-            Total de {{ filteredLogs().length }} registros
+                    <!-- Details Row -->
+                    @if (expandedLog() === log.id) {
+                      <tr class="bg-base-200/50">
+                        <td colspan="6">
+                          <div class="p-4 space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <p class="text-xs font-semibold text-base-content/60">
+                                  ID da Entidade
+                                </p>
+                                <p class="text-sm font-mono break-all">
+                                  {{ log.entityId }}
+                                </p>
+                              </div>
+                              <div>
+                                <p class="text-xs font-semibold text-base-content/60">
+                                  ID do Usuário
+                                </p>
+                                <p class="text-sm font-mono break-all">
+                                  {{ log.user.id }}
+                                </p>
+                              </div>
+                            </div>
+
+                            @if (Object.keys(log.details).length > 0) {
+                              <div>
+                                <p class="text-xs font-semibold text-base-content/60 mb-2">
+                                  Detalhes da Mudança
+                                </p>
+                                <div class="bg-base-100 p-3 rounded-lg">
+                                  @for (key of Object.keys(log.details); track key) {
+                                    <div class="flex justify-between py-1 text-sm">
+                                      <span class="font-medium">{{ key }}:</span>
+                                      <span class="text-base-content/70">
+                                        {{ log.details[key] }}
+                                      </span>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Info -->
+            <div class="card-body pt-4">
+              <div class="text-sm text-base-content/60 text-center">
+                Total de {{ filteredLogs().length }} registros
+              </div>
+            </div>
           </div>
         } @else {
           <div class="alert alert-info">

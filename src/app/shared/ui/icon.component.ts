@@ -68,6 +68,7 @@ import {
   AlertSquareIcon,
   Tick02Icon,
   TaskDaily02Icon,
+  ArrowReloadHorizontalIcon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -141,6 +142,7 @@ const iconMap = {
   'alert-circle': AlertSquareIcon,
   check: Tick02Icon,
   'clipboard-check': TaskDaily02Icon,
+  refresh: ArrowReloadHorizontalIcon,
 } as const;
 
 @Component({

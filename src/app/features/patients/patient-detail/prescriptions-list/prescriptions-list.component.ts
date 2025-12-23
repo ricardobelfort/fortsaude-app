@@ -339,119 +339,18 @@ export class PrescriptionsListComponent {
   private loadPrescriptions(): void {
     this.isLoading.set(true);
 
-    // Mock data for testing while API is down
-    const mockPrescriptions = [
-      {
-        id: '1',
-        clinic: {
-          id: 'clinic-1',
-          name: 'Clínica Forte Saúde',
-          legalName: 'Forte Saúde LTDA',
-          email: 'contato@fortesaude.com',
-          phone: '11999999999',
-          cnpj: '12.345.678/0001-90',
-          active: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        appointment: {
-          id: 'apt-1',
-          startsAt: '2024-12-19T10:00:00Z',
-          endsAt: '2024-12-19T10:30:00Z',
-        },
-        patient: {
-          id: 'pat-1',
-          fullName: 'João Silva',
-          active: true,
-          documentId: '123',
-          dateOfBirth: '1990-01-01',
-          email: 'joao@example.com',
-        },
-        professional: {
-          id: 'prof-1',
-          profile: {
-            account: {
-              person: {
-                fullName: 'Dr. João Silva',
-              },
-            },
-          },
-        },
-        medications: [
-          {
-            name: 'Dipirona',
-            dosage: '500mg',
-            frequency: '2x ao dia',
-            duration: '7 dias',
-          },
-        ],
-        instructions: 'Tomar com alimentos',
-        validUntil: '2025-12-31',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+    this.prescriptionsService.getByPatient(this.patientId()).subscribe({
+      next: (data: Prescription[]) => {
+        this.prescriptions.set(data);
+        this.isLoading.set(false);
       },
-      {
-        id: '2',
-        clinic: {
-          id: 'clinic-1',
-          name: 'Clínica Forte Saúde',
-          legalName: 'Forte Saúde LTDA',
-          email: 'contato@fortesaude.com',
-          phone: '11999999999',
-          cnpj: '12.345.678/0001-90',
-          active: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
-        appointment: {
-          id: 'apt-2',
-          startsAt: '2024-12-18T14:00:00Z',
-          endsAt: '2024-12-18T14:30:00Z',
-        },
-        patient: {
-          id: 'pat-1',
-          fullName: 'João Silva',
-          active: true,
-          documentId: '123',
-          dateOfBirth: '1990-01-01',
-          email: 'joao@example.com',
-        },
-        professional: {
-          id: 'prof-2',
-          profile: {
-            account: {
-              person: {
-                fullName: 'Dra. Maria Santos',
-              },
-            },
-          },
-        },
-        medications: [
-          {
-            name: 'Ibuprofeno',
-            dosage: '400mg',
-            frequency: '3x ao dia',
-            duration: '5 dias',
-          },
-          {
-            name: 'Amoxicilina',
-            dosage: '500mg',
-            frequency: '2x ao dia',
-            duration: '7 dias',
-          },
-        ],
-        instructions: 'Não tomar com leite',
-        validUntil: '2025-12-25',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      error: (error: unknown) => {
+        console.error('Erro ao carregar prescrições:', error);
+        this.alertService.error('Erro ao carregar prescrições');
+        this.prescriptions.set([]);
+        this.isLoading.set(false);
       },
-    ] as Prescription[];
-
-    // Simulate API delay
-    setTimeout(() => {
-      this.prescriptions.set(mockPrescriptions);
-      this.isLoading.set(false);
-    }, 500);
+    });
   }
 
   openDialog(): void {

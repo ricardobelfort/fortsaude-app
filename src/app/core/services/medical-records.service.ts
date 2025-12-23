@@ -10,11 +10,11 @@ export class MedicalRecordsService {
   private readonly api = inject(ApiClient);
 
   getByPatientId(patientId: string): Observable<MedicalRecord> {
-    return this.api.get<MedicalRecord>(`/patients/${patientId}/medical-record`);
+    return this.api.get<MedicalRecord>('/medical-records', { params: { patientId } });
   }
 
   create(patientId: string, dto: CreateMedicalRecordDto): Observable<MedicalRecord> {
-    return this.api.post<MedicalRecord>(`/patients/${patientId}/medical-record`, dto);
+    return this.api.post<MedicalRecord>('/medical-records', dto);
   }
 
   update(
@@ -22,6 +22,6 @@ export class MedicalRecordsService {
     recordId: string,
     dto: UpdateMedicalRecordDto
   ): Observable<MedicalRecord> {
-    return this.api.put<MedicalRecord>(`/patients/${patientId}/medical-record/${recordId}`, dto);
+    return this.api.put<MedicalRecord>(`/medical-records/${recordId}`, dto);
   }
 }

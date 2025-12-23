@@ -14,11 +14,11 @@ export class DocumentsService {
   private readonly baseUrl = `${environment.apiUrl}`;
 
   getByPatientId(patientId: string): Observable<Document[]> {
-    return this.api.get<Document[]>(`/patients/${patientId}/documents`);
+    return this.api.get<Document[]>('/documents', { params: { patientId } });
   }
 
   getById(patientId: string, documentId: string): Observable<Document> {
-    return this.api.get<Document>(`/patients/${patientId}/documents/${documentId}`);
+    return this.api.get<Document>(`/documents/${documentId}`);
   }
 
   upload(patientId: string, file: File, type: string): Observable<Document> {
@@ -26,16 +26,17 @@ export class DocumentsService {
     formData.append('file', file);
     formData.append('type', type);
     formData.append('fileName', file.name);
+    formData.append('patientId', patientId);
 
-    return this.http.post<Document>(`${this.baseUrl}/patients/${patientId}/documents`, formData);
+    return this.http.post<Document>(`${this.baseUrl}/documents`, formData);
   }
 
   delete(patientId: string, documentId: string): Observable<void> {
-    return this.api.delete<void>(`/patients/${patientId}/documents/${documentId}`);
+    return this.api.delete<void>(`/documents/${documentId}`);
   }
 
   download(patientId: string, documentId: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/patients/${patientId}/documents/${documentId}/download`, {
+    return this.http.get(`${this.baseUrl}/documents/${documentId}/download`, {
       responseType: 'blob',
     });
   }

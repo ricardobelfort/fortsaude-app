@@ -29,8 +29,26 @@ export class ApiClient {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, { params: httpParams });
   }
 
-  post<T>(endpoint: string, body: unknown): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body);
+  post<T>(
+    endpoint: string,
+    body: unknown,
+    options?: { params?: Record<string, string | string[]> }
+  ): Observable<T> {
+    let httpParams = new HttpParams();
+    if (options?.params) {
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((v) => {
+            httpParams = httpParams.append(key, v);
+          });
+        } else {
+          httpParams = httpParams.set(key, value);
+        }
+      });
+    }
+    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
+      params: httpParams,
+    });
   }
 
   put<T>(endpoint: string, body: unknown): Observable<T> {
@@ -41,7 +59,24 @@ export class ApiClient {
     return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body);
   }
 
-  delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${endpoint}`);
+  delete<T>(
+    endpoint: string,
+    options?: { params?: Record<string, string | string[]> }
+  ): Observable<T> {
+    let httpParams = new HttpParams();
+    if (options?.params) {
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((v) => {
+            httpParams = httpParams.append(key, v);
+          });
+        } else {
+          httpParams = httpParams.set(key, value);
+        }
+      });
+    }
+    return this.http.delete<T>(`${this.baseUrl}${endpoint}`, {
+      params: httpParams,
+    });
   }
 }

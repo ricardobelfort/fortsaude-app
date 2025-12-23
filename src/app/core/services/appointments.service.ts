@@ -28,4 +28,26 @@ export class AppointmentsService {
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`/appointments/${id}`);
   }
+
+  /**
+   * Check-in para uma consulta
+   * @param appointmentId ID da consulta
+   * @param userId ID do usuário realizando o check-in
+   */
+  checkIn(appointmentId: string, userId: string): Observable<Appointment> {
+    return this.api.post<Appointment>(`/appointments/${appointmentId}/checkin`, null, {
+      params: { userId },
+    });
+  }
+
+  /**
+   * Check-out para uma consulta
+   * @param appointmentId ID da consulta
+   * @param userId ID do usuário realizando o check-out
+   */
+  checkOut(appointmentId: string, userId: string): Observable<Appointment> {
+    return this.api.post<Appointment>(`/appointments/${appointmentId}/checkout`, null, {
+      params: { userId },
+    });
+  }
 }

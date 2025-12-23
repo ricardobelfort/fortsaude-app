@@ -8,32 +8,37 @@ import { Observable } from 'rxjs';
 })
 export class PrescriptionsService {
   private readonly api = inject(ApiClient);
+  private readonly basePath = '/v1/prescriptions';
 
   getAll(params?: Record<string, string | string[]>): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>('/prescriptions', { params });
+    return this.api.get<Prescription[]>(this.basePath, { params });
   }
 
   getById(id: string): Observable<Prescription> {
-    return this.api.get<Prescription>(`/prescriptions/${id}`);
+    return this.api.get<Prescription>(`${this.basePath}/${id}`);
   }
 
   getByPatient(patientId: string): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>('/prescriptions', { params: { patientId } });
+    return this.api.get<Prescription[]>(`${this.basePath}/patient/${patientId}`);
   }
 
-  getByAppointment(appointmentId: string): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>('/prescriptions', { params: { appointmentId } });
+  getByProfessional(professionalId: string): Observable<Prescription[]> {
+    return this.api.get<Prescription[]>(`${this.basePath}/professional/${professionalId}`);
+  }
+
+  getByClinic(clinicId: string): Observable<Prescription[]> {
+    return this.api.get<Prescription[]>(`${this.basePath}/clinic/${clinicId}`);
   }
 
   create(dto: CreatePrescriptionDto): Observable<Prescription> {
-    return this.api.post<Prescription>('/prescriptions', dto);
+    return this.api.post<Prescription>(this.basePath, dto);
   }
 
   update(id: string, dto: UpdatePrescriptionDto): Observable<Prescription> {
-    return this.api.put<Prescription>(`/prescriptions/${id}`, dto);
+    return this.api.put<Prescription>(`${this.basePath}/${id}`, dto);
   }
 
   delete(id: string): Observable<void> {
-    return this.api.delete<void>(`/prescriptions/${id}`);
+    return this.api.delete<void>(`${this.basePath}/${id}`);
   }
 }

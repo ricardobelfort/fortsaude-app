@@ -75,43 +75,47 @@ export class CheckInOutComponent {
 
   checkIn(): void {
     this.isLoading.set(true);
-    const now = new Date().toISOString();
+    const userId = this.currentUserService.getUserId();
 
-    this.appointmentsService
-      .update(this.appointment().id, {
-        checkInTime: now,
-      })
-      .subscribe({
-        next: () => {
-          this.alertService.success('Check-in realizado com sucesso');
-          this.onCheckInOut.emit();
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.alertService.error('Erro ao registrar check-in');
-          this.isLoading.set(false);
-        },
-      });
+    if (!userId) {
+      this.alertService.error('Usuário não identificado');
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.appointmentsService.checkIn(this.appointment().id, userId).subscribe({
+      next: () => {
+        this.alertService.success('Check-in realizado com sucesso');
+        this.onCheckInOut.emit();
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.alertService.error('Erro ao registrar check-in');
+        this.isLoading.set(false);
+      },
+    });
   }
 
   checkOut(): void {
     this.isLoading.set(true);
-    const now = new Date().toISOString();
+    const userId = this.currentUserService.getUserId();
 
-    this.appointmentsService
-      .update(this.appointment().id, {
-        checkOutTime: now,
-      })
-      .subscribe({
-        next: () => {
-          this.alertService.success('Check-out realizado com sucesso');
-          this.onCheckInOut.emit();
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.alertService.error('Erro ao registrar check-out');
-          this.isLoading.set(false);
-        },
-      });
+    if (!userId) {
+      this.alertService.error('Usuário não identificado');
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.appointmentsService.checkOut(this.appointment().id, userId).subscribe({
+      next: () => {
+        this.alertService.success('Check-out realizado com sucesso');
+        this.onCheckInOut.emit();
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.alertService.error('Erro ao registrar check-out');
+        this.isLoading.set(false);
+      },
+    });
   }
 }

@@ -148,34 +148,18 @@ export class EvolutionsListComponent {
 
   private loadEvolutions(): void {
     this.isLoading.set(true);
-
-    // Mock data for testing while API is down
-    const mockEvolutions: EvolutionRecord[] = [
-      {
-        id: '1',
-        dateTime: new Date('2025-12-19T14:30:00'),
-        notes:
-          'Paciente apresenta melhora significativa nos sintomas. Inflamação reduzida em 40%. Recomenda-se continuar com tratamento atual por mais 2 semanas.',
+    this.evolutionsService.getByPatientId(this.patientId()).subscribe({
+      next: (data: EvolutionRecord[]) => {
+        this.evolutions.set(data);
+        this.isLoading.set(false);
       },
-      {
-        id: '2',
-        dateTime: new Date('2025-12-15T10:15:00'),
-        notes:
-          'Primeira consulta. Paciente relata dores nas costas que iniciaram há 1 semana. Realizado exame físico completo. Prescrito anti-inflamatório e fisioterapia.',
+      error: (error: unknown) => {
+        console.error('Erro ao carregar evoluções:', error);
+        this.alertService.error('Erro ao carregar evoluções');
+        this.evolutions.set([]);
+        this.isLoading.set(false);
       },
-      {
-        id: '3',
-        dateTime: new Date('2025-12-12T16:45:00'),
-        notes:
-          'Resultado dos exames de sangue dentro dos limites normais. Pressão arterial estável. Paciente orientado sobre hábitos alimentares e atividade física.',
-      },
-    ];
-
-    // Simulate API delay
-    setTimeout(() => {
-      this.evolutions.set(mockEvolutions);
-      this.isLoading.set(false);
-    }, 500);
+    });
   }
 
   openDialog(): void {

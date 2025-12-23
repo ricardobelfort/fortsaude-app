@@ -8,27 +8,28 @@ import { Observable } from 'rxjs';
 })
 export class EvolutionsService {
   private readonly api = inject(ApiClient);
+  private readonly basePath = '/evolutions';
 
   getByPatientId(
     patientId: string,
     params?: Record<string, string | string[]>
   ): Observable<Evolution[]> {
-    return this.api.get<Evolution[]>('/evolutions', { params: { ...params, patientId } });
+    return this.api.get<Evolution[]>(this.basePath, { params: { ...params, patientId } });
   }
 
-  getById(patientId: string, evolutionId: string): Observable<Evolution> {
-    return this.api.get<Evolution>(`/evolutions/${evolutionId}`);
+  getById(id: string): Observable<Evolution> {
+    return this.api.get<Evolution>(`${this.basePath}/${id}`);
   }
 
-  create(patientId: string, dto: CreateEvolutionDto): Observable<Evolution> {
-    return this.api.post<Evolution>('/evolutions', dto);
+  create(dto: CreateEvolutionDto): Observable<Evolution> {
+    return this.api.post<Evolution>(this.basePath, dto);
   }
 
-  update(patientId: string, evolutionId: string, dto: UpdateEvolutionDto): Observable<Evolution> {
-    return this.api.put<Evolution>(`/evolutions/${evolutionId}`, dto);
+  update(id: string, dto: UpdateEvolutionDto): Observable<Evolution> {
+    return this.api.put<Evolution>(`${this.basePath}/${id}`, dto);
   }
 
-  delete(patientId: string, evolutionId: string): Observable<void> {
-    return this.api.delete<void>(`/evolutions/${evolutionId}`);
+  delete(id: string): Observable<void> {
+    return this.api.delete<void>(`${this.basePath}/${id}`);
   }
 }

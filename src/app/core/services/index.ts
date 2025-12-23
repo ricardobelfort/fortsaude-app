@@ -12,3 +12,4 @@ export * from '@core/services/prescriptions.service';
 export * from '@core/services/error-handler.service';
 export * from '@core/services/clinic-agenda-config.service';
 export * from '@core/services/service-types.service';
+export * from '@core/services/audit.service';

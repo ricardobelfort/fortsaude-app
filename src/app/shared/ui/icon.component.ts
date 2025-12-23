@@ -67,6 +67,7 @@ import {
   Medicine02Icon,
   AlertSquareIcon,
   Tick02Icon,
+  TaskDaily02Icon,
 } from '@hugeicons/core-free-icons';
 
 // Icon mapping object for easy lookup
@@ -139,6 +140,7 @@ const iconMap = {
   prescriptions: Medicine02Icon,
   'alert-circle': AlertSquareIcon,
   check: Tick02Icon,
+  'clipboard-check': TaskDaily02Icon,
 } as const;
 
 @Component({

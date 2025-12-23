@@ -5,6 +5,7 @@ import {
   OnInit,
   signal,
   ChangeDetectorRef,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -14,12 +15,13 @@ import { ClinicAgendaConfigService } from '@core/services';
 import { ClinicAgendaConfig } from '@core/models';
 import { IconComponent } from '@shared/ui/icon.component';
 import { AlertService } from '@shared/ui/alert.service';
+import { AuditLogsComponent } from './audit-logs/audit-logs.component';
 
 @Component({
   selector: 'app-account',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, AuditLogsComponent],
   template: `
     <div class="min-h-screen">
       <!-- Header -->
@@ -102,6 +104,25 @@ import { AlertService } from '@shared/ui/alert.service';
                 </div>
                 <app-icon [name]="'arrow-right'" [size]="16"></app-icon>
               </button>
+
+              @if (canViewAudit()) {
+                <button
+                  type="button"
+                  class="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium transition cursor-pointer border-l-1 hover:bg-indigo-200 border-indigo-200"
+                  [ngClass]="
+                    activeSection() === 'auditoria'
+                      ? 'bg-indigo-50 text-indigo-700 border-indigo-600'
+                      : 'text-slate-700 hover:bg-slate-50 border-slate-100'
+                  "
+                  (click)="setActiveSection('auditoria')"
+                >
+                  <div class="flex items-center gap-3">
+                    <app-icon [name]="'clipboard-check'" [size]="20"></app-icon>
+                    <span>Auditoria</span>
+                  </div>
+                  <app-icon [name]="'arrow-right'" [size]="16"></app-icon>
+                </button>
+              }
             </div>
           </nav>
 
@@ -472,6 +493,11 @@ import { AlertService } from '@shared/ui/alert.service';
                 </div>
               }
             }
+
+            <!-- AUDITORIA -->
+            @if (activeSection() === 'auditoria' && canViewAudit()) {
+              <app-audit-logs></app-audit-logs>
+            }
           </div>
         </div>
       </div>
@@ -487,9 +513,14 @@ export class AccountComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   profile = signal<ProfileResponse | null>(null);
-  activeSection = signal<'visao-geral' | 'dados-acesso' | 'dados-pessoais' | 'configuracoes'>(
-    'visao-geral'
-  );
+  activeSection = signal<
+    'visao-geral' | 'dados-acesso' | 'dados-pessoais' | 'configuracoes' | 'auditoria'
+  >('visao-geral');
+  userRole = signal<string>('');
+  canViewAudit = computed(() => {
+    const role = this.userRole();
+    return role === 'SYSTEM_ADMIN' || role === 'CLINIC_ADMIN';
+  });
 
   // Clinic Settings Properties
   settingsForm!: FormGroup;
@@ -513,10 +544,14 @@ export class AccountComponent implements OnInit {
     this.loadProfile();
     this.initializeSettingsForm();
     this.loadSettings();
+    const role = this.currentUserService.getRole();
+    if (role) {
+      this.userRole.set(role);
+    }
   }
 
   setActiveSection(
-    section: 'visao-geral' | 'dados-acesso' | 'dados-pessoais' | 'configuracoes'
+    section: 'visao-geral' | 'dados-acesso' | 'dados-pessoais' | 'configuracoes' | 'auditoria'
   ): void {
     this.activeSection.set(section);
   }

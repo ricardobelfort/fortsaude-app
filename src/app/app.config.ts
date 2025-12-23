@@ -11,6 +11,7 @@ import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { AuditInterceptor } from './core/interceptors/audit.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,6 +36,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuditInterceptor,
       multi: true,
     },
   ],

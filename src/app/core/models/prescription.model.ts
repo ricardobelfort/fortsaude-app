@@ -34,6 +34,29 @@ export interface Prescription {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  // Suporte a revogação e assinatura digital
+  status?: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+  revokedAt?: string;
+  revokedBy?: string;
+  revokedReason?: string;
+  isSignedDigitally?: boolean;
+  signatureId?: string;
+}
+
+/**
+ * Prescrição assinada digitalmente
+ * Conformidade com órgãos reguladores (Marinha, Exército, etc)
+ */
+export interface SignedPrescription extends Prescription {
+  signature: {
+    signatureId: string;
+    signedBy: string;
+    signedAt: Date;
+    certificateId: string;
+    algorithm: 'SHA256' | 'SHA512';
+    timestamp: string;
+  };
+  isValid: boolean;
 }
 
 export interface CreatePrescriptionDto {
@@ -50,4 +73,13 @@ export interface UpdatePrescriptionDto {
   medications?: Medication[];
   instructions?: string;
   validUntil?: string;
+}
+
+/**
+ * DTO para revogar uma prescrição
+ * Mantém o histórico para auditoria
+ */
+export interface RevokePrescriptionDto {
+  reason: string;
+  revokedBy: string;
 }

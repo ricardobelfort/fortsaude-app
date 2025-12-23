@@ -10,12 +10,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MedicalRecordsService } from '../../../../core/services';
+import { CreateMedicalRecordDto } from '../../../../core/models';
 import { AlertService } from '../../../../shared/ui/alert.service';
 import { IconComponent } from '../../../../shared/ui/icon.component';
 
 interface MedicalRecordData {
   mainIssue?: string;
-  anamnesis?: string;
+  anamnesis?: { historia?: string } | string;
   generalNotes?: string;
 }
 
@@ -198,7 +199,8 @@ export class MedicalRecordFormComponent {
           if (data) {
             this.form.patchValue({
               mainIssue: data.mainIssue,
-              anamnesis: data.anamnesis,
+              anamnesis:
+                typeof data.anamnesis === 'object' ? data.anamnesis?.historia : data.anamnesis,
               generalNotes: data.generalNotes,
             });
           }
@@ -273,8 +275,7 @@ export class MedicalRecordFormComponent {
     this.isLoading.set(true);
     const { mainIssue, anamnesis, generalNotes } = this.form.value;
 
-    const dto = {
-      patientId: this.patientId(),
+    const dto: CreateMedicalRecordDto = {
       mainIssue: mainIssue || '',
       anamnesis: anamnesis || '',
       generalNotes: generalNotes || '',
@@ -282,7 +283,7 @@ export class MedicalRecordFormComponent {
 
     // TODO: Adjust based on actual backend response
     // For now, we'll treat this as a create operation
-    this.medicalRecordsService.create(this.patientId(), dto).subscribe({
+    this.medicalRecordsService.create(dto).subscribe({
       next: () => {
         this.alertService.success('Prontuário salvo com sucesso');
         this.feedback.set({ type: 'success', message: 'Prontuário salvo com sucesso' });

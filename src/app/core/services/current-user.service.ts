@@ -1,12 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '@core/services/auth.service';
-import { UserRole } from '@core/models';
+import { UserRole, User } from '@core/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CurrentUserService {
   private readonly authService = inject(AuthService);
+
+  current(): User | null {
+    return this.authService.currentUser() ?? null;
+  }
 
   getFullName(): string {
     return this.authService.currentUser()?.fullName ?? 'Usuário';

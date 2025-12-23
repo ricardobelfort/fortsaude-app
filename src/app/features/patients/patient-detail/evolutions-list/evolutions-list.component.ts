@@ -180,7 +180,7 @@ export class EvolutionsListComponent {
       structuredData: {},
     };
 
-    this.evolutionsService.create(this.patientId(), dto).subscribe({
+    this.evolutionsService.create(dto).subscribe({
       next: () => {
         this.alertService.success('Evolução registrada com sucesso');
         this.showDialog = false;
@@ -202,7 +202,7 @@ export class EvolutionsListComponent {
 
     if (!confirmed) return;
 
-    this.evolutionsService.delete(this.patientId(), id).subscribe({
+    this.evolutionsService.delete(id).subscribe({
       next: () => {
         this.alertService.success('Evolução deletada com sucesso');
         this.loadEvolutions();

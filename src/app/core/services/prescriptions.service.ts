@@ -1,6 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiClient } from '@core/services/api.client';
-import { Prescription, CreatePrescriptionDto, UpdatePrescriptionDto } from '@core/models';
+import {
+  Prescription,
+  CreatePrescriptionDto,
+  UpdatePrescriptionDto,
+  RevokePrescriptionDto,
+} from '@core/models';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,7 +13,7 @@ import { Observable } from 'rxjs';
 })
 export class PrescriptionsService {
   private readonly api = inject(ApiClient);
-  private readonly basePath = '/v1/prescriptions';
+  private readonly basePath = '/prescriptions';
 
   getAll(params?: Record<string, string | string[]>): Observable<Prescription[]> {
     return this.api.get<Prescription[]>(this.basePath, { params });
@@ -19,15 +24,15 @@ export class PrescriptionsService {
   }
 
   getByPatient(patientId: string): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>(`${this.basePath}/patient/${patientId}`);
+    return this.api.get<Prescription[]>(this.basePath, { params: { patientId } });
   }
 
   getByProfessional(professionalId: string): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>(`${this.basePath}/professional/${professionalId}`);
+    return this.api.get<Prescription[]>(this.basePath, { params: { professionalId } });
   }
 
   getByClinic(clinicId: string): Observable<Prescription[]> {
-    return this.api.get<Prescription[]>(`${this.basePath}/clinic/${clinicId}`);
+    return this.api.get<Prescription[]>(this.basePath, { params: { clinicId } });
   }
 
   create(dto: CreatePrescriptionDto): Observable<Prescription> {
@@ -36,6 +41,15 @@ export class PrescriptionsService {
 
   update(id: string, dto: UpdatePrescriptionDto): Observable<Prescription> {
     return this.api.put<Prescription>(`${this.basePath}/${id}`, dto);
+  }
+
+  /**
+   * Revoga uma prescrição com motivo registrado para auditoria
+   * @param id ID da prescrição
+   * @param dto Dados da revogação
+   */
+  revoke(id: string, dto: RevokePrescriptionDto): Observable<Prescription> {
+    return this.api.post<Prescription>(`${this.basePath}/${id}/revoke`, dto);
   }
 
   delete(id: string): Observable<void> {

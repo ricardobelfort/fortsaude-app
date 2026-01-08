@@ -314,7 +314,6 @@ export class PatientsListComponent implements OnInit {
   }
 
   onFormValidChange(isValid: boolean): void {
-    console.log('Form valid changed:', isValid);
     this.isFormValid.set(isValid);
   }
 

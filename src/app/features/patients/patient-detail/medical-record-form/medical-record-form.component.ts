@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   ChangeDetectionStrategy,
@@ -9,14 +10,17 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MedicalRecordsService } from '../../../../core/services';
-import { CreateMedicalRecordDto } from '../../../../core/models';
-import { AlertService } from '../../../../shared/ui/alert.service';
-import { IconComponent } from '../../../../shared/ui/icon.component';
+import { MedicalRecordsService, MedicalRecordDocumentsService } from '@core/services';
+import { CreateMedicalRecordDto } from '@core/models';
+import { AlertService } from '@shared/ui/alert.service';
+import { IconComponent } from '@shared/ui/icon.component';
+import { CurrentUserService } from '@core/services/current-user.service';
+import { ProfilesService } from '@core/services/profiles.service';
 
 interface MedicalRecordData {
+  id?: string;
   mainIssue?: string;
-  anamnesis?: { historia?: string } | string;
+  anamnesis?: Record<string, unknown> | string;
   generalNotes?: string;
 }
 
@@ -148,7 +152,7 @@ interface DocumentFile {
       }
 
       <div class="flex gap-4 pt-4">
-        <button type="submit" class="btn btn-primary" [disabled]="!form.valid || isLoading()">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isLoading()">
           @if (isLoading()) {
             <span class="loading loading-spinner"></span>
             Salvando...
@@ -167,11 +171,14 @@ export class MedicalRecordFormComponent {
 
   private readonly fb = inject(FormBuilder);
   private readonly medicalRecordsService = inject(MedicalRecordsService);
+  private readonly medicalRecordDocumentsService = inject(MedicalRecordDocumentsService);
+  private readonly currentUserService = inject(CurrentUserService);
+  private readonly profilesService = inject(ProfilesService);
   private readonly alertService = inject(AlertService);
 
   form = this.fb.group({
-    mainIssue: ['', Validators.required],
-    anamnesis: ['', Validators.required],
+    mainIssue: ['', [Validators.required, Validators.minLength(1)]],
+    anamnesis: ['', [Validators.required, Validators.minLength(1)]],
     generalNotes: [''],
   });
 
@@ -179,15 +186,43 @@ export class MedicalRecordFormComponent {
   isDragging = signal(false);
   selectedFiles = signal<DocumentFile[]>([]);
   feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+  profileId = signal<string>('');
+  profileLoaded = signal(false);
 
   ngOnInit() {
+    this.loadProfileId();
     this.loadMedicalRecord();
+  }
+
+  private loadProfileId(): void {
+    const currentUser = this.currentUserService.current();
+    if (!currentUser) {
+      this.alertService.error('Usuário não autenticado');
+      this.profileLoaded.set(true);
+      return;
+    }
+
+    this.profilesService.getAll().subscribe({
+      next: (profiles) => {
+        const userProfile = profiles.find((p) => p.account.id === currentUser.id);
+        if (userProfile) {
+          this.profileId.set(userProfile.id);
+          this.profileLoaded.set(true);
+        } else {
+          this.alertService.error('Perfil do usuário não encontrado');
+          this.profileLoaded.set(true);
+        }
+      },
+      error: () => {
+        this.alertService.error('Erro ao carregar perfil do usuário');
+        this.profileLoaded.set(true);
+      },
+    });
   }
 
   private loadMedicalRecord(): void {
     this.medicalRecordsService.getByPatientId(this.patientId()).subscribe({
       next: (record) => {
-        // Check if record exists (could be single object or array based on API)
         if (record && typeof record === 'object') {
           let data: MedicalRecordData | undefined;
           if (Array.isArray(record) && record.length > 0) {
@@ -196,22 +231,17 @@ export class MedicalRecordFormComponent {
           } else if (!Array.isArray(record)) {
             data = record as unknown as MedicalRecordData;
           }
-          if (data) {
+          if (data && data.mainIssue) {
             this.form.patchValue({
-              mainIssue: data.mainIssue,
-              anamnesis:
-                typeof data.anamnesis === 'object' ? data.anamnesis?.historia : data.anamnesis,
-              generalNotes: data.generalNotes,
+              mainIssue: data.mainIssue || '',
+              anamnesis: typeof data.anamnesis === 'string' ? data.anamnesis : '',
+              generalNotes: data.generalNotes || '',
             });
           }
         }
       },
-      error: (error) => {
-        console.error('Erro ao carregar prontuário:', error);
-        this.alertService.error(
-          'Não foi possível carregar o prontuário. Por favor, tente novamente.'
-        );
-        this.feedback.set({ type: 'error', message: 'Não foi possível carregar o prontuário' });
+      error: () => {
+        // Silently fail if no medical record exists yet (new patient)
       },
     });
   }
@@ -272,29 +302,93 @@ export class MedicalRecordFormComponent {
   saveMedicalRecord(): void {
     if (!this.form.valid) return;
 
+    const profileId = this.profileId();
+    if (!profileId) {
+      this.alertService.error('ID do perfil não disponível. Tente recarregar a página.');
+      return;
+    }
+
     this.isLoading.set(true);
     const { mainIssue, anamnesis, generalNotes } = this.form.value;
 
+    const currentUser = this.currentUserService.current();
+    if (!currentUser) {
+      this.alertService.error('Usuário não autenticado');
+      this.isLoading.set(false);
+      return;
+    }
+
     const dto: CreateMedicalRecordDto = {
+      clinicId: currentUser.clinicId,
+      patientId: this.patientId(),
+      createdById: currentUser.id,
       mainIssue: mainIssue || '',
-      anamnesis: anamnesis || '',
-      generalNotes: generalNotes || '',
+      anamnesis: anamnesis ? { anamnesis: anamnesis } : {},
+      notes: generalNotes || '',
     };
 
-    // TODO: Adjust based on actual backend response
-    // For now, we'll treat this as a create operation
     this.medicalRecordsService.create(dto).subscribe({
-      next: () => {
-        this.alertService.success('Prontuário salvo com sucesso');
-        this.feedback.set({ type: 'success', message: 'Prontuário salvo com sucesso' });
-        this.selectedFiles.set([]);
-        this.isLoading.set(false);
+      next: (record) => {
+        if (this.selectedFiles().length > 0) {
+          this.uploadDocuments(record.id);
+        } else {
+          this.completeSuccess();
+        }
       },
-      error: () => {
-        this.alertService.error('Erro ao salvar prontuário');
-        this.feedback.set({ type: 'error', message: 'Erro ao salvar prontuário' });
+      error: (err: any) => {
+        const errorMessage =
+          err?.error?.message || err?.message || 'Erro desconhecido ao salvar prontuário';
+        this.alertService.error(`Erro ao salvar prontuário: ${errorMessage}`);
+        this.feedback.set({ type: 'error', message: `Erro ao salvar prontuário: ${errorMessage}` });
         this.isLoading.set(false);
       },
     });
+  }
+
+  private uploadDocuments(recordId: string): void {
+    const profileId = this.profileId();
+    if (!profileId) {
+      this.alertService.error('ID do perfil não disponível');
+      this.isLoading.set(false);
+      return;
+    }
+
+    const files = this.selectedFiles();
+    let uploadedCount = 0;
+    let hasError = false;
+
+    files.forEach((docFile) => {
+      this.medicalRecordDocumentsService
+        .uploadDocument(docFile.file, {
+          recordId,
+          profileId,
+        })
+        .subscribe({
+          next: () => {
+            uploadedCount++;
+            if (uploadedCount === files.length && !hasError) {
+              this.completeSuccess();
+            }
+          },
+          error: (err: any) => {
+            hasError = true;
+            const errorMessage = err?.error?.message || err?.message || 'Erro desconhecido';
+            this.alertService.error(`Erro ao enviar arquivo ${docFile.name}: ${errorMessage}`);
+            this.feedback.set({
+              type: 'error',
+              message: `Erro ao enviar arquivo ${docFile.name}: ${errorMessage}`,
+            });
+            this.isLoading.set(false);
+          },
+        });
+    });
+  }
+
+  private completeSuccess(): void {
+    this.alertService.success('Prontuário e documentos salvos com sucesso');
+    this.feedback.set({ type: 'success', message: 'Prontuário e documentos salvos com sucesso' });
+    this.selectedFiles.set([]);
+    this.form.reset();
+    this.isLoading.set(false);
   }
 }

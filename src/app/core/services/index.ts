@@ -6,6 +6,7 @@ export * from '@core/services/patients.service';
 export * from '@core/services/professionals.service';
 export * from '@core/services/appointments.service';
 export * from '@core/services/medical-records.service';
+export * from '@core/services/medical-record-documents.service';
 export * from '@core/services/evolutions.service';
 export * from '@core/services/documents.service';
 export * from '@core/services/prescriptions.service';

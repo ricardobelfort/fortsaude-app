@@ -92,8 +92,8 @@ export class DocumentsListComponent {
   }
 
   private loadDocuments(): void {
-    this.documentsService.getByPatientId(this.patientId()).subscribe({
-      next: (docs) => {
+    this.documentsService.getAll(this.patientId()).subscribe({
+      next: (docs: unknown) => {
         const mapped = (docs as unknown as Array<unknown>).map((doc: unknown) => {
           const d = doc as Record<string, unknown>;
           return {
@@ -107,8 +107,8 @@ export class DocumentsListComponent {
         });
         this.documents.set(mapped);
       },
-      error: (error) => {
-        console.error('Erro ao carregar documentos:', error);
+      error: (err: unknown) => {
+        console.error('Erro ao carregar documentos:', err);
         this.alertService.error(
           'Não foi possível carregar os documentos. Por favor, tente novamente.'
         );

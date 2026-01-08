@@ -259,7 +259,6 @@ export class LoginComponent {
           setTimeout(() => this.router.navigate(['/app/dashboard']), 500);
         },
         error: (error: unknown) => {
-          console.error('Login error:', error);
           const errorMessage = this.extractErrorMessage(error);
           this.errorHandler.showErrorToast(errorMessage);
         },

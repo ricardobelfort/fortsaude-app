@@ -261,21 +261,17 @@ export class AppointmentFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('🚀 [AppointmentForm] Inicializando componente');
     this.loadPatients();
     this.loadProfessionals();
     this.loadServiceTypes();
   }
 
   private loadPatients() {
-    console.log('📥 [AppointmentForm] Carregando pacientes...');
     this.patientsService.getAll().subscribe({
       next: (response: Patient[]) => {
-        console.log('✅ [AppointmentForm] Pacientes carregados:', response.length, 'registros');
         this.patients.set(response || []);
       },
       error: (error: HttpErrorResponse) => {
-        console.error('❌ [AppointmentForm] Erro ao carregar pacientes:', error);
         this.alertService.error('Erro ao carregar lista de pacientes');
       },
     });

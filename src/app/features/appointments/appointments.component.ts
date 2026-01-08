@@ -340,9 +340,7 @@ export class AppointmentsComponent implements OnInit {
   }
 
   openAppointmentForm(): void {
-    console.log('Abrindo formulário de agendamento');
     this.showAppointmentForm.set(true);
-    console.log('Estado do sinal:', this.showAppointmentForm());
     this.cdr.markForCheck();
   }
 

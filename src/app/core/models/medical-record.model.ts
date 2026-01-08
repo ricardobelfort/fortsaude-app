@@ -11,9 +11,12 @@ export interface MedicalRecord {
 }
 
 export interface CreateMedicalRecordDto {
+  clinicId: string;
+  patientId: string;
+  createdById: string;
   mainIssue: string;
-  anamnesis: string;
-  generalNotes?: string;
+  anamnesis: Record<string, unknown>;
+  notes?: string;
 }
 
 export interface UpdateMedicalRecordDto {

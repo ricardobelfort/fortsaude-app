@@ -312,7 +312,6 @@ export class ProfessionalFormComponent {
     const profileId = formValue.profile;
 
     if (!clinicId || !profileId) {
-      console.error('Clinic ID or Profile ID not found');
       return;
     }
 

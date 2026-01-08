@@ -5,6 +5,16 @@ import { Document } from '@core/models';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 
+export interface DocumentUploadParams {
+  clinicId: string;
+  patientId: string;
+  createdById: string;
+  type: 'EXAM' | 'REPORT' | 'CONTRACT' | 'OTHER';
+  name: string;
+  description?: string;
+  appointmentId?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -14,52 +24,65 @@ export class DocumentsService {
   private readonly baseUrl = `${environment.apiUrl}`;
   private readonly basePath = '/documents';
 
-  getByPatientId(patientId: string): Observable<Document[]> {
-    return this.api.get<Document[]>(this.basePath, { params: { patientId } });
+  /**
+   * Get all documents with optional filters
+   * Query params: patientId, clinicId
+   */
+  getAll(patientId?: string, clinicId?: string): Observable<Document[]> {
+    const params: Record<string, string> = {};
+    if (patientId) params['patientId'] = patientId;
+    if (clinicId) params['clinicId'] = clinicId;
+
+    return this.api.get<Document[]>(this.basePath, { params });
   }
 
+  /**
+   * Get document by ID
+   */
   getById(id: string): Observable<Document> {
     return this.api.get<Document>(`${this.basePath}/${id}`);
   }
 
-  upload(file: File, patientId: string, type: string): Observable<Document> {
+  /**
+   * Upload a new document
+   * Endpoint: POST /api/documents
+   * Body: multipart/form-data with file and parameters
+   * Note: All parameters are sent in form-data, NOT as query params
+   */
+  upload(file: File, params: DocumentUploadParams): Observable<Document> {
     const formData = new FormData();
+
+    // Add file
     formData.append('file', file);
-    formData.append('type', type);
-    formData.append('fileName', file.name);
-    formData.append('patientId', patientId);
+
+    // Add parameters as form fields
+    formData.append('clinicId', params.clinicId);
+    formData.append('patientId', params.patientId);
+    formData.append('createdById', params.createdById);
+    formData.append('type', params.type);
+    formData.append('name', params.name);
+
+    if (params.description) {
+      formData.append('description', params.description);
+    }
+    if (params.appointmentId) {
+      formData.append('appointmentId', params.appointmentId);
+    }
 
     return this.http.post<Document>(`${this.baseUrl}${this.basePath}`, formData);
   }
 
   /**
-   * Assina um documento digitalmente
-   * Usado para conformidade com órgãos reguladores
-   * @param id ID do documento
-   * @param signature Dados da assinatura digital
+   * Delete document by ID
    */
-  sign(
-    id: string,
-    signature: {
-      signatureId: string;
-      certificateId: string;
-      algorithm: 'SHA256' | 'SHA512';
-    }
-  ): Observable<Document> {
-    return this.api.post<Document>(`${this.basePath}/${id}/sign`, signature);
-  }
-
-  /**
-   * Obtém a assinatura de um documento
-   */
-  getSignature(id: string): Observable<Record<string, unknown>> {
-    return this.api.get<Record<string, unknown>>(`${this.basePath}/${id}/signature`);
-  }
-
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`${this.basePath}/${id}`);
   }
 
+  /**
+   * Download document by ID
+   * Endpoint: GET /api/documents/{id}/download
+   */
   download(id: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}${this.basePath}/${id}/download`, {
       responseType: 'blob',
